@@ -1,0 +1,81 @@
+/* 样式初始化 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    color: #000;
+    font-size: 14px;
+    overflow: hidden;
+    -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    font-family: "Microsoft YaHei", 微软雅黑, sans-serif;
+}
+
+/*滚动条整体*/
+body ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    -webkit-appearance: none;
+}
+
+/*滚动槽*/
+body ::-webkit-scrollbar-track {
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+/*滚动条*/
+body ::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.1);
+}
+
+/*滚动条*/
+body ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+a {
+    text-decoration: none;
+    outline: none;
+}
+
+
+.color-info {
+    color: #909399;
+}
+
+.color-success {
+    color: #67c23a;
+}
+
+.color-warning {
+    color: #e6a23c;
+}
+
+.color-danger {
+    color: #f56c6c;
+}
+
+/**
+ * 滚动条隐藏
+ */
+.scroll-hide {
+    overflow: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.scroll-hide::-webkit-scrollbar {
+    display: none;
+}
+
+.scroll-auto {
+    overflow: auto;
+}

@@ -1,0 +1,61 @@
+.siyi.mobile.default {
+    --mobileTabBar-border-top: 1px solid #c9d0da;
+    --mobileTabBar-background-color: #f3f4f7;
+    --mobileTabBar-color: #000;
+    --mobileTabBar-hover-color: #006EFF;
+
+    --right-background-color: #fff;
+
+    --module-background-color: #f3f4f7;
+    --module-font-color: #000;
+    --module-icon-color: #000;
+
+    --module-hover-background-color: #fff;
+    --module-hover-icon-color: #006EFF;
+    --module-hover-font-color: #006EFF;
+
+    --nav-background-color: #fff;
+    --nav-icon-background-color: #006EFF;
+    --nav-icon-color: #FFF;
+    --nav-font-color: #000;
+
+    --nav-authno-icon-background-color: #6f6f6f;
+    --nav-authno-icon-color: #d8d8d8;
+    --nav-authno-font-color: #6f6f6f;
+}
+
+
+
+:root {
+    --td-tab-item-height: 36px;
+}
+
+.t-cell {
+    overflow: unset;
+    .t-cell__title-text {
+        min-width: 64px;
+    }
+}
+
+/**
+ 滚动条样式统一调整
+ */
+.scrollbar {
+    /* Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: #dcdcdc #f1f1f1;
+    overflow: auto;
+}
+
+/* WebKit */
+.scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+.scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+.scrollbar::-webkit-scrollbar-thumb {
+    background-color: #dcdcdc;
+    border-radius: 4px;
+}

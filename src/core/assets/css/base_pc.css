@@ -1,0 +1,314 @@
+:root {
+    --vxe-ui-font-family: "Microsoft YaHei";
+    --vxe-ui-font-color: #000;
+    --vxe-ui-table-header-font-color: #3F3F3F;
+    --vxe-ui-table-border-color: #E1E1E1;
+    --vxe-ui-base-border-radius: 3px;
+    --vxe-ui-table-header-background-color: #f8f8f9;
+}
+
+/*夜晚模式*/
+.siyi.pc.default {
+    --logo-background-color: #30364d;
+    --module-background-color: #30364d;
+    --user-background-color: #30364d;
+
+    --logo-border-right: 1px solid #282c3c;
+    --logo-border-bottom: 1px solid #282c3c;
+    --module-border-bottom: 0 none;
+    --user-border-bottom: 0 none;
+    --search-border-bottom: 1px solid #282c3c;
+    --left-border-right: 0 none;
+
+    --logo-font-color: #fff;
+    --module-font-color: #fff;
+    --module-icon-color: #fff;
+    --user-font-color: #fff;
+
+    --module-hover-background-color: #35a1fd;
+    --module-hover-icon-color: #fff;
+    --module-hover-font-color: #fff;
+    --user-hover-font-color: #35a1fd;
+
+    --search-background-color: #3a415a;
+    --nav-background-color: #30364d;
+
+    --search-font-color: #fff;
+    --nav-icon-color: #35a1fd;
+    --nav-font-color: #fff;
+    --nav-close-color: #fff;
+    --nav-gitbranch-color: #fff;
+
+    --nav-activehover-background-color: #35a1fd;
+    --nav-activehover-icon-color: #fff;
+    --nav-activehover-font-color: #fff;
+    --nav-activehover-close-color: #fff;
+    --nav-activehover-gitbranch-color: #fff;
+    --nav-activehover-favorites-color: #fff;
+
+    --nav-authno-icon-color: #6f6f6f;
+    --nav-authno-font-color: #6f6f6f;
+    --nav-authno-close-color: #6f6f6f;
+    --nav-authno-gitbranch-color: #6f6f6f;
+    --nav-authno-favorites-color: #6f6f6f;
+
+    --nav-authnohover-background-color: #3a415a;
+
+    --time-background-color: #3a415a;
+    --time-font-color: #cacaca;
+
+    --right-background-color: #fff;
+}
+
+/*白天模式*/
+.siyi.pc.bright {
+    --logo-background-color: #e8e8e8;
+    --module-background-color: #e8e8e8;
+    --user-background-color: #eaeaea;
+
+    --logo-border-right: 1px solid #dedede;
+    --logo-border-bottom: 1px solid #dedede;
+    --module-border-bottom: 0 none;
+    --user-border-bottom: 0 none;
+    --left-border-right: 1px solid #dedede;
+    --search-border-bottom: 1px solid #dedede;
+
+    --logo-font-color: #201e1b;
+    --module-font-color: #201e1b;
+    --module-icon-color: #201e1b;
+    --user-font-color: #3f3f3f;
+
+    --module-hover-background-color: #f8f8f9;
+    --module-hover-icon-color: #35a1fd;
+    --module-hover-font-color: #35a1fd;
+    --user-hover-font-color: #35a1fd;
+
+    --search-background-color: #f1f1f1;
+    --nav-background-color: #f1f1f1;
+
+    --search-font-color: #201e1b;
+    --nav-icon-color: #35a1fd;
+    --nav-font-color: #201e1b;
+    --nav-close-color: #201e1b;
+    --nav-gitbranch-color: #201e1b;
+
+    --nav-activehover-background-color: #35a1fd;
+    --nav-activehover-icon-color: #fff;
+    --nav-activehover-font-color: #fff;
+    --nav-activehover-close-color: #fff;
+    --nav-activehover-gitbranch-color: #fff;
+    --nav-activehover-favorites-color: #fff;
+
+    --nav-authno-icon-color: #b1b1b1;
+    --nav-authno-font-color: #b1b1b1;
+    --nav-authno-close-color: #b1b1b1;
+    --nav-authno-gitbranch-color: #b1b1b1;
+    --nav-authno-favorites-color: #b1b1b1;
+
+    --nav-authnohover-background-color: #e1e1e1;
+
+    --time-background-color: #e8e8e8;
+    --time-font-color: #201e1b;
+
+    --right-background-color: #fff;
+}
+
+
+.vxe-toolbar {
+    &.size--mini {
+        line-height: 32px !important;
+    }
+
+    padding: 0;
+    background-color: var(--vxe-ui-table-header-background-color);
+    height: unset;
+
+    .vxe-tools--operate button {
+        height: var(--vxe-ui-button-height-default) !important;
+        min-width: var(--vxe-ui-button-height-default) !important;
+    }
+}
+
+.iframe_full {
+    width: 100%;
+    height: 100%;
+}
+
+
+.t-tag-input:hover .t-input__inner:not(.t-input--soft-hidden),
+.t-tag-input .t-input--focused .t-input__inner:not(.t-input--soft-hidden) {
+    min-width: unset;
+}
+
+/*去除input number中的控制箭头 */
+
+input[type="number"] {
+    -moz-appearance: textfield;
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+
+.vxe-grid.is--maximize {
+    padding: 0;
+}
+
+.vxe-toolbar {
+    height: unset;
+    padding: 0.15em;
+    background-color: var(--vxe-ui-table-header-background-color);
+
+    .vxe-select, .vxe-input {
+        margin-right: 2px;
+    }
+
+    .vxe-button.type--button:not(.is--circle) {
+        padding: 0 0.5em;
+    }
+}
+
+.vxe-modal--wrapper .vxe-modal--header-title {
+    padding: 0.4em 0 0.4em 0.4em;
+}
+
+.vxe-form .vxe-form--item {
+    /*padding: .5em 0 .5em 0;*/
+}
+
+.vxe-input .vxe-input--inner[disabled], .vxe-radio.is--disabled {
+    --vxe-ui-font-disabled-color: #909399; /* 覆盖主色变量 */
+}
+
+.t-input-adornment .t-range-input {
+    border-radius: 0 3px 3px 0;
+}
+
+.vxe-textarea--readonly {
+    border: 1px solid var(--vxe-ui-input-border-color);;
+    border-radius: var(--td-radius-default);
+    padding: 5px;
+    width: 100%;
+    min-height: var(--vxe-ui-input-height-mini);
+}
+
+.vxe-input--prefix, .vxe-input--suffix, .vxe-number-input--suffix {
+    border-radius: var(--vxe-ui-base-border-radius);
+}
+
+
+.t-input-number--column.VtableFilter-range-number {
+    > .t-input__wrap {
+        > .t-input {
+            border-radius: 0;
+        }
+    }
+}
+
+.vxe-input--inner {
+    text-align: unset;
+}
+
+.vxe-select {
+    vertical-align: middle;
+}
+
+/*测试*/
+
+.siyi.pc[theme='black'] {
+    --right-background-color: #000;
+}
+
+
+.t-select__dropdown-inner--size-m {
+    line-height: var(--td-comp-size-m);
+}
+
+.t-date-picker__presets {
+    gap: 1px;
+}
+
+.t-image-viewer__modal-image {
+    background-color: #fff;
+}
+
+.tdesign-demo-image-viewer__ui-image {
+    width: 100%;
+    height: 100%;
+    display: inline-flex;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    border-radius: var(--td-radius-small);
+    overflow: hidden;
+}
+
+.tdesign-demo-image-viewer__ui-image--hover {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    color: var(--td-text-color-anti);
+    line-height: 22px;
+    transition: 0.2s;
+}
+
+.tdesign-demo-image-viewer__ui-image:hover .tdesign-demo-image-viewer__ui-image--hover {
+    opacity: 1;
+    cursor: pointer;
+}
+
+.tdesign-demo-image-viewer__ui-image--img {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+    cursor: pointer;
+    position: absolute;
+}
+
+.tdesign-demo-image-viewer__ui-image--footer {
+    padding: 0 16px;
+    height: 56px;
+    width: 100%;
+    line-height: 56px;
+    font-size: 16px;
+    position: absolute;
+    bottom: 0;
+    color: var(--td-text-color-anti);
+    background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 100%);
+    display: flex;
+    box-sizing: border-box;
+}
+
+.tdesign-demo-image-viewer__ui-image--title {
+    flex: 1;
+}
+
+.tdesign-demo-popup__reference {
+    margin-left: 16px;
+}
+
+.tdesign-demo-image-viewer__ui-image--icons .tdesign-demo-icon {
+    cursor: pointer;
+}
+
+.tdesign-demo-image-viewer__base {
+    width: 160px;
+    height: 160px;
+    margin: 10px;
+    border: 4px solid var(--td-bg-color-secondarycontainer);
+    border-radius: var(--td-radius-medium);
+}
+

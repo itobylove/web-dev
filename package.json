@@ -1,0 +1,53 @@
+{
+  "name": "siyi",
+  "private": true,
+  "version": "0.1.2",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build --emptyOutDir && node ./src/utils/build.js",
+    "version": "node ./src/utils/build.js",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@visactor/vtable": "^1.22.10",
+    "@visactor/vtable-editors": "^1.22.10",
+    "@visactor/vtable-plugins": "^1.22.10",
+    "@wecom/jssdk": "^2.3.1",
+    "axios": "^1.13.2",
+    "core-js": "^3.45.0",
+    "dayjs": "^1.11.19",
+    "dragula": "^3.7.3",
+    "echarts": "^6.0.0",
+    "exceljs": "^4.4.0",
+    "file-saver": "^2.0.5",
+    "frappe-gantt": "^1.0.3",
+    "jquery": "^3.7.1",
+    "jsbarcode": "^3.12.1",
+    "jspdf": "^3.0.1",
+    "jszip": "^3.10.1",
+    "lodash": "^4.17.21",
+    "pdfjs-dist": "^5.4.54",
+    "pinyin-pro": "^3.27.0",
+    "qrcode": "^1.5.4",
+    "remixicon": "^4.6.0",
+    "sortablejs": "^1.15.6",
+    "spinkit": "^2.0.1",
+    "tdesign-mobile-vue": "^1.12.1",
+    "tdesign-vue-next": "^1.17.7",
+    "tesseract.js": "^6.0.1",
+    "ua-parser-js": "^2.0.4",
+    "vue": "^3.5.26",
+    "vxe-pc-ui": "v4-latest",
+    "vxe-table": "v4-latest",
+    "vxe-table-plugin-export-pdf": "latest",
+    "vxe-table-plugin-export-xlsx": "latest",
+    "xe-utils": "^3.7.8"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.3",
+    "archiver": "^7.0.1",
+    "less": "^4.5.1",
+    "vite": "7.3.0"
+  }
+}

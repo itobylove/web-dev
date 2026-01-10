@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SourceMap 查看工具</title>
+    <script src="https://unpkg.com/jquery@3.4.1/dist/jquery.js"></script>
+    <script src="https://unpkg.com/source-map@0.7.3/dist/source-map.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-jsx.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-typescript.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-tsx.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/typescript.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --background-color: #f8f9fa;
+            --border-color: #dee2e6;
+            --text-color: #2c3e50;
+        }
+
+        body {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.4;
+        }
+
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin: 0 0 20px 0;
+            font-weight: 500;
+            font-size: 24px;
+        }
+
+        .form-container {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 4px;
+            color: var(--text-color);
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        button[type="submit"] {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        button[type="submit"]:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .error {
+            color: #e74c3c;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #fdf0ed;
+            border-radius: 4px;
+            border-left: 4px solid #e74c3c;
+        }
+
+        #result {
+            width: 100%;
+            margin-top: 15px;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        #result th, #result td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 13px;
+        }
+
+        #result th {
+            background-color: #f8f9fa;
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        #result tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        #sourcePreview {
+            margin-top: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-size: 14px;
+            line-height: 1.5;
+            overflow: hidden;
+        }
+
+        #sourcePreview pre {
+            margin: 0;
+            padding: 20px;
+            position: relative;
+            background-color: #ffffff;
+            line-height: 1;
+        }
+
+        #sourcePreview code {
+            font-family: 'Fira Code', 'Consolas', monospace;
+            tab-size: 4;
+            font-size: 13px;
+            line-height: 1;
+            display: block;
+            background: none !important;
+            padding: 0 !important;
+        }
+
+        .line {
+            display: block;
+            position: relative;
+            min-height: 1em;
+            padding: 2px 0;
+            margin: 0;
+            line-height: 1;
+            white-space: pre;
+        }
+
+        .source-header {
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-color);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .line-highlight {
+            background: #fff0c1 !important;
+            position: relative;
+            display: block;
+            width: 100%;
+            margin: 0 -20px;
+            padding: 0 20px;
+            border-left: 3px solid #f59e0b;
+        }
+
+        .line-highlight .line-content {
+            position: relative;
+            background: #fff0c1 !important;
+            display: inline-block;
+            width: calc(100% + 40px);
+            margin: 0 -20px;
+            padding: 0 20px;
+        }
+
+        .line-highlight .line-number {
+            color: #f59e0b !important;
+            font-weight: bold;
+            border-right-color: #f59e0b;
+        }
+
+        .line-highlight .hljs-keyword,
+        .line-highlight .hljs-string,
+        .line-highlight .hljs-number,
+        .line-highlight .hljs-built_in,
+        .line-highlight .hljs-function,
+        .line-highlight .hljs-params,
+        .line-highlight .hljs-comment,
+        .line-highlight .hljs-title,
+        .line-highlight .hljs-attr,
+        .line-highlight .hljs-literal {
+            color: inherit;
+            font-weight: 600;
+        }
+
+        .line-highlight::before {
+            content: "►";
+            color: #f59e0b;
+            position: absolute;
+            left: 5px;
+            font-size: 10px;
+            line-height: 1;
+        }
+
+        .line-highlight:hover {
+            background: #ffe69c !important;
+        }
+
+        .line-highlight:hover .line-content {
+            background: #ffe69c !important;
+        }
+
+        .line-number {
+            user-select: none;
+            color: #999;
+            display: inline-block;
+            width: 5em;
+            padding-right: 1em;
+            margin-right: 2em;
+            text-align: right;
+            border-right: 1px solid #ddd;
+            line-height: 1;
+            vertical-align: top;
+            position: relative;
+            top: 1px;
+        }
+
+        .line-content {
+            display: inline-block;
+            vertical-align: top;
+            line-height: 1;
+            padding-left: 1em;
+            position: relative;
+            top: 1px;
+        }
+
+        .line-highlight .hljs-keyword,
+        .line-highlight .hljs-string,
+        .line-highlight .hljs-number,
+        .line-highlight .hljs-built_in,
+        .line-highlight .hljs-function,
+        .line-highlight .hljs-params {
+            color: inherit !important;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .form-container {
+                padding: 15px;
+            }
+        }
+
+        /* 参数说明区域样式 */
+        .help-section {
+            margin-top: 20px;
+            padding: 15px 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .help-section h2 {
+            color: var(--primary-color);
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        .help-content {
+            color: var(--text-color);
+        }
+
+        .help-content h3 {
+            font-size: 16px;
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+
+        .param-group {
+            margin-bottom: 15px;
+        }
+
+        .param-group h4 {
+            font-size: 14px;
+            margin: 0 0 8px 0;
+            color: #34495e;
+        }
+
+        .param-group pre {
+            background: #f8f9fa;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin: 8px 0;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 12px;
+        }
+
+        .param-group code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 13px;
+        }
+
+        .param-group ul {
+            list-style: none;
+            padding: 0;
+            margin: 10px 0;
+        }
+
+        .param-group li {
+            margin: 3px 0;
+            line-height: 1.4;
+            font-size: 13px;
+        }
+
+        @media (max-width: 768px) {
+            .help-section {
+                padding: 15px;
+                margin-top: 20px;
+            }
+        }
+
+        /* Basic Auth 认证区域样式 */
+        .auth-section {
+            border-top: 1px solid var(--border-color);
+            padding-top: 10px;
+        }
+
+        .auth-section summary {
+            font-size: 13px;
+            font-weight: 500;
+            outline: none;
+        }
+
+        .auth-section summary:hover {
+            color: var(--secondary-color);
+        }
+
+        .auth-section details[open] summary {
+            margin-bottom: 15px;
+        }
+    </style>
+    <script>
+        sourceMap.SourceMapConsumer.initialize({
+            "lib/mappings.wasm": "https://unpkg.com/source-map@0.7.3/lib/mappings.wasm"
+        });
+    </script>
+</head>
+<body>
+    <h1>SourceMap 查看工具</h1>
+    <div class="form-container">
+        <form id="myForm">
+            <div class="form-group">
+                <label for="jsFile">JS文件路径</label>
+                <input id="jsFile" name="jsFile" placeholder="例如: /dist/app.js">
+            </div>
+            <div class="form-group">
+                <label for="line-column">行:列号</label>
+                <input id="line-column" name="line-column" placeholder="例如: 1:100">
+            </div>
+            <div class="form-group">
+                <label for="sourceMapFile">SourceMap文件URL</label>
+                <input id="sourceMapFile" name="sourceMapFile" placeholder="例如: /dist/app.js.map">
+            </div>
+            <div class="auth-section" style="margin-top: 10px;">
+                <details>
+                    <summary style="cursor: pointer; color: var(--primary-color); margin-bottom: 10px;">Basic Auth 认证（可选）</summary>
+                    <div class="form-group">
+                        <label for="username">用户名</label>
+                        <input id="username" name="username" type="text">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">密码</label>
+                        <input id="password" name="password" type="password">
+                    </div>
+                </details>
+            </div>
+            <button type="submit" name="submit">查找源码位置</button>
+        </form>
+    </div>
+    <div id="error" class="error" style="display: none;"></div>
+    <table id="result" border="0" cellspacing="0" cellpadding="10">
+        <tr>
+            <th>压缩位置</th>
+            <th>==></th>
+            <th>源文件</th>
+            <th>行号</th>
+            <th>列号</th>
+            <th>变量名</th>
+        </tr>
+    </table>
+    <div id="sourcePreview"></div>
+
+    <div class="help-section">
+        <h2>使用说明</h2>
+        <div class="help-content">
+            <h3>URL 参数支持</h3>
+            <div class="param-group">
+                <h4>方式一：分开参数</h4>
+                <pre><code>?js=/path/to/file.js&pos=1:100</code></pre>
+                <ul>
+                    <li><code>js</code>: JS文件路径</li>
+                    <li><code>pos</code>: 行号:列号</li>
+                </ul>
+            </div>
+            <div class="param-group">
+                <h4>方式二：混合参数</h4>
+                <pre><code>?p=/path/to/file.js:1:100</code></pre>
+                <ul>
+                    <li><code>p</code>: 文件路径:行号:列号</li>
+                </ul>
+            </div>
+            <div class="param-group">
+                <h4>示例</h4>
+                <ul>
+                    <li>完整格式：<code>?p=/assets/index-xK3V9VFZ.js:557:2232</code></li>
+                    <li>简单格式：<code>?p=/assets/app.js:60</code> (自动设置行号为1)</li>
+                    <li>分开参数：<code>?js=/dist/app.js&pos=1:100</code></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(function () {
+            const form = $('#myForm');
+            const errorDiv = $('#error');
+            const sourcePreview = $('#sourcePreview');
+            const resultTable = $('#result');
+
+            // 工具函数：显示错误信息
+            function showError(message) {
+                errorDiv.text(message).fadeIn();
+            }
+
+            // 工具函数：解析行列号
+            function parseLineColumn(input) {
+                if (!input || !input.includes(':')) {
+                    throw new Error('请输入正确的行:列号格式');
+                }
+                const [line, column] = input.split(':');
+                if (isNaN(line) || isNaN(column)) {
+                    throw new Error('行号和列号必须是数字');
+                }
+                return { line: +line, column: +column };
+            }
+
+            // 工具函数：获取认证头
+            function getAuthHeaders() {
+                const username = $('#username').val();
+                const password = $('#password').val();
+                const headers = new Headers();
+                
+                if (username && password) {
+                    headers.append('Authorization', `Basic ${btoa(`${username}:${password}`)}`);
+                }
+                return headers;
+            }
+
+            // 工具函数：生成代码行HTML
+            function generateCodeLineHtml(line, lineNum, isHighlight) {
+                const escapedLine = line
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
+                
+                const lineClass = isHighlight ? 'line-highlight' : '';
+                return `<span class="line ${lineClass}">` +
+                    `<span class="line-number">${lineNum}</span>` +
+                    `<span class="line-content">${escapedLine}</span>\n</span>`;
+            }
+
+            // 从 URL 参数自动填充表单
+            function fillFormFromUrl() {
+                const urlParams = new URLSearchParams(window.location.search);
+                let jsFile = urlParams.get('js');
+                let lineColumn = urlParams.get('pos');
+                
+                // 处理混合参数格式
+                const mixedParam = urlParams.get('p');
+                if (mixedParam) {
+                    const lastColonIndex = mixedParam.lastIndexOf(':');
+                    
+                    if (lastColonIndex > -1) {
+                        // 检查是否有第二个冒号
+                        const beforeLastColon = mixedParam.substring(0, lastColonIndex);
+                        const secondLastColonIndex = beforeLastColon.lastIndexOf(':');
+                        
+                        if (secondLastColonIndex > -1) {
+                            // 有两个冒号的情况: file:line:column
+                            jsFile = mixedParam.substring(0, secondLastColonIndex);
+                            lineColumn = mixedParam.substring(secondLastColonIndex + 1);
+                        } else {
+                            // 只有一个冒号的情况: file:position
+                            jsFile = mixedParam.substring(0, lastColonIndex);
+                            const position = mixedParam.substring(lastColonIndex + 1);
+                            // 将位置数字转换为行列格式
+                            lineColumn = "1:" + position;
+                        }
+                    }
+                }
+
+                if (jsFile) {
+                    $('#jsFile').val(jsFile);
+                    // 设置 sourcemap URL
+                    $('#sourceMapFile').val(jsFile + '.map');
+                }
+                
+                if (lineColumn) {
+                    $('#line-column').val(lineColumn);
+                    // 如果同时有文件路径和行列号，自动提交表单
+                    if (jsFile) {
+                        // 确保所有值都已设置完成后再提交
+                        setTimeout(() => {
+                            if ($('#jsFile').val() && $('#line-column').val() && $('#sourceMapFile').val()) {
+                                form.submit();
+                            }
+                        }, 100);
+                    }
+                }
+            }
+
+            // 页面加载时填充表单
+            fillFormFromUrl();
+
+            // 使用事件委托优化文件路径输入监听
+            $(document).on('input', '#jsFile', function() {
+                const jsPath = this.value;
+                if (jsPath) {
+                    $('#sourceMapFile').val(jsPath + '.map');
+                }
+            });
+
+            // 处理表单提交
+            form.on('submit', async function (e) {
+                e.preventDefault();
+                errorDiv.hide();
+                sourcePreview.empty();
+
+                try {
+                    const formData = Object.fromEntries(new FormData(this));
+                    const { line, column } = parseLineColumn(formData['line-column']);
+                    
+                    if (!formData.sourceMapFile) {
+                        throw new Error('请输入 SourceMap 文件URL');
+                    }
+
+                    // 获取认证信息
+                    const headers = getAuthHeaders();
+
+                    // 获取 sourcemap 文件内容
+                    try {
+                        const response = await fetch(formData.sourceMapFile, { headers });
+                        if (response.status === 401) {
+                            throw new Error('需要认证：请提供正确的用户名和密码');
+                        }
+                        if (!response.ok) {
+                            throw new Error('无法加载 SourceMap 文件');
+                        }
+                        const rawSourceMap = await response.text();
+                        
+                        // 检查并解析 sourcemap
+                        let sourceMapData;
+                        try {
+                            if (rawSourceMap.trim().startsWith('<!DOCTYPE') || rawSourceMap.trim().startsWith('<html')) {
+                                throw new Error('服务器返回了 HTML 页面而不是 SourceMap 文件，可能原因：\n' +
+                                    '1. SourceMap 文件不存在\n' +
+                                    '2. 服务器返回了 404 页面\n' +
+                                    '3. 需要登录或认证');
+                            }
+                            sourceMapData = JSON.parse(rawSourceMap);
+                            if (!sourceMapData.version || !sourceMapData.mappings) {
+                                throw new Error('无效的 SourceMap 文件格式');
+                            }
+                        } catch (e) {
+                            if (e.message.includes('HTML')) {
+                                throw e;
+                            }
+                            throw new Error('SourceMap 文件格式错误：' + e.message);
+                        }
+                        
+                        // 查找源码位置
+                        await sourceMap.SourceMapConsumer.with(sourceMapData, null, async consumer => {
+                            let result = consumer.originalPositionFor({
+                                line: +line,
+                                column: +column
+                            });
+
+                            if (!result.source) {
+                                // 尝试在附近位置查找
+                                for (let colOffset = 1; colOffset <= 10; colOffset++) {
+                                    // 向前查找
+                                    let nearbyResult = consumer.originalPositionFor({
+                                        line: +line,
+                                        column: +column - colOffset
+                                    });
+                                    
+                                    if (nearbyResult.source) {
+                                        result = nearbyResult;
+                                        showError(`注意：在列号 ${column - colOffset} 处找到最接近的映射`);
+                                        break;
+                                    }
+                                    
+                                    // 向后查找
+                                    nearbyResult = consumer.originalPositionFor({
+                                        line: +line,
+                                        column: +column + colOffset
+                                    });
+                                    
+                                    if (nearbyResult.source) {
+                                        result = nearbyResult;
+                                        showError(`注意：在列号 ${column + colOffset} 处找到最接近的映射`);
+                                        break;
+                                    }
+                                }
+                                
+                                if (!result.source) {
+                                    // 尝试查找同一行的所有映射
+                                    const mappings = [];
+                                    consumer.eachMapping(mapping => {
+                                        if (mapping.generatedLine === +line) {
+                                            mappings.push(mapping);
+                                        }
+                                    });
+                                    
+                                    if (mappings.length > 0) {
+                                        throw new Error(`未找到精确位置，但在第 ${line} 行找到了 ${mappings.length} 个映射点。\n` +
+                                            `可用的列号：${mappings.map(m => m.generatedColumn).join(', ')}`);
+                                    } else {
+                                        throw new Error(`未找到对应的源码位置。\n` +
+                                            `1. 确认行号 ${line} 是否正确\n` +
+                                            `2. 确认 SourceMap 文件与压缩后的 JS 文件匹配\n` +
+                                            `3. 检查 SourceMap 文件是否完整`);
+                                    }
+                                }
+                            }
+
+                            // 添加结果到表格
+                            resultTable.append($(`
+                                <tr>
+                                    <td>${line}:${column}</td>
+                                    <td> ==> </td>
+                                    <td>${result.source}</td>
+                                    <td>${result.line}</td>
+                                    <td>${result.column}</td>
+                                    <td>${result.name || '-'}</td>
+                                </tr>
+                            `));
+
+                            // 获取源代码内容并显示预览
+                            const sourceContent = consumer.sourceContentFor(result.source);
+                            if (sourceContent) {
+                                const lines = sourceContent.split('\n');
+                                const startLine = Math.max(1, result.line - 10);
+                                const endLine = Math.min(lines.length, result.line + 10);
+                                
+                                // 创建源码预览区域的 HTML
+                                let previewHtml = `<div class="source-header">
+                                    // ${result.source}
+                                    <br>// 显示第 ${startLine} 到 ${endLine} 行，目标位置: ${result.line} 行
+                                </div>`;
+                                
+                                // 提取需要显示的代码片段
+                                const codeLines = lines.slice(startLine - 1, endLine);
+                                const lineNumWidth = String(endLine).length;
+                                
+                                // 生成代码 HTML
+                                let codeHtml = '';
+                                codeLines.forEach((line, index) => {
+                                    const currentLine = startLine + index;
+                                    const lineNum = String(currentLine).padStart(lineNumWidth, ' ');
+                                    const isHighlight = currentLine === result.line;
+                                    const lineClass = isHighlight ? 'line-highlight' : '';
+                                    const escapedLine = line
+                                        .replace(/&/g, '&amp;')
+                                        .replace(/</g, '&lt;')
+                                        .replace(/>/g, '&gt;');
+                                    
+                                    if (isHighlight) {
+                                        codeHtml += generateCodeLineHtml(escapedLine, lineNum, isHighlight);
+                                    } else {
+                                        codeHtml += generateCodeLineHtml(escapedLine, lineNum, isHighlight);
+                                    }
+                                });
+                                
+                                // 添加代码到预览区域
+                                previewHtml += `<pre><code class="javascript">${codeHtml}</code></pre>`;
+                                sourcePreview.html(previewHtml);
+                                
+                                // 使用 highlight.js 进行语法高亮
+                                hljs.highlightElement($('#sourcePreview code')[0]);
+                                
+                                // 确保高亮行可见
+                                setTimeout(() => {
+                                    const highlightLine = document.querySelector('.line-highlight');
+                                    if (highlightLine) {
+                                        highlightLine.scrollIntoView({
+                                            behavior: 'smooth',
+                                            block: 'center'
+                                        });
+                                    }
+                                }, 100);
+                            }
+                        });
+
+                    } catch (err) {
+                        showError(err.message);
+                    }
+
+                } catch (err) {
+                    showError(err.message);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
