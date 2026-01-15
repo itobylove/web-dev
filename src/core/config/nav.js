@@ -50,6 +50,7 @@ export const components = {
     user_sns: reg({loader: () => import('@/modules/system/sns.v250916.vue'), loadingComponent, errorComponent}),
     dept_position: reg({loader: () => import('@/modules/system/dept_position.v250820.vue'), loadingComponent, errorComponent}),
     auth_item: reg({loader: () => import('@/modules/system/auth_item.v241204.vue'), loadingComponent, errorComponent}),
+    auth_item_lists: reg({loader: () => import('@/modules/system/auth_item_lists.vue'), loadingComponent, errorComponent}),
     log_list: reg({loader: () => import('@/modules/system/log.v241019.vue'), loadingComponent, errorComponent}),
     cache_list: reg({loader: () => import('@/modules/system/cache.v251014.vue'), loadingComponent, errorComponent}),
     dev_test: reg({loader: () => import('@/modules/system/test.vue'), loadingComponent, errorComponent}),
@@ -73,6 +74,7 @@ export const components = {
     job_test_bench: reg({loader: () => import('@/modules/asset/testBench.v250510.vue'), loadingComponent, errorComponent}),
     cost_config: reg({loader: () => import('@/modules/cost/config.v251125.vue'), loadingComponent, errorComponent}),
     cost_index: reg({loader: () => import('@/modules/cost/index.v251125.vue'), loadingComponent, errorComponent}),
+    siyi_job: reg({loader: () => import('@/modules/cost/job.v260109.vue'), loadingComponent, errorComponent}),
     visitor: reg({loader: () => import('@/modules/visitor/index.v250622.vue'), loadingComponent, errorComponent}),
     visitor_mobile: reg({loader: () => import('@/modules/visitor/index.v250622.vue'), loadingComponent, errorComponent}),
     checkin_mobile: reg({loader: () => import('@/modules/visitor/checkin.v250711.vue'), loadingComponent, errorComponent}),
@@ -95,6 +97,7 @@ export const components = {
     sys_process: reg({loader: () => import('@/modules/system/step_equipment/process.vue'), loadingComponent, errorComponent}),
     sys_process_mobile: reg({loader: () => import('@/modules/system/step_equipment/process.vue'), loadingComponent, errorComponent}),
     sys_station: reg({loader: () => import('@/modules/system/step_equipment/station.vue'), loadingComponent, errorComponent}),
+
     sys_employee: reg({loader: () => import('@/modules/system/employee.vue'), loadingComponent, errorComponent}),
     sys_employee_mobile: reg({loader: () => import('@/modules/system/employee.vue'), loadingComponent, errorComponent}),
     sys_supplier: reg({loader: () => import('@/modules/system/supplier.vue'), loadingComponent, errorComponent}),
@@ -2918,6 +2921,12 @@ export const nav = ref([
                 query: {},
                 title: '参数取值规则',
             },
+            {
+                id: 'siyi_job',
+                icon:'ri-community-line',
+                query: {},
+                title: '虚拟MI',
+            },
         ]
     },
     {
@@ -2933,6 +2942,11 @@ export const nav = ref([
             },
             {
                 id: 'auth_item',
+                icon:'ri-shield-keyhole-line',
+                title: '权限管理',
+            },
+            {
+                id: 'auth_item_lists',
                 icon:'ri-shield-keyhole-line',
                 title: '权限管理',
             },

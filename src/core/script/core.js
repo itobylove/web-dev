@@ -567,9 +567,124 @@ export const data = {
                 }
             )
         )
+    },
+    /**
+     * 提取批定列（返回新数组） 性能优化版本，适合大数据集
+     * @param data
+     * @param columns
+     * @returns {*}
+     */
+    filterColumns(data, columns) {
+        const columnSet = new Set(columns);
+        const result = new Array(data.length);
+        for (let i = 0; i < data.length; i++) {
+            const row = data[i];
+            const newRow = {};
+            // 如果列数较少，遍历columns
+            if (columns.length < Object.keys(row).length / 2) {
+                for (let j = 0; j < columns.length; j++) {
+                    const col = columns[j];
+                    if (col in row) newRow[col] = row[col];
+                }
+            } else {// 如果列数较多，遍历row的keys
+                for (const key in row) {
+                    if (columnSet.has(key)) newRow[key] = row[key];
+                }
+            }
+            result[i] = newRow;
+        }
+        return result;
+    },
+    /**
+     * 数据过滤
+     * @param rows 数据源
+     * @param where 筛选条件
+     * @param excludeWhereField 排除的字段
+     * @returns {*|*[]}
+     */
+    filter(rows, where, excludeWhereField) {
+        const whereApply = excludeWhereField ? filterObject(where, key => key !== excludeWhereField) : where;
+        if (Object.keys(whereApply).length === 0) {
+            return rows;
+        }
+        const result = [];
+        for (const row of rows) {
+            let status = true;
+            for (const field in whereApply) { // 检查每个筛选条件
+                if (!data.calculate(row[field], whereApply[field])) {
+                    status = false;
+                    break;
+                }
+            }
+            if (status) result.push(row);
+        }
+        return result;
+    },
+    // 筛选条件评估函数
+    calculate(value, where) {
+        value = value === null ? '' : value;
+        switch (where.operator) {
+            case 'equals':// 等于
+                return String(value).trim().toUpperCase() === String(where.value).trim().toUpperCase();
+            case 'notEquals':// 不等于
+                return String(value).trim().toUpperCase() !== String(where.value).trim().toUpperCase();
+            case 'greaterThan':// 大于
+                return parseFloat(value) > parseFloat(where.value);
+            case 'lessThan':// 小于
+                return parseFloat(value) < parseFloat(where.value);
+            case 'greaterThanOrEqual':// 大于等于
+                return parseFloat(value) >= parseFloat(where.value);
+            case 'lessThanOrEqual':// 小于等于
+                return parseFloat(value) <= parseFloat(where.value);
+            case 'between':// 介于
+                return parseFloat(value) >= parseFloat(where.min) && parseFloat(value) <= parseFloat(where.max);
+            case 'notBetween':// 不介于
+                return !(parseFloat(value) >= parseFloat(where.min) && parseFloat(value) <= parseFloat(where.max));
+            case 'contains':// 包含
+                return String(value).trim().toUpperCase().includes(String(where.value).trim().toUpperCase());
+            case 'notContains':// 不包含
+                return !String(value).trim().toUpperCase().includes(String(where.value).trim().toUpperCase());
+            case 'in':// 包含
+                return where.value.includes(value);
+            case 'notIn':// 不包含
+                return !where.value.includes(value);
+            case 'startsWith':// 开头是
+                return String(value).trim().toUpperCase().startsWith(String(where.value).trim().toUpperCase());
+            case 'notStartsWith':// 开头不是
+                return !String(value).trim().toUpperCase().startsWith(String(where.value).trim().toUpperCase());
+            case 'endsWith':// 结尾是
+                return String(value).trim().toUpperCase().endsWith(String(where.value).trim().toUpperCase());
+            case 'notEndsWith':// 结尾不是
+                return !String(value).trim().toUpperCase().endsWith(String(where.value).trim().toUpperCase());
+            case 'checked':// 已选中
+                return true;
+            case 'unChecked':// 未选中
+                return false;
+            case 'open':// 打开
+                return true;
+            case 'close':// 关闭
+                return false;
+            default:
+                return true;
+        }
     }
 }
 
+/**
+ * 过滤对象
+ * @param obj
+ * @param predicate
+ * @returns {{}}
+ */
+export const filterObject = (obj, predicate) => {
+    const result = {};
+    for (const key in obj) {
+        if (obj.hasOwnProperty(key) && predicate(key, obj[key])) {
+            result[key] = obj[key];
+        }
+    }
+    return result;
+}
 /**
  * 对日期的操作
  */

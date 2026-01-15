@@ -83,9 +83,9 @@ const columns=[
   // {title: '描述(父级)',minWidth: 160, field: 'p_desc'},
   // {title: '规则名',width: 160, field: 'rule_name',visible:false},
   // {title: '数据',width: 160, field: 'data',visible:false},
-  {title: '人数',width: 160, field: 'total', sortable: true},
-  {title: '创建时间', width: 160, field: 'created_time', sortable: true},
-  {title: '更新时间', width: 160, field: 'updated_time', sortable: true},
+  {title: '人数',width: 160, field: 'count', sortable: true},
+  {title: '创建时间', width: 160, field: 'created_at', sortable: true},
+  {title: '更新时间', width: 160, field: 'updated_at', sortable: true},
   {title: 'id', width: 60, field: 'id', sortable: true},
 ];
 

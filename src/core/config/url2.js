@@ -51,6 +51,21 @@ const apiUrl = new Proxy(
             },
 
         },
+        job:{
+            job:{
+                init: '/job/job/init',
+                list: '/job/job/list',
+                save: '/job/job/save',
+                delete: '/job/job/delete',
+            },
+            mi:{
+                job: '/job/mi/job',
+                jobParams: '/job/mi/jobParams',
+                jobRoutes: '/job/mi/jobRoutes',
+                jmpParams: '/job/mi/jmpParams',
+                routeParams: '/job/mi/routeParams',
+            },
+        },
         cost:{
             index:{
                 init: '/cost/index/init',
@@ -198,6 +213,10 @@ const apiUrl = new Proxy(
             auth:{
                 getMenu: '/sys/authitem/import',
                 getMenuLists: '/sys/authitem/index',
+                getEmployeeLists: '/sys/authitem/getemployeesbyauthid',
+                getEmployeeListsByAuthId: '/sys/authitem/getEmployeesListsByAuthId',
+                addAuthAssignment:'/sys/authitem/addAuthAssignment',
+                delAuthAssignment:'/sys/authitem/delAuthAssignment',
             }
         }
     },

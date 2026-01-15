@@ -82,6 +82,7 @@ const props = defineProps({
   headerBg: {type: String, default: null},            //标题背景
   bodyBg: {type: String, default: null},                 //主体背景色
   footerBg: {type: String, default: null},    //底部背景色
+  footerTopBorder: {type: String, default: null},//底部上边框
   maskBg: {type: String, default: null},       //遮罩背景色
   bodyMove: {type: Boolean, default: null},    //点击body区移动
   changeSize: {type: Boolean, default: null},        //是否允许改变大小 八全方位
@@ -96,6 +97,8 @@ const props = defineProps({
   showInput: {type: Boolean, default: null},         //禁用输入框
   showSelect: {type: Boolean, default: null},        //禁用选择框
   showFooter: {type: Boolean, default: null},     //禁用footer栏
+  footerButtonPosition: {type: String, default: null},     //按钮的位置  left  center  right
+  windowResize: {type: Boolean, default: null},       //浏览器窗口大小改变时是否改变窗口位置
   showMask: {type: Boolean, default: null},       //遮罩，如果为fasle则不启用遮罩
   esc: {type: Boolean, default: null},                      //esc退出
   duration: {type: Number, default: null},            //定时关闭  'info', 'success', 'warning', 'error', 'question' 才有效
@@ -116,6 +119,7 @@ if (Object.keys(attrs).length > 0) {
   sendTrack({message: '使用了未定义的属性', stack: attrs});
 }
 
+//不推荐使用事件，推荐使用回调方法
 const emits = defineEmits([
   'beforeInit', //初始化前
   'afterInit', //初始化后
@@ -173,6 +177,8 @@ const defaultConfig = {
     showInput: false,
     showSelect: false,
     showFooter: false,
+    footerButtonPosition: 'center',
+    windowResize: true,
     showMask: true,
     esc: true,
     duration: 0,
@@ -223,6 +229,8 @@ const defaultConfig = {
     showInput: false,
     showSelect: false,
     showFooter: false,
+    footerButtonPosition: 'center',
+    windowResize: false,
     showMask: false,
     esc: false,
     duration: 0,
@@ -273,6 +281,8 @@ const defaultConfig = {
     showInput: false,
     showSelect: false,
     showFooter: true,
+    footerButtonPosition: 'center',
+    windowResize: true,
     showMask: true,
     esc: true,
     duration: 0,
@@ -323,6 +333,8 @@ const defaultConfig = {
     showInput: true,
     showSelect: false,
     showFooter: true,
+    footerButtonPosition: 'center',
+    windowResize: true,
     showMask: true,
     esc: true,
     duration: 0,
@@ -373,6 +385,8 @@ const defaultConfig = {
     showInput: false,
     showSelect: true,
     showFooter: true,
+    footerButtonPosition: 'center',
+    windowResize: true,
     showMask: true,
     esc: true,
     duration: 0,
@@ -423,6 +437,8 @@ const defaultConfig = {
     showInput: false,
     showSelect: false,
     showFooter: false,
+    footerButtonPosition: 'center',
+    windowResize: true,
     showMask: false,
     esc: true,
     duration: 1500,
@@ -512,7 +528,7 @@ Object.assign(dialog, {
       content.removeAttribute('style');
       dom.appendChild(content);
     } else if (typeof content === 'object' && typeof content.setup === 'function') {//组件
-      dialog.contentApp = createApp(content, {...props, dialog: {...dialog, dialogReactive}});
+      dialog.contentApp = createApp(content, {...props, dialog: Object.assign(dialog, dialogReactive)});//将窗口的属性与内部props合并
       await load.all(dialog.contentApp);
       dialog.contentApp.mount(dom);
     } else if (isVNode(content)) {//vnode
@@ -531,8 +547,8 @@ Object.assign(dialog, {
     emits('beforeInit', obj);
     if (obj.status === false) return;
     if (dialog.createType === 'js') { //JS形式调用
-      if (dialog.showInput){
-        const inputType= dialog.input?.inputType || 'Input';
+      if (dialog.showInput) {
+        const inputType = dialog.input?.inputType || 'Input';
         TInput.value = await load.tdesign(inputType ? inputType[0].toUpperCase() + inputType.slice(1) : '');//输入框
       }
       if (dialog.showSelect) TSelect.value = await load.tdesign('Select');//下拉框
@@ -722,7 +738,7 @@ Object.assign(dialog, {
   // 创建 ResizeObserver 实例
   resizeObserverOne: false,
   resizeObserver: new ResizeObserver(() => {
-    if (dialog.resizeObserverOne && dialog.type !== 'loading') {
+    if (dialog.resizeObserverOne && dialog.windowResize) {
       const bcr = core.getBoundingClientRect(dialogDom.value);
       dialogReactive.dialogStyle.top = bcr.domHeight >= (bcr.containerHeight - bcr.domHeight * 0.1) ? 0 : '10%';
       dialogReactive.dialogStyle.left = Math.max((bcr.containerWidth - bcr.domWidth) / 2, 0) + 'px';
@@ -907,10 +923,11 @@ defineExpose({...dialog, dialogReactive}) // 暴露 updateContent 方法给外�
       height: 50px;
       user-select: none;
       background-color: v-bind(dialog.footerBg);
+      border-top: v-bind(dialog.footerTopBorder);
       flex-shrink: 0;
       display: flex;
       align-items: center; /*垂直居中*/
-      justify-content: center; /*水平居中*/
+      justify-content: v-bind(dialog.footerButtonPosition); /*水平居中*/
       gap: 20px;
       padding: 0 20px;
 

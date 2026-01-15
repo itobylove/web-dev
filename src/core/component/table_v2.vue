@@ -1,8 +1,8 @@
 <template>
   <div ref="box" class="box">
-    <div class="header" v-if="props.enableHeader">
-      <MenuComponent v-if="props.enableHeader&&menuConfig!==false" ref="menuRef" v-bind="menuConfig" :search="searchRef"/>
-      <SearchComponent v-if="props.enableHeader&&searchConfig!==false" ref="searchRef" v-bind="searchConfig"/>
+    <div class="header" v-if="menuConfig!==false||searchConfig!==false">
+      <MenuComponent v-if="menuConfig!==false" ref="menuRef" v-bind="menuConfig" :search="searchRef"/>
+      <SearchComponent v-if="searchConfig!==false" ref="searchRef" v-bind="searchConfig"/>
     </div>
     <div class="body">
       <div class="table">
@@ -31,11 +31,11 @@ import dialog from '@/core/script/dialog';
 import siyi from '@/core/script/siyi';
 import DialogComponent from '@/core/component/dialog.vue';
 import MenuComponent from '@/core/component/menu.vue';
+
 const SearchComponent = defineAsyncComponent(() => siyi.pc ? import('@/core/component/search.vue') : import('@/core/component/search_mobile.vue'));
 
 
 const props = defineProps({
-  enableHeader: {type: Boolean, default: true},//标题栏 true显示，false隐藏
   menuConfig: {type: [Object, Boolean], default: undefined},//菜单配置
   searchConfig: {type: [Object, Boolean], default: undefined},//搜索配置
   tableConfig: {type: Object, default: {}},//报表配置
@@ -54,7 +54,7 @@ const searchConfig = props.searchConfig === undefined ? siyi.nav?.query?.search 
 
 
 const box = ref();//容器
-const footer = ref();//表尾
+const footer = ref(props.footer);
 const report = ref();//表格
 const reportConfig = _.merge({}, tableFn.defaultConfig(props.vTableConfig), {
   url: apiUrl.publicReport,//通用报表接口
@@ -91,13 +91,13 @@ const reportConfig = _.merge({}, tableFn.defaultConfig(props.vTableConfig), {
     await tableFn.mergeColumn(reportConfig, userConfig.columns);
     //第六步更新表格
     tableFn.update(reportConfig, reportConfig.emptyRow);
-    if (props.searchConfig !== false) {
+    if (searchConfig !== false) {
       searchRef.value.loadFilter();//第七步 生成快速过滤列
       searchRef.value.dataFilter();//第八步，过滤本地数据
     }
     //最后完成
-    footer.value = props.footer === undefined ? tableFn.footerMessage(reportConfig, startTime) : props.footer;
-    reportConfig.afterLoaded && await reportConfig.afterLoaded(reportConfig);//加载完成,回调
+    footer.value = footer.value === undefined ? tableFn.footerMessage(reportConfig, startTime) : props.footer;
+    typeof reportConfig.afterLoaded === 'function' && await reportConfig.afterLoaded(reportConfig);//加载完成,回调
     loading && loading.close();
   }
 }, siyi.nav.query?.tableConfig || {}, props.tableConfig);
@@ -115,7 +115,7 @@ const detail = reactive({
   data: [],
   dialogConfig: {
     title: '详细数据', top: 'center', type: 'window', width: '80%', height: '90%',
-    changeSize: siyi.pc, forceEnlarge:siyi.mobile,onAfterClose: () => detail.show = false
+    changeSize: siyi.pc, forceEnlarge: siyi.mobile, onAfterClose: () => detail.show = false
   },
   type: siyi.nav.query?.tableConfig?.hideDetailField || props.hideDetailField,
 });
@@ -125,8 +125,8 @@ onMounted(() => {
   reportConfig.dom = report.value;
   reportConfig.box = box.value;
   reportConfig.table = new ListTable(report.value, reportConfig.options);
-  // reportConfig.autoLoad && reportConfig.getData() 如果使用了搜索组件，内部会自动触发加载数，这里先取消，
-  reportConfig.onLoaded && reportConfig.onLoaded(reportConfig);//加载表格配置后回调
+  searchConfig === false && reportConfig.getData(); //如果使用了搜索组件，内部会自动触发加载数，这里先取消
+  typeof reportConfig.onLoaded === 'function' && reportConfig.onLoaded(reportConfig);//加载表格配置后回调
 });
 
 defineExpose({reportConfig, search: searchRef, menu: menuRef});//暴露给父组件

@@ -528,3 +528,17 @@ export function getPageUrl(path, query, hash = '') {
 export function getUrl(query, hash = ''){
     return createUrl(window.location.href, query) + (hash.length > 0 ? '#' + hash : '');
 }
+/**
+ * 分配权限
+ * @param param
+ * @returns {Promise<*>}
+ */
+export const divideAuthItem = async (param = {}) => {
+    return await post(apiUrl2.sys.auth.addAuthAssignment, param);
+}
+/**
+ * 撤销权限
+ */
+export const revokeAuthItem = async (param = {}) => {
+    return await post(apiUrl2.sys.auth.delAuthAssignment, param);
+}

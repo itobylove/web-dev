@@ -9,7 +9,8 @@ const filter = {
     marginRight: 0,
     positionType: TYPES.IconPosition.right,
     cursor: 'pointer',
-    hover: {bgColor: '#d3dbe5'}
+    hover: {bgColor: '#d3dbe5'},
+    visibleTime: 'always',
 };
 register.icon('filter', {
     ...filter,
@@ -36,12 +37,12 @@ register.editor('listEditor', new ListEditor({values: ['女', '男']}));
 // const filterPlugin = new FilterPlugin({});
 
 //默认空行
-const records = []
+const records = [];
 //默认空列
-const columns = []
+const columns = [];
 for (let i = 0; i < 100; i++) {
-    columns.push({})
-    records.push({})
+    columns.push({});
+    records.push({});
 }
 
 export default {
@@ -65,14 +66,14 @@ export default {
         //表体样式
         bodyStyle: {
             fontSize: 12,
-            color: '#000000',
+            color: '#000',
             hover: {cellBgColor: '#e6e8f0'}
         },
         //选中样式
         selectionStyle: {
             cellBorderLineWidth: [1, 1, 1, 1],
             cellBorderColor: '#35a1fd',
-            // cellBgColor: '#e9f7ff'
+            // cellBgColor: 'rgba(0,0,0,0.1)'
         },
     }),
     records,
@@ -104,17 +105,17 @@ export default {
         disableHeaderSelect: true,//单独设置表头不响应鼠标 select 交互。
         // disableSelect:true,//禁用选择
     },
-    editCellTrigger: 'click',
+    editCellTrigger: 'click',//单元格编辑触发方式
     keyboardOptions: {
         copySelected: true, //复制
-        pasteValueToCell: false, //粘贴
+        pasteValueToCell: true, //粘贴
     },
-    // excelOptions: {
-    //     fillHandle: true
-    // }
     // editor: '',// 配置一个空的编辑器，以遍能粘贴到单元格中
+    // excelOptions: {
+    //     fillHandle: true // 允许使用表格编辑器填充数据
+    // }
     // tooltip: {
-    //     renderMode: 'html'
+    //     renderMode: 'html',//渲染模式
     // },
     // hover: {
     //     highlightMode: 'cross'

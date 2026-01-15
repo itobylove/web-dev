@@ -6,6 +6,7 @@ import dialog from '@/core/script/dialog';
 import siyi from '@/core/script/siyi';
 import {isNumber} from '@/utils/vars';
 import tableSetingComponent from '@/core/component/tableSeting.vue';
+import tableFilterComponent from '@/core/component/tableFilter.vue';
 import tableExportComponent from '@/core/component/tableExport.vue';
 import approveFlowConponent from '@/core/component/approveFlow.vue';
 
@@ -14,79 +15,51 @@ import approveFlowConponent from '@/core/component/approveFlow.vue';
  */
 
 const prefix = '_enc'  //加密字段后缀
-// 过滤器操作符
-const filterOperator = {
-    equals: '等于',
-    notEquals: '不等于',
-    greaterThan: '大于',
-    lessThan: '小于',
-    greaterThanOrEqual: '大于等于',
-    lessThanOrEqual: '小于等于',
-    between: '介于',
-    notBetween: '不介于',
-    contains: '包含',
-    notContains: '不包含',
-    startsWith: '开头是',
-    notStartsWith: '开头不是',
-    endsWith: '结尾是',
-    notEndsWith: '结尾不是',
-    checked: '已选中',
-    unChecked: '未选中',
-    open: '打开',
-    close: '关闭',
-};
-
-// 过滤器分类
-const filterCategory = {
-    TEXT: {label: '文本', value: 'text', operators: ['equals', 'notEquals', 'contains', 'notContains', 'startsWith', 'notStartsWith', 'endsWith', 'notEndsWith']},
-    NUMBER: {label: '数值', value: 'number', operators: ['equals', 'notEquals', 'greaterThan', 'lessThan', 'greaterThanOrEqual', 'lessThanOrEqual', 'between', 'notBetween']},
-    COLOR: {label: '颜色', value: 'color', operators: ['equals', 'notEquals']},
-    CHECKBOX: {label: '复选框', value: 'checkbox', operators: ['checked', 'unChecked']},
-    RADIO: {label: '单选框', value: 'radio', operators: ['checked', 'unChecked']},
-    SWITCH: {label: '开关', value: 'switch', operators: ['open', 'close']},
-};
 
 /**
  * 表格默认配置
  */
 export const defaultConfig = (options = {}) => {
     return {
+        //基础配置
         id: siyi.nav.id,                //id
         name: siyi.nav.title,           //报表名称
         dom: null,                      //报表挂载的DOM节点
         box: null,                      //容器DOM节点
         table: null,                    //表格实例
+        //开关类
         showCheck: false,               //行复选框 false 不显示 radio 强制单选 multiple 强制多选
         checkField: false,              //行复选框单击那一列生效 false 整行  其它就是指定列名
-        data: [],                       //原始数据
         autoLoad: true,                 //是否首次自动加载数据
+        useEncryptionFields: true,      //是否使用加密字段
+        useUserTableConfig: true,       //是否使用用户表格配置(有些表格，不需要用户来设置，此项关闭，加密列也无效)
+        disablePage: siyi.nav?.query?.disablePage === undefined ? false : siyi.nav.query.disablePage, //禁用分页
+        //对象类
+        filterWhere: {},                //本地过滤条件
+        userConfig: {},                 //后端用户配置，有的则覆盖前端，没有则发请求获取  有两个属性 table为表格配置，encryption为加密字段配置
         page: 1,                        //当前页
         pageNum: 100,                   //每页条数
-        disablePage: siyi.nav?.query?.disablePage === undefined ? false : siyi.nav.query.disablePage, //禁用分页
+        columnSplit: '#',               //列分割符
         url: '',                        //获取数据的API接口
         query: {},                      //获取数据的API参数
         selectRow: {},                  //当前选择的行
         prveSelectRow: {},              //上一次选择的行
-        options: {...VtableOptions, ...options}, //字节表格配置
-        columns: [],                    //本地列配置，如果配置了则不使用后端返回的列配置，否则使用后端返回的列配置
         search: {},                     //用于保存搜索默认值
-        columnSplit: '_',               //列分割符
-        //事件列表
-        events: {
+        events: {                       //事件列表
             _lists: {}                  //保存监听后的事件实例，每次加载都会自动卸载并重新监听并保存在这里
         },
-        rowBeforCallback: undefined,    //行数据处理方法
-        colAfterCallback: undefined,    //列数据处理方法
-        emptyRow: true,                 //加载空行
-        dataFetcher: undefined,         //自定义获取数据接口
-        afterLoaded: undefined,         //数据加载完成并渲染完成后回调
-        onLoaded: undefined,            //页面加载完成后回调
-        getData: () => [],              //获取数据方法
-        updateCallback: () => '',       //更新后回调
-        getQuery: () => ({}),           //获取条件
-        useEncryptionFields: true,      //是否使用加密字段
-        useUserTableConfig: true,       //是否使用用户表格配置(有些表格，不需要用户来设置，此项关闭，加密列也无效)
-        userConfig: {},                 //后端用户配置，有的则覆盖前端，没有则发请求获取  有两个属性 table为表格配置，encryption为加密字段配置
+        data: [],                       //原始数据
+        columns: [],                    //本地列配置，如果配置了则不使用后端返回的列配置，否则使用后端返回的列配置
+        options: {...VtableOptions, ...options}, //字节表格配置
+        //自定义方法类
+        get: null,                      //自定义获取数据接口
+        getQuery: null,                 //获取条件
+        getData: null,                  //获取数据方法
+        rowBeforCallback: null,         //行数据处理方法
+        colAfterCallback: null,         //列数据处理方法
+        afterLoaded: null,              //数据加载完成并渲染完成后回调
+        onLoaded: null,                 //页面加载完成后回调
+        updateCallback: null,           //更新后回调
     }
 }
 
@@ -97,14 +70,14 @@ export const defaultConfig = (options = {}) => {
  * @returns {Promise<*|{}|{}>}
  */
 export const mergeConfig = async tableConfig => {
-    const uc = tableConfig?.userConfig?.table || await api.getUserConfig(tableConfig.id, 2) || {}              //获取用户配置
-    if (tableConfig.defaultPageNum === undefined) tableConfig.defaultPageNum = tableConfig?.pageNum || 9999999     //记录原始每页条数
-    tableConfig.pageNum = uc?.pageNum || tableConfig?.pageNum || tableConfig.defaultPageNum                          //每页条数
-    tableConfig.options.frozenColCount = uc?.frozenColCount || tableConfig.options.frozenColCount || 0                //左冻列
-    tableConfig.options.rightFrozenColCount = uc?.rightFrozenColCount || tableConfig.options.rightFrozenColCount || 0 //右冻列
-    tableConfig.search = _.merge({}, tableConfig?.search || {}, uc?.search || {})                 //默认搜索
-    uc.columns = uc?.columns || []
-    return uc
+    const uc = tableConfig?.userConfig?.table || await api.getUserConfig(tableConfig.id, 2) || {};               //获取用户配置
+    if (tableConfig.defaultPageNum === undefined) tableConfig.defaultPageNum = tableConfig?.pageNum || 9999999;        //记录原始每页条数
+    tableConfig.pageNum = uc?.pageNum || tableConfig?.pageNum || tableConfig.defaultPageNum;                           //每页条数
+    tableConfig.options.frozenColCount = uc?.frozenColCount || tableConfig.options.frozenColCount || 0;                //左冻列
+    tableConfig.options.rightFrozenColCount = uc?.rightFrozenColCount || tableConfig.options.rightFrozenColCount || 0; //右冻列
+    tableConfig.search = _.merge({}, tableConfig?.search || {}, uc?.search || {});           //默认搜索
+    uc.columns = uc?.columns || [];
+    return uc;
 }
 
 
@@ -115,35 +88,35 @@ export const mergeConfig = async tableConfig => {
  * @returns {Promise<void>}
  */
 export const mergeColumn = async (tableConfig, userColumn = []) => {
-    const column = []
+    const column = [];
     //用户配置覆盖默认配置
     userColumn.forEach(ucol => {
         for (const col of tableConfig.options.columns) {
             if (col.field === ucol.field) {
-                if (col.encryption === undefined) ucol.encryption = undefined
-                column.push(_.merge({}, col, ucol))
-                break
+                if (col.encryption === undefined) ucol.encryption = undefined;
+                column.push(_.merge({}, col, ucol));
+                break;
             }
         }
     })
     //找到新列
-    const oldColumns = []
-    userColumn.forEach(col => oldColumns.push(col.field))
-    tableConfig.options.columns.forEach(col => !oldColumns.includes(col.field) && column.push(col))
+    const oldColumns = [];
+    userColumn.forEach(col => oldColumns.push(col.field));
+    tableConfig.options.columns.forEach(col => !oldColumns.includes(col.field) && column.push(col));
     //获取加密配置
     const encryptionFields = tableConfig?.useEncryptionFields ? (tableConfig?.userConfig?.encryption || await api.getUserConfig(tableConfig.id + prefix, 1) || []) : [];
     //合并加密与聚合
-    tableConfig.options.bottomFrozenRowCount = 0
+    tableConfig.options.bottomFrozenRowCount = 0;
     column.forEach(col => {
         //加密处理
         // if (col.encryption !== undefined) col.encryption = false
-        if (encryptionFields.includes(col.field)) col.encryption = true
+        if (encryptionFields.includes(col.field)) col.encryption = true;
         // if (col.aggregationType === undefined) col.aggregationType = 'NONE'
         //聚合处理
-        aggregation(tableConfig, col)
+        aggregation(tableConfig, col);
     })
 
-    tableConfig.options.columns = column
+    tableConfig.options.columns = column;
 }
 
 
@@ -153,31 +126,31 @@ export const mergeColumn = async (tableConfig, userColumn = []) => {
  * @param col 列
  */
 export const aggregation = (tableConfig, col) => {
-    const list = {MAX: '最大值', MIN: '最小值', AVG: '平均值', SUM: '求和', COUNT: '普通统计', ONLYCOUNT: '去重统计'}
+    const list = {MAX: '最大值', MIN: '最小值', AVG: '平均值', SUM: '求和', COUNT: '普通统计', ONLYCOUNT: '去重统计'};
     if (col.aggregationType && col.aggregationType !== 'NONE') {
-        if (col.aggregation === undefined) col.aggregation = {aggregationType: 'NONE', formatFun: () => ''}
-        tableConfig.options.bottomFrozenRowCount = 1
-        col.aggregation.aggregationType = col.aggregationType
-        col.aggregation.formatFun = value => list[col.aggregationType] + ':' + _.round(value, 4)
+        if (col.aggregation === undefined) col.aggregation = {aggregationType: 'NONE', formatFun: () => ''};
+        tableConfig.options.bottomFrozenRowCount = 1;
+        col.aggregation.aggregationType = col.aggregationType;
+        col.aggregation.formatFun = value => list[col.aggregationType] + ':' + _.round(value, 4);
         switch (col.aggregationType) {
             case 'COUNT':
-                col.aggregation.aggregationType = 'CUSTOM'
+                col.aggregation.aggregationType = 'CUSTOM';
                 col.aggregation.aggregationFun = data => {
-                    let count = 0
-                    data.forEach(item => item?.length > 0 && count++)
-                    return count
+                    let count = 0;
+                    data.forEach(item => item?.length > 0 && count++);
+                    return count;
                 }
-                break
+                break;
             case 'ONLYCOUNT':
-                col.aggregation.aggregationType = 'CUSTOM'
+                col.aggregation.aggregationType = 'CUSTOM';
                 col.aggregation.aggregationFun = data => {
-                    const onlyData = []
-                    data.forEach(item => item?.length > 0 && onlyData.push(item))
-                    return Array.from(new Set(onlyData)).length
+                    const onlyData = [];
+                    data.forEach(item => item?.length > 0 && onlyData.push(item));
+                    return Array.from(new Set(onlyData)).length;
                 }
-                break
+                break;
             default :
-                break
+                break;
         }
     }
 }
@@ -189,9 +162,9 @@ export const aggregation = (tableConfig, col) => {
  * @returns {Promise<void>}
  */
 export const saveConfig = async tableConfig => {
-    const columns = []
-    const encryption = []
-    const encryptionFields = tableConfig?.userConfig?.encryption || await api.getUserConfig(tableConfig.id + prefix, 1)
+    const columns = [];
+    const encryption = [];
+    const encryptionFields = tableConfig?.userConfig?.encryption || await api.getUserConfig(tableConfig.id + prefix, 1);
     tableConfig.options.columns.forEach(col => {
         if (col.field) {
             columns.push({
@@ -199,7 +172,7 @@ export const saveConfig = async tableConfig => {
                 width: col.width,
                 hide: col.hide,
                 aggregationType: col.aggregationType
-            })
+            });
         }
         if (col.encryption === true && !encryptionFields.includes(col.field)) {
             encryption.push({
@@ -209,17 +182,17 @@ export const saveConfig = async tableConfig => {
                     title: col.title,
                     name: col.field,
                 }
-            })
+            });
         }
-    })
-    const config = {}
-    if (columns.length > 0) config.columns = columns //列
-    if (tableConfig.page) config.pageNum = tableConfig.disablePage ? 9999999 : tableConfig.pageNum //分页条数
-    if (Object.keys(tableConfig.search).length > 0) config.search = tableConfig.search //搜索
-    if (tableConfig.options.frozenColCount) config.frozenColCount = tableConfig.options.frozenColCount //左冻列
-    if (tableConfig.options.rightFrozenColCount) config.rightFrozenColCount = tableConfig.options.rightFrozenColCount //右冻列
-    await api.saveUserConfig(tableConfig.id, config, 2) //保存用户配置
-    encryption.length > 0 && await api.authApply({type: 3, data: encryption}) //加密申请
+    });
+    const config = {};
+    if (columns.length > 0) config.columns = columns; //列
+    if (tableConfig.page) config.pageNum = tableConfig.disablePage ? 9999999 : tableConfig.pageNum; //分页条数
+    if (Object.keys(tableConfig.search).length > 0) config.search = tableConfig.search; //搜索
+    if (tableConfig.options.frozenColCount) config.frozenColCount = tableConfig.options.frozenColCount; //左冻列
+    if (tableConfig.options.rightFrozenColCount) config.rightFrozenColCount = tableConfig.options.rightFrozenColCount; //右冻列
+    await api.saveUserConfig(tableConfig.id, config, 2); //保存用户配置
+    encryption.length > 0 && await api.authApply({type: 3, data: encryption}); //加密申请
 }
 
 
@@ -252,11 +225,15 @@ export const update = (tableConfig, emptyRow = true, scrollTo = 0) => {
         records.push(check);
     }
     tableConfig.selectRow = {};
+    tableConfig.prveSelectRow = {};
     tableConfig.options.records = _.merge([], emptyRow ? records : [], tableConfig.options.records);
     tableConfig.options.columns = _.merge([], tableConfig.options.columns.length > 0 ? tableConfig.options.columns : columns);
+    for (const col of tableConfig.options.columns) {
+        col.headerIcon = col.headerIcon ? tableConfig.filterWhere[col.field] ? 'filtering' : 'filter' : '';
+    }
     tableConfig.table.updateOption(tableConfig.options);
-    typeof scrollTo === 'number' && scrollTo >= 0 && tableConfig.table.setScrollTop(scrollTo)
-    typeof tableConfig?.updateCallback === 'function' && tableConfig.updateCallback();
+    typeof scrollTo === 'number' && scrollTo >= 0 && tableConfig.table.setScrollTop(scrollTo);//定位到哪一条
+    typeof tableConfig?.updateCallback === 'function' && tableConfig.updateCallback();//更新渲染完成后回调
 }
 
 /**
@@ -329,7 +306,7 @@ export const on = tableConfig => {
         core.data.sortData(tableConfig.options.records, field, order === 'asc');//对数据排序
         tableConfig.options.sortState = [{field: args.field, order}];//更改排序状态这里要使用完整字段名
         update(tableConfig);//更新表格
-        tableConfig.events.sort_click?.(args);//调用事自定义件配置
+        tableConfig.events.sort_click?.(args);//调用自定义事件配置
         return false; //不执行内部排序逻辑
     })
 
@@ -345,7 +322,7 @@ export const on = tableConfig => {
             }
             colIndex++;
         }
-        tableConfig.events.resize_column_end?.(args);
+        tableConfig.events.resize_column_end?.(args);//调用自定义事件配置
     })
 
 
@@ -362,52 +339,92 @@ export const on = tableConfig => {
             }
             tableConfig.options.columns.splice(targetIndex, 0, ...moveCol);
         }
-        tableConfig.events.change_header_position?.(args);
+        tableConfig.events.change_header_position?.(args);//调用自定义事件配置
     })
 
     //选择复选框
     let defaultEvent = true; //为了修复自带功能没有事件冒泡阻止功能
     tableConfig.events._lists.click_cell && tableConfig.table.off(tableConfig.events._lists.click_cell);
     tableConfig.events._lists.click_cell = tableConfig.table.on('click_cell', args => {
-        if (args.originData?.index === undefined) return;
-        if (tableConfig.checkField !== false && tableConfig.checkField !== args.field) return;
-        tableConfig.prveSelectRow = tableConfig.selectRow;//上一次选择行
-        tableConfig.selectRow = args.originData;//当前选择行
-        if (tableConfig.showCheck === false) return;
-
-        //去掉选中的 不含当前这一行
-        const cancelCheck = () => {
+        //记录单击的行
+        if (args?.originData?.index > 0) {
+            tableConfig.prveSelectRow = tableConfig.selectRow;//上一次选择行
+            tableConfig.selectRow = args.originData;//当前选择行
+        }
+        //行复选框行为
+        if (tableConfig.showCheck && (tableConfig.checkField === args.field || tableConfig.checkField === false)) {
+            //去掉选中的 不含当前这一行
+            const cancelCheck = () => {
+                const checkStatus = tableConfig.table.getCheckboxState('check');//已选
+                for (let rowIndex in tableConfig.options.records) {
+                    rowIndex = parseInt(rowIndex);
+                    tableConfig.options.records[rowIndex].index > 0 && checkStatus[rowIndex] && rowIndex + 1 !== args.row && tableConfig.table.setCellCheckboxState(colNumber, rowIndex + 1, false);
+                }
+            }
+            //如果单击的是checkbox单元格且没有被禁用
+            if (args.cellType === 'checkbox' && tableConfig.table.getCellValue(args.col, args.row)?.disable === false) {
+                tableConfig.table.selectCell(args.col, args.row);
+                tableConfig.showCheck === 'radio' && cancelCheck();
+                if (args.target.name === undefined) defaultEvent = true;//处理特殊兼容
+                defaultEvent && tableConfig.table.setCellCheckboxState(args.col, args.row, !tableConfig.table.getCellCheckboxState(args.col, args.row));//多选反选
+                defaultEvent = true;
+            } else if (tableConfig.table.getCellValue(colNumber, args.row)?.disable === false) {
+                if (tableConfig.showCheck !== 'multiple') cancelCheck();
+                tableConfig.table.setCellCheckboxState(colNumber, args.row, !tableConfig.table.getCellCheckboxState(colNumber, args.row));//选中
+                defaultEvent = true;
+            }
+            //选中行的颜色
+            tableConfig.table.registerCustomCellStyle('selectRowbg', {bgColor: '#e9f7ff'});
             const checkStatus = tableConfig.table.getCheckboxState('check');//已选
-            for (let rowIndex in tableConfig.options.records) {
-                rowIndex = parseInt(rowIndex);
-                tableConfig.options.records[rowIndex].index && checkStatus[rowIndex] && rowIndex + 1 !== args.row && tableConfig.table.setCellCheckboxState(colNumber, rowIndex + 1, false);
+            for (const itme of tableConfig.options.records) {
+                itme.index > 0 && tableConfig.table.arrangeCustomCellStyle({
+                    range: {
+                        start: {row: itme.index, col: 0},
+                        end: {row: itme.index, col: 9999999}
+                    }
+                }, checkStatus[itme.index - 1] ? 'selectRowbg' : '', true);
             }
         }
-
-        if (args.cellType === 'checkbox' && tableConfig.table.getCellValue(args.col, args.row)?.disable === false) {
-            tableConfig.table.selectCell(args.col, args.row);
-            tableConfig.showCheck === 'radio' && cancelCheck();
-            if (args.target.name === undefined) defaultEvent = true;//特殊兼容
-            defaultEvent && tableConfig.table.setCellCheckboxState(args.col, args.row, !tableConfig.table.getCellCheckboxState(args.col, args.row));//多选反选
-            defaultEvent = true;
-        } else if (tableConfig.table.getCellValue(colNumber, args.row)?.disable === false) {
-            if (tableConfig.showCheck !== 'multiple') cancelCheck();
-            tableConfig.table.setCellCheckboxState(colNumber, args.row, !tableConfig.table.getCellCheckboxState(colNumber, args.row));//选中
-            defaultEvent = true;
+        //列过滤器
+        if (args.cellLocation === 'columnHeader' && ['filtering', 'filter'].includes(args.targetIcon?.name)) {
+            const field = tableConfig.options.columns[args.col - colNumber].field;
+            dialog.window(tableFilterComponent, {table: tableConfig, field}, {
+                width: '250px',
+                footerTopBorder: '1px solid #dcdcdc',
+                left: args.event.clientX - 250 + 'px',
+                top: args.event.clientY - 40 + 'px',
+                footerButtonPosition: 'right',
+                windowResize: false,
+                okval: '确定',
+                okCallback: () => {
+                    for (const key in tableConfig.filterWhere) {
+                        const value = tableConfig.filterWhere[key].value;
+                        if (value === '' || value.length === 0) {
+                            delete tableConfig.filterWhere[key];
+                        }
+                    }
+                    tableConfig.options.records = core.data.filter(tableConfig.data, tableConfig.filterWhere);
+                    update(tableConfig);
+                },
+                noCallback: () => {
+                    for (const key in tableConfig.filterWhere) {
+                        const value = tableConfig.filterWhere[key].value;
+                        if (key === field || value === '' || value.length === 0) {
+                            delete tableConfig.filterWhere[key];
+                        }
+                    }
+                    tableConfig.options.records = core.data.filter(tableConfig.data, tableConfig.filterWhere);
+                    update(tableConfig);
+                },
+                noval: '清除',
+                showFooter: true,
+                onClickMask: obj => obj.close = true,
+                // showMask: false,
+                showHeader: false,
+                changeSize: false
+            });
         }
-
-        //选中行的颜色
-        tableConfig.table.registerCustomCellStyle('selectRowbg', {bgColor: '#e9f7ff'})
-        const checkStatus = tableConfig.table.getCheckboxState('check')//已选
-        for (const itme of tableConfig.options.records) {
-            itme.index > 0 && tableConfig.table.arrangeCustomCellStyle({
-                range: {
-                    start: {row: itme.index, col: 0},
-                    end: {row: itme.index, col: 9999999}
-                }
-            }, checkStatus[itme.index - 1] ? 'selectRowbg' : '', true)
-        }
-        tableConfig.events.click_cell?.(args)//回调
+        tableConfig.events.click_cell?.(args);//调用自定义事件配置
     })
 
 
@@ -415,7 +432,7 @@ export const on = tableConfig => {
     tableConfig.events._lists.checkbox_state_change && tableConfig.table.off(tableConfig.events._lists.checkbox_state_change);
     tableConfig.events._lists.checkbox_state_change = tableConfig.table.on('checkbox_state_change', args => {
         defaultEvent = false;
-        tableConfig.events.checkbox_state_change?.(args);
+        tableConfig.events.checkbox_state_change?.(args);//调用自定义事件配置
     })
 
 
@@ -444,8 +461,6 @@ export const createTable = (tableConfig, rowBeforCallback = undefined, colAfterC
         return _colAfterCallback({
             index: index + 1,
             width: 'auto',
-            headerIcon: 'filterIcon',
-            filterWhere: {},
             showSort: true,//显示排序图标，使用自定义排序
             sort: false,//禁用内置排序
             hide: false,
@@ -464,7 +479,7 @@ export const createTable = (tableConfig, rowBeforCallback = undefined, colAfterC
         const _rowBeforCallback = rowBeforCallback || (_row => _row);
         const check = tableConfig.showCheck ? {check: {check: false, disable: false}} : {};
         return _rowBeforCallback({...check, index: index + 1, ...row});
-    }
+    };
     // 生成列配置
     if (oldColumns.length > 0) {//方式1：模板配置列，则使用模板中的列信息
         newData = oldData.map(rowFormater);
@@ -481,6 +496,7 @@ export const createTable = (tableConfig, rowBeforCallback = undefined, colAfterC
     newData.length > 0 && tableConfig.showCheck && newColumns.unshift(columnFormater({
         field: 'check',
         headerType: 'checkbox',
+        headerIcon: '',
         disable: tableConfig.showCheck === 'radio',
         cellType: 'checkbox',
         dragHeader: false,
@@ -513,19 +529,20 @@ export const createColumns = (baseColumns, separator = '#') => {
         if (typeof oldfield === 'object') {
             column = oldfield;
         } else {
-            //从字段名解析列配置,转小写，英文字段名_中文字段名_标识[M加密、H隐藏、D禁止出现表格设置、E禁止导出]
-            const [field, title, label] = oldfield.toLowerCase().split(separator);
-            column = {field, title, label};
+            //从字段名解析列配置,转小写，英文字段名_中文字段名_标识[M加密、H隐藏、S禁止出现表格设置、E禁止导出]
+            const [field, title, label] = oldfield.split(separator);
+            column = {field, title, label: label?.toUpperCase()};
         }
         columns.push({
-            oldfield,//原始字段
+            oldfield,                                                     //原始字段
             ...column,
-            field: column['field'],//字段名
-            title: (column?.['title'] || column['field']).toUpperCase(),//标题
-            hide: column['label']?.indexOf('h') > -1,//隐藏
-            disabledSeting: column?.['label']?.indexOf('d') > -1,//禁止出现表格设置
-            disabledExport: column?.['label']?.indexOf('e') > -1,//禁止导出 正常都导出，隐藏字段不导出
-            encryption: column?.['label']?.indexOf('m') > -1 ? false : undefined, //加密用到的字段
+            field: column.field,                                          //字段名
+            title: (column?.title || column.field).toUpperCase(),         //标题
+            hide: column?.label?.includes('H'),                           //隐藏
+            disabledSeting: column?.label?.includes('S'),                 //禁止出现表格设置
+            disabledExport: column?.label?.includes('E'),                 //禁止导出 正常都导出，隐藏字段不导出
+            encryption: column?.label?.includes('M') ? false : undefined, //加密用到的字段
+            headerIcon: column?.label?.includes('F') ? '' : 'filter',     //过滤功能 filter    filtering
         });
     });
     return columns;
@@ -567,14 +584,14 @@ export const progressbar = (reversal = false) => {
  */
 export const color = {
     greenTored(percentile, reversal = false) {
-        let r = 255
-        let g = 255
+        let r = 255;
+        let g = 255;
         if (percentile > 0.5) {
-            g = 255 * (1 - percentile) * 2
+            g = 255 * (1 - percentile) * 2;
         } else {
-            r = 255 * percentile * 2
+            r = 255 * percentile * 2;
         }
-        return reversal ? `rgb(${g},${r},0)` : `rgb(${r},${g},0)`
+        return reversal ? `rgb(${g},${r},0)` : `rgb(${r},${g},0)`;
     },
 }
 
@@ -595,7 +612,7 @@ export const seting = (opts = {}) => {
             width: siyi.pc ? 970 : '100%',
             height: siyi.pc ? '80%' : '100%',
             changeSize: false
-        })
+        });
     }
 }
 
