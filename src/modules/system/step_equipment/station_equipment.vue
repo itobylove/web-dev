@@ -46,7 +46,13 @@ const tableEvent = {
       return dialog.warning('请选择工段');
     }
     const existIds = tableRef.value.reportConfig.table.options.records.map(item => item.id).filter(item => item); // 已经存在的工艺ID
-    const options = vData.selectOptions.equipment_id.filter((item) => item.data.plant_id === vData.plant_id && !existIds.includes(item.value) );
+    let options;
+    if (vData.type === 1) {
+      // 设备组
+      options = vData.selectOptions.pid.filter((item) => item.data.plant_id === vData.plant_id && !existIds.includes(item.value));
+    } else {
+      options = vData.selectOptions.equipment_id.filter((item) => item.data.plant_id === vData.plant_id && !existIds.includes(item.value))
+    }
     const newIds = await dialog.selectAsync(options,'','可添加的设备('+getPlant(vData.plant_id)+' '+vData.station_name+')', {width:'800px',height:'200px'},{
       multiple: true,placeholder: '请输入名称过滤',clearable:true,minCollapsedNum:10,
     })

@@ -2666,6 +2666,25 @@ export const nav = ref([
         icon: 'ri-shopping-bag-3-fill',
         items: [
             {
+                id: 'lt_report_wlsxmx',
+                cid: 'publicReport',
+                title: '物料属性明细',
+                icon: 'ri-play-list-add-line',
+                query: {
+                    search: [
+                        {type: 'select', load: 'material_category',value:['40'], field: 'category', options: {placeholder: '类型'}},
+                        {type: 'input', field: 'code', style: {width: '200px'}, options: {placeholder: '代码'}},
+                        {type: 'input', field: 'name', style: {width: '200px'}, options: {placeholder: '名称'}},
+                        {type: 'input', field: 'standard', style: {width: '300px'}, options: {placeholder: '规格'}},
+                        {type: 'select',field: 'ifActive',value:'1',style: {width: '200px'},options: {multiple:false,options:[
+                            {value:'',label:'状态：全部'},{value:'1',label:'状态：激活'},{value:'0',label:'状态：停用'}
+                        ]}},
+                    ],
+                    menu:{approve:{hide:true},resetApprove:{hide:true},submitApprove:{hide:true},},
+                    tableConfig: {autoLoad:false},
+                }
+            },
+            {
                 id: 'outwork_money',
                 title: '全制程外发费用',
                 query: {type: 'po-item'},

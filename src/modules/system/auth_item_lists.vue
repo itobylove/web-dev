@@ -15,6 +15,7 @@
     import * as api from "@/core/script/api.js";
     import dialog from "@/core/script/dialog.js";
     import employees from '@/modules/system/employees.vue'
+    import copyAuthItem from '@/modules/system/copy_auth_item.vue'
     import * as tableFn from "@/core/script/tableFn.js";
     const mainReport = ref();
     const authItemRow = ref(null);
@@ -26,6 +27,7 @@
         tableConfig: {
             url: apiUrl2.sys.auth.getMenuLists,
             showCheck: true,
+            checkField:false,
             disablePage: true,
             columns: [
                 {field: 'id', title: 'ID', align: 'left', width: 120},
@@ -44,13 +46,15 @@
                 },
             },
             afterLoaded:()=>{
-                tableShow.value = true;
+                if(mainReport.value.reportConfig.data?.length > 0){
+                    tableShow.value = true;
                 if(mainReport.value.reportConfig.data?.length > 0){
                     authItemRow.value = mainReport.value.reportConfig.data?.[0];
                     nextTick(()=>{
                         detailListReport.value.reportConfig.getData({id: mainReport.value.reportConfig.data?.[0]?.id}, false);
                     })
-                }                
+                    }
+                }
             }
         }
     })
@@ -81,7 +85,7 @@
                 return dialog.warning('请先选择要取消权限的员工');
             }
             dialog.confirm(`您确定要取消所选的${employeeIds.length}位员工的《${authItemRow.value.title}》权限吗？`,async() =>{
-                let res = await api.revokeAuthItem({
+                const res = await api.post(apiUrl2.sys.auth.delAuthAssignment,{
                     auth_id: authItemRow.value.id,
                     employee_ids: employeeIds
                 });
@@ -92,11 +96,23 @@
                     dialog.info('所选员工均未拥有该权限，无需取消');
                 }
             });
-            
-            console.log('取消权限');
         },
         copyAuthItem() {
-            console.log('复制权限');
+             if(!authItemRow.value?.id) {
+                return dialog.warning('请先选择一个权限');
+            }
+            dialog.window(
+                copyAuthItem,
+                {
+                    query:{
+                        auth_id:authItemRow.value.id,
+                        title:authItemRow.value.title,
+                    },
+                    scene:'auth'
+                },
+                {
+                    title:"复制权限："+authItemRow.value.title,width:'60%',height:'80%'
+                })
         },
     }
     const authItemEmployeesTableConfig = ref({

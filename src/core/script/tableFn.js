@@ -8,7 +8,7 @@ import {isNumber} from '@/utils/vars';
 import tableSetingComponent from '@/core/component/tableSeting.vue';
 import tableFilterComponent from '@/core/component/tableFilter.vue';
 import tableExportComponent from '@/core/component/tableExport.vue';
-import approveFlowConponent from '@/core/component/approveFlow.vue';
+import approveFlowComponent from '@/core/component/approveFlow.vue';
 
 /**
  * VTable表格的共用功能
@@ -39,7 +39,7 @@ export const defaultConfig = (options = {}) => {
         userConfig: {},                 //后端用户配置，有的则覆盖前端，没有则发请求获取  有两个属性 table为表格配置，encryption为加密字段配置
         page: 1,                        //当前页
         pageNum: 100,                   //每页条数
-        columnSplit: '#',               //列分割符
+        columnSplit: '_',               //列分割符
         url: '',                        //获取数据的API接口
         query: {},                      //获取数据的API参数
         selectRow: {},                  //当前选择的行
@@ -376,13 +376,13 @@ export const on = tableConfig => {
             //选中行的颜色
             tableConfig.table.registerCustomCellStyle('selectRowbg', {bgColor: '#e9f7ff'});
             const checkStatus = tableConfig.table.getCheckboxState('check');//已选
-            for (const itme of tableConfig.options.records) {
-                itme.index > 0 && tableConfig.table.arrangeCustomCellStyle({
+            for (const item of tableConfig.options.records) {
+                item.index > 0 && tableConfig.table.arrangeCustomCellStyle({
                     range: {
-                        start: {row: itme.index, col: 0},
-                        end: {row: itme.index, col: 9999999}
+                        start: {row: item.index, col: 0},
+                        end: {row: item.index, col: 9999999}
                     }
-                }, checkStatus[itme.index - 1] ? 'selectRowbg' : '', true);
+                }, checkStatus[item.index - 1] ? 'selectRowbg' : '', true);
             }
         }
         //列过滤器
@@ -628,7 +628,7 @@ export const approve = (opts = {}) => {
         dialog.error('请选择要审批的数据！')
         return {};
     }
-    const _window = dialog.window(approveFlowConponent, {
+    const _window = dialog.window(approveFlowComponent, {
         table: opts.table,
         detail: opts.detail,
         close: () => _window.close(0)
@@ -711,23 +711,22 @@ export const exportData = (opts = {}) => {
  * @param tableConfig 表格配置
  * @param fields 字段
  * @returns {*[]}
- * @deprecated 请使用 getCheckedRecords替代，表格已经调整成单击勾选行，所以此方法用处不大，除非取消了单击勾选行事件
  */
-/*export const getSelectedRecords = (tableConfig, fields = null) => {
+export const getSelectedRecords = (tableConfig, fields = null) => {
     const data = []
     const checkStatus = {}
     const selectedCells = tableConfig.table.getSelectedCellInfos()
     selectedCells.forEach(cells => checkStatus[cells[0].row - 1] = true)
     fields = fields === null ? [] : fields.split(',')
-    tableConfig.options.records.forEach((itme, index) => {
-        if (itme?.index && checkStatus[index]) {
+    tableConfig.options.records.forEach((item, index) => {
+        if (item?.index && checkStatus[index]) {
             let row = {}
-            fields.length > 0 ? fields.forEach(field => row[field] = itme[field]) : row = itme
+            fields.length > 0 ? fields.forEach(field => row[field] = item[field]) : row = item
             data.push(row)
         }
     })
     return data
-}*/
+}
 
 /**
  * 获取选中行(勾选状态)
@@ -739,10 +738,10 @@ export const getCheckedRecords = (tableConfig, fields = null) => {
     const data = []
     const checkStatus = tableConfig.table.getCheckboxState('check')
     fields = fields === null ? [] : fields.split(',')
-    tableConfig.options.records.forEach((itme, index) => {
-        if (itme?.index && checkStatus[index]) {
+    tableConfig.options.records.forEach((item, index) => {
+        if (item?.index && checkStatus[index]) {
             let row = {}
-            fields.length > 0 ? fields.forEach(field => row[field] = itme[field]) : row = itme
+            fields.length > 0 ? fields.forEach(field => row[field] = item[field]) : row = item
             data.push(row)
         }
     })

@@ -26,8 +26,8 @@ const props = defineProps({
 //页面数据
 const vData=reactive({
   tableIsInit: false,
-  station_id:null,
-  station_name:null,
+  station_id:props.station?.id,
+  station_name:props.station?.name,
   plant_id:siyi.user.plantId,
   selectOptions: {status:[],station_id:[],parameter_id:[]},
   ...props.query
@@ -91,7 +91,7 @@ const initTable = async () => {
       defaultMenuShowList:['moreSettings'],
       ...props.menuConfig
     },
-    searchConfig:[],
+    searchConfig:false,
     tableConfig: {
       url: api.url2.sys.station.parameter.list,
       showCheck: true,
@@ -129,6 +129,7 @@ onMounted(() => {
 });
 
 watch(() => [props.station], async () => {
+  console.log('props.station',props.station);
   vData.station_id = props.station?.id;
   vData.station_name = props.station?.name;
   vData.plant_id =  props.station?.plant_id || props.query.plant_id;

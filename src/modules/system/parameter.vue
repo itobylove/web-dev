@@ -197,7 +197,7 @@ const dialogConfig = reactive({
   },
   change: async (field,value) => {
     if (field === 'erp_parameter_search') {
-      const options= await select.getOptions('parameters',value,{showMore:1,toNumber:1});
+      const options= (await select.getOptions('parameters',value,{showMore:1,toNumber:1})) || [];
       dialogConfig.selectOptions.erp_parameter_id = options.filter(item=>item?.ifActive);
     }else if (field === 'erp_parameter_id') {
       const paramList= await api.get(api.url2.sys.parameter.getErpParameters, {recId:value})

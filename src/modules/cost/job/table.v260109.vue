@@ -36,8 +36,7 @@ const tableEvent = {
     loading && loading.close();
     table.selectOptions = getOptionsLabel(apiData?.option);
     await tableEvent.plantChange(siyi.user.plantId);
-    const searchOptionFields = {status: 'status'};
-    for (const field in searchOptionFields) {
+    for (const field in {status: 'status'}) {
       const searchIndex = table.searchConfig.search.findIndex(item => item.field === field);
       const optionField = table.searchConfig.search[searchIndex]['field'];
       table.searchConfig.search[searchIndex].options.options = [...table.selectOptions[optionField]];

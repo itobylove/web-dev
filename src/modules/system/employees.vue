@@ -4,7 +4,7 @@
     </div>
 </template>
 <script setup>
-    import { ref, reactive, onMounted, onActivated, onDeactivated } from 'vue';
+    import { ref } from 'vue';
     import TableComponent from '@/core/component/table_v2.vue';
     import * as api from "@/core/script/api.js";
     import apiUrl2 from '@/core/config/url2.js';
@@ -16,10 +16,6 @@
             default: {}
         },
     })
-    onMounted(() => {
-        // 初始化操作
-        console.log(props.query);
-    });
     const employeesTable = ref();
     const employeeTableConfig = ref({
         menuConfig: {
@@ -70,7 +66,7 @@
             }
             let msg = `您确定要给${employeeIds.length}位员工分配《${props.query.title}》权限吗？`;
             dialog.confirm(msg,async() =>{
-                const res = await api.divideAuthItem({
+                const res = await api.post(apiUrl2.sys.auth.addAuthAssignment,{
                     auth_id: authId,
                     employee_ids: employeeIds
                 });

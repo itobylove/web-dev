@@ -56,6 +56,7 @@ const apiUrl = new Proxy(
                 init: '/job/job/init',
                 list: '/job/job/list',
                 save: '/job/job/save',
+                import: '/job/job/import',
                 delete: '/job/job/delete',
             },
             mi:{
@@ -63,7 +64,8 @@ const apiUrl = new Proxy(
                 jobParams: '/job/mi/jobParams',
                 jobRoutes: '/job/mi/jobRoutes',
                 jmpParams: '/job/mi/jmpParams',
-                routeParams: '/job/mi/routeParams',
+                stationRouteParams: '/job/mi/stationRouteParams',
+                erpRouteParams: '/job/mi/erpRouteParams',
             },
         },
         cost:{
@@ -217,6 +219,9 @@ const apiUrl = new Proxy(
                 getEmployeeListsByAuthId: '/sys/authitem/getEmployeesListsByAuthId',
                 addAuthAssignment:'/sys/authitem/addAuthAssignment',
                 delAuthAssignment:'/sys/authitem/delAuthAssignment',
+                getAuthAssignmentByUid:'/sys/authitem/getAuthAssignmentByUid',
+                getAllEmployeeLists:'/sys/authitem/getAllEmployeeLists',
+                copyAuthAssignment:'/sys/authitem/copyAuthAssignment'
             }
         }
     },

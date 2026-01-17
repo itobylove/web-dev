@@ -31,7 +31,7 @@
     </div>
     <div class="box-detail">
       <div class="detail-item box-parameter" v-if="vData.station?.id && !vData.equipment?.id">
-        <ParameterPage  :station="vData.station" :tableConfig="{options:{rowSeriesNumber:false},showCheck:'radio'}"/>
+        <stationParameterPage  :station="vData.station" :tableConfig="{options:{rowSeriesNumber:false},showCheck:'radio'}"/>
       </div>
       <div class="main-item box-equipment-user" v-if="vData.equipment?.id">
         <EquipmentUserPage  :equipment="vData.equipment" :tableConfig="{options:{rowSeriesNumber:false},showCheck:'radio'}"/>
@@ -44,7 +44,7 @@ import StepPage from "@/modules/system/step_equipment/step.vue";
 import ProcessPage from "@/modules/system/step_equipment/step_process.vue";
 import StationPage from "@/modules/system/step_equipment/process_station.vue";
 import EquipmentPage from "@/modules/system/step_equipment/station_equipment.vue";
-import ParameterPage from "@/modules/system/step_equipment/station_parameter.vue";
+import stationParameterPage from "@/modules/system/step_equipment/station_parameter.vue";
 import EquipmentUserPage from "@/modules/system/step_equipment/equipment_user.vue";
 import {reactive} from "vue";
 import siyi from "@/core/script/siyi.js";
