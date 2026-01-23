@@ -213,6 +213,7 @@ const apiUrl = new Proxy(
                 del: '/base/supplier/delete',
             },
             auth:{
+                config: '/sys/authitem/config',
                 getMenu: '/sys/authitem/import',
                 getMenuLists: '/sys/authitem/index',
                 getEmployeeLists: '/sys/authitem/getemployeesbyauthid',
@@ -221,7 +222,10 @@ const apiUrl = new Proxy(
                 delAuthAssignment:'/sys/authitem/delAuthAssignment',
                 getAuthAssignmentByUid:'/sys/authitem/getAuthAssignmentByUid',
                 getAllEmployeeLists:'/sys/authitem/getAllEmployeeLists',
-                copyAuthAssignment:'/sys/authitem/copyAuthAssignment'
+                copyAuthAssignment:'/sys/authitem/copyAuthAssignment',
+                getAuthItemDetailsById:'/sys/authitem/getAuthItemDetailsById',
+                operateAuth:'/sys/authitem/operateAuth',
+                batchCancelAuthItem:'/sys/authitem/batchCancelAuthItem'
             }
         }
     },

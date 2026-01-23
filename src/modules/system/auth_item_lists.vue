@@ -9,40 +9,51 @@
     </div>
 </template>
 <script setup>
-    import { ref,nextTick } from 'vue';
+    import { ref,nextTick,onMounted } from 'vue';
     import TableComponent from '@/core/component/table_v2.vue';
     import apiUrl2 from '@/core/config/url2.js';
     import * as api from "@/core/script/api.js";
     import dialog from "@/core/script/dialog.js";
     import employees from '@/modules/system/employees.vue'
     import copyAuthItem from '@/modules/system/copy_auth_item.vue'
+    import batchAuthItem from '@/modules/system/batch_auth_item.vue'
+    import batchCancelAuthItem from '@/modules/system/batch_cancel_auth_item.vue'
     import * as tableFn from "@/core/script/tableFn.js";
+    import _ from "lodash";
+    import { updateRow,update } from "@/core/script/tableFn.js";
     const mainReport = ref();
     const authItemRow = ref(null);
     const detailListReport = ref(null);
     const tableShow = ref(false);
+    
+    onMounted(async() =>{
+        await api.get(apiUrl2.sys.auth.config).then((res) =>{
+            mainReport.value.reportConfig.columns = tableFn.createColumns(res.columns, res.table.columnSplit ||'#');
+            mainReport.value.reportConfig.getData();
+        })
+    });
     const mainReportConfig = ref({
-        menuConfig: false,
+        menuConfig: {
+            enableHeader: true,
+            defaultMenuHideList: ['search','clearCache','submitApprove', 'resetApprove', 'approve','pageExport', 'advancedExport','moreSettings','clearWhere',],
+            menu: {
+                add: {
+                    title: '导入权限节点',
+                    icon: 'ri-import-line',
+                    sort: 100,
+                    click:() => fn.importAuthItem()
+                },
+            }
+        },
         searchConfig: {},
         tableConfig: {
             url: apiUrl2.sys.auth.getMenuLists,
-            showCheck: true,
+            showCheck: 'radio',
             checkField:false,
             disablePage: true,
-            columns: [
-                {field: 'id', title: 'ID', align: 'left', width: 120},
-                {field: 'name', title: '权限名称', align: 'left', width: 200},
-                {field: 'title', title: '描述', align: 'left'},
-                {field: 'total', title: '使用人数', align: 'left'},
-                {field: 'status_text', title: '状态', align: 'left'},
-                {field: 'is_auth_text', title: '是否授权', align: 'left', width: 200},            
-                {field: 'created_time', title: '创建时间', align: 'center', width: 180, type: 'datetime'},
-                {field: 'updated_time', title: '更新时间', align: 'center', width: 180, type: 'datetime'},
-            ],
             events:{
                 click_cell: ({originData}) => {
-                    authItemRow.value = originData
-                    detailListReport.value.reportConfig.getData({id: originData.id}, true);
+                    clickCellDebounce(originData)
                 },
             },
             afterLoaded:()=>{
@@ -58,6 +69,14 @@
             }
         }
     })
+    const clickCellDebounce = _.debounce((e) =>{
+        authItemRow.value = e;
+        detailListReport.value.reportConfig.getData({id: e.id}, true);
+    },500);
+    const updateData = async(id,tableConfig) =>{
+        const newRow = await api.get(apiUrl2.sys.auth.getAuthItemDetailsById,{id:id});
+        await updateRow(tableConfig,newRow); // 更新使用人数
+    }
     const fn = {
         addAuthItem() {
             if(!authItemRow.value?.id) {
@@ -73,8 +92,14 @@
                     scene:'auth'
                 },
                 {
-                    title:"权限查询："+authItemRow.value.title,width:'60%',height:'80%'
-                })
+                    title:"权限查询："+authItemRow.value.title,width:'60%',height:'80%',
+                    onAfterClose:async ()=>{
+                        updateData(authItemRow.value.id,mainReport.value.reportConfig)
+                        //更新员工表
+                        clickCellDebounce(authItemRow.value);
+                    }
+                }
+            )
         },
         cancelAuthItem() {
             if(!authItemRow.value?.id) {
@@ -91,6 +116,8 @@
                 });
                 if(res.count > 0) {
                     dialog.success(`成功为${res.count}位员工取消权限`);
+                    //更新员工表
+                    updateData(authItemRow.value.id,mainReport.value.reportConfig);
                     detailListReport.value.reportConfig.getData({id: authItemRow.value.id}, false);
                 } else {
                     dialog.info('所选员工均未拥有该权限，无需取消');
@@ -111,17 +138,61 @@
                     scene:'auth'
                 },
                 {
-                    title:"复制权限："+authItemRow.value.title,width:'60%',height:'80%'
-                })
+                    title:"复制权限："+authItemRow.value.title,width:'60%',height:'80%',
+                    onAfterClose:async()=>{
+                        mainReport.value.reportConfig.getData();
+                    }
+                }
+            )
         },
+        batchAuthItem(){
+            dialog.window(
+                batchAuthItem,
+                {
+                    scene:'auth'
+                },
+                {
+                    title:"批量授权",width:'60%',height:'80%',
+                    onAfterClose:async()=>{
+                        mainReport.value.reportConfig.getData();
+                    }
+                }
+            )
+        },
+        batchCancelAuthItem(){
+            dialog.window(
+                batchCancelAuthItem,
+                {
+                    scene:'auth'
+                },
+                {
+                    title:"批量取消授权",width:'60%',height:'80%',
+                    onAfterClose:async()=>{
+                        mainReport.value.reportConfig.getData();
+                    }
+                }
+            )
+        },
+        async importAuthItem(){
+            await api.get(apiUrl2.sys.auth.getMenu).then((res) =>{
+                if(res.count > 0){
+                    dialog.success(`成功导入${res.count}个新权限节点`);
+                    mainReport.value.reportConfig.getData();
+                }else{
+                    dialog.success(`没有新权限节点可导入`);
+                }
+            });
+        }
     }
     const authItemEmployeesTableConfig = ref({
         menuConfig: {
             defaultMenuHideList: ['search','clearCache','submitApprove', 'resetApprove', 'approve','pageExport', 'advancedExport','moreSettings','clearWhere',],
             menu: {
-                addAuthItem: {sort: 650, title: '添加权限', icon: 'ri-list-settings-fill', click: () => fn.addAuthItem()},
+                addAuthItem: {sort: 650, title: '添加权限', icon: 'ri-map-pin-add-line', click: () => fn.addAuthItem()},
                 cancelAuthItem: {sort: 651, title: '取消权限', icon: 'ri-send-plane-fill', click: () => fn.cancelAuthItem()},
-                copyAuthItem: {sort: 651, title: '复制权限', icon: 'ri-send-plane-fill', click: () => fn.copyAuthItem()},                
+                copyAuthItem: {sort: 651, title: '复制权限', icon: 'ri-file-copy-2-line', click: () => fn.copyAuthItem()},
+                batchAuthItem: {sort: 651, title: '批量授权', icon: 'ri-arrow-down-circle-fill', click: () => fn.batchAuthItem()},
+                batchCancelAuthItem: {sort: 651, title: '批量取消', icon: 'ri-stack-line', click: () => fn.batchCancelAuthItem()},
             },
         },
         searchConfig: false,
@@ -140,7 +211,7 @@
 <style scoped>
     .auth-item-container {
         display: flex;
-        gap: 20px;
+        gap: 3px;
         .auth-item-lists{
             flex: 1;
         }

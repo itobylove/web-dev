@@ -18,6 +18,7 @@
     import * as api from "@/core/script/api.js";
     import dialog from "@/core/script/dialog.js";
     import * as tableFn from "@/core/script/tableFn.js";
+    // import {updateRow} from "@/core/script/tableFn.js";
     import _ from 'lodash'
     const props = defineProps({
         query: {
@@ -77,7 +78,7 @@
                 menu: {
                     add: {
                         title: '提交复制授权',
-                        icon: 'ri-user-add-line',
+                        icon: 'ri-file-copy-fill',
                         sort: 100,
                         click:() => fn.copyAuthItemToEmployee()
                     },
@@ -131,7 +132,7 @@
 <style scoped>
     .copy-auth-item-container {
         display: flex;
-        gap: 5px;
+        gap: 3px;
         height: 100vh;
         .select-employee-auth-item-lists{
             flex: 1;

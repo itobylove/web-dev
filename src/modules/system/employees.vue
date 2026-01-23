@@ -15,6 +15,7 @@
             type: Object, 
             default: {}
         },
+        dialog: {type: Object},
     })
     const employeesTable = ref();
     const employeeTableConfig = ref({
@@ -24,7 +25,7 @@
             menu: {
                 add: {
                     title: '提交授权',
-                    icon: 'ri-user-add-line',
+                    icon: 'ri-map-pin-add-line',
                     sort: 100,
                     click:() => fn.addAuthItemForEmployee()
                 },
@@ -48,9 +49,10 @@
                 {field: 'status_text', title: '状态', align: 'left', width: 200},
                 {field: 'created_time', title: '创建时间', align: 'left', width: 200},
             ],
-            afterLoaded:(res)=>{
+            afterLoaded:async (res)=>{
                 if(res.data.length === 0) {
-                    dialog.info('此权限已分配给所有员工');
+                    dialog.info('此权限已分配给所有员工',2000);
+                    await props.dialog.close()
                 }
             },
         },
@@ -75,6 +77,7 @@
                 } else {
                     dialog.info('所选员工均已拥有该权限，无需重复分配');
                 }
+                await  props.dialog.close()
             });
         },
     }
