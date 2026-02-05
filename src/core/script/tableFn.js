@@ -219,7 +219,7 @@ export const resetConfig = async tableConfig => {
 export const update = (tableConfig, emptyRow = true, scrollTo = 0) => {
     const records = [];
     const columns = [];
-    const check = tableConfig.showCheck ? {check: {check: false, disable: true}} : {};
+    const check = tableConfig.showCheck ? {check: {checked: false, disable: true}} : {};
     for (let i = 0; i < 100; i++) {
         columns.push({});
         records.push(check);
@@ -229,7 +229,8 @@ export const update = (tableConfig, emptyRow = true, scrollTo = 0) => {
     tableConfig.options.records = _.merge([], emptyRow ? records : [], tableConfig.options.records);
     tableConfig.options.columns = _.merge([], tableConfig.options.columns.length > 0 ? tableConfig.options.columns : columns);
     for (const col of tableConfig.options.columns) {
-        col.headerIcon = col.headerIcon ? tableConfig.filterWhere[col.field] ? 'filtering' : 'filter' : '';
+        col.headerIcon = col.headerIcon ? (tableConfig.filterWhere[col.field] ? 'filtering' : 'filter') : '';
+
     }
     tableConfig.table.updateOption(tableConfig.options);
     typeof scrollTo === 'number' && scrollTo >= 0 && tableConfig.table.setScrollTop(scrollTo);//定位到哪一条
@@ -342,7 +343,7 @@ export const on = tableConfig => {
         tableConfig.events.change_header_position?.(args);//调用自定义事件配置
     })
 
-    //选择复选框
+    //单击单元格
     let defaultEvent = true; //为了修复自带功能没有事件冒泡阻止功能
     tableConfig.events._lists.click_cell && tableConfig.table.off(tableConfig.events._lists.click_cell);
     tableConfig.events._lists.click_cell = tableConfig.table.on('click_cell', args => {
@@ -352,7 +353,7 @@ export const on = tableConfig => {
             tableConfig.selectRow = args.originData;//当前选择行
         }
         //行复选框行为
-        if (tableConfig.showCheck && (tableConfig.checkField === args.field || tableConfig.checkField === false)) {
+        if (args?.originData?.index > 0 && tableConfig.showCheck && (tableConfig.checkField === args.field || tableConfig.checkField === false)) {
             //去掉选中的 不含当前这一行
             const cancelCheck = () => {
                 const checkStatus = tableConfig.table.getCheckboxState('check');//已选
@@ -380,19 +381,21 @@ export const on = tableConfig => {
                 item.index > 0 && tableConfig.table.arrangeCustomCellStyle({
                     range: {
                         start: {row: item.index, col: 0},
-                        end: {row: item.index, col: 9999999}
+                        end: {row: item.index, col: tableConfig.columns.length}
                     }
                 }, checkStatus[item.index - 1] ? 'selectRowbg' : '', true);
             }
         }
         //列过滤器
         if (args.cellLocation === 'columnHeader' && ['filtering', 'filter'].includes(args.targetIcon?.name)) {
-            const field = tableConfig.options.columns[args.col - colNumber].field;
+            const columns = tableConfig.options.columns.filter(item => !item.hide);
+            const field = columns[args.col - colNumber].field;
             dialog.window(tableFilterComponent, {table: tableConfig, field}, {
+                event:args.event,
                 width: '250px',
+                left: 'mouse',
+                top: 'mouse',
                 footerTopBorder: '1px solid #dcdcdc',
-                left: args.event.clientX - 250 + 'px',
-                top: args.event.clientY - 40 + 'px',
                 footerButtonPosition: 'right',
                 windowResize: false,
                 okval: '确定',
@@ -432,6 +435,18 @@ export const on = tableConfig => {
     tableConfig.events._lists.checkbox_state_change && tableConfig.table.off(tableConfig.events._lists.checkbox_state_change);
     tableConfig.events._lists.checkbox_state_change = tableConfig.table.on('checkbox_state_change', args => {
         defaultEvent = false;
+        // 点击表头复选框
+        if (args.row === 0) {
+            const hasChecked = tableConfig.options.records.filter(item => item.check.checked).length > 0; // 是否有选中的
+            tableConfig.options.records = tableConfig.options.records.map((item, index) => ({
+                ...item,
+                check: {
+                    ...(item.check || {}),
+                    checked: item.check.disable ? (tableConfig.records?.[index]?.check?.checked ?? false) : !hasChecked,
+                }
+            }));
+            update(tableConfig);
+        }
         tableConfig.events.checkbox_state_change?.(args);//调用自定义事件配置
     })
 
@@ -477,7 +492,7 @@ export const createTable = (tableConfig, rowBeforCallback = undefined, colAfterC
     //行格式化方法
     const rowFormater = (row, index) => {
         const _rowBeforCallback = rowBeforCallback || (_row => _row);
-        const check = tableConfig.showCheck ? {check: {check: false, disable: false}} : {};
+        const check = tableConfig.showCheck ? {check: {checked: false, disable: false}} : {};
         return _rowBeforCallback({...check, index: index + 1, ...row});
     };
     // 生成列配置
@@ -529,20 +544,22 @@ export const createColumns = (baseColumns, separator = '#') => {
         if (typeof oldfield === 'object') {
             column = oldfield;
         } else {
-            //从字段名解析列配置,转小写，英文字段名_中文字段名_标识[M加密、H隐藏、S禁止出现表格设置、E禁止导出]
+            //从字段名解析列配置,转小写，英文字段名_中文字段名_标识
             const [field, title, label] = oldfield.split(separator);
             column = {field, title, label: label?.toUpperCase()};
         }
+        column.label = column.label ?? ''; // 默认标识
         columns.push({
-            oldfield,                                                     //原始字段
+            oldfield,                                                        //原始字段
             ...column,
-            field: column.field,                                          //字段名
-            title: (column?.title || column.field).toUpperCase(),         //标题
-            hide: column?.label?.includes('H'),                           //隐藏
-            disabledSeting: column?.label?.includes('S'),                 //禁止出现表格设置
-            disabledExport: column?.label?.includes('E'),                 //禁止导出 正常都导出，隐藏字段不导出
-            encryption: column?.label?.includes('M') ? false : undefined, //加密用到的字段
-            headerIcon: column?.label?.includes('F') ? '' : 'filter',     //过滤功能 filter    filtering
+            field: column.field,                                             //字段名
+            title: (column?.title || column.field).toUpperCase(),            //标题
+            hide: column.label.includes('H'),                           //隐藏, H → true
+            disabledSeting: column.label.includes('S'),                 //禁止出现表格设置, S → true
+            disabledExport: column.label.includes('E'),                 //禁止导出, E → true
+            encryption: column.label.includes('M') ? false : undefined, // false:默认无权限需要申请;undefined:不启用加密 , M → false
+            headerIcon: column.label.includes('F') ? '' : 'filter',     //过滤功能 filter/filtering F: 禁用列过滤
+            showSort: !column.label.includes('P'),                      //排序功能
         });
     });
     return columns;

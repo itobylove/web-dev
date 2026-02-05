@@ -12,10 +12,11 @@ const loadData = async (obj, searchObj) => {
     for (const key in res) {
         searchObj.searchList.forEach(item => {
             if (item.load === key) {
+                const options = [{label: '全部', checkAll: true},...res[key]];
                 if (item.type === 'tree') {
-                    item.options.data = res[key]
+                    item.options.data = options
                 } else {
-                    item.options.options = res[key]
+                    item.options.options = options
                 }
             }
         })
@@ -98,6 +99,7 @@ export const loadSearch = async (props, searchObj) => {
                 multiple: true,//多选
                 minCollapsedNum: 1,//显示数量
                 options: [],//选项
+                reserveKeyword:true,//保留关键字
             },
             load: '', //后端加载来源
             remote: false, //输入时后向后端获取列表值

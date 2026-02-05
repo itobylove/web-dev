@@ -25,6 +25,8 @@ export const getBoundingClientRect = (dom, event) => {
     const domRect = dom.getBoundingClientRect();//窗口位置
     //内容区位置
     return {
+        dom: dom,
+        container: dom.parentNode,
         containerTop: containerRect.top,
         containerLeft: containerRect.left,
         containerWidth: containerRect.width,
@@ -637,9 +639,9 @@ export const data = {
             case 'lessThanOrEqual':// 小于等于
                 return parseFloat(value) <= parseFloat(where.value);
             case 'between':// 介于
-                return parseFloat(value) >= parseFloat(where.min) && parseFloat(value) <= parseFloat(where.max);
+                return parseFloat(value) >= parseFloat(where.value.min) && parseFloat(value) <= parseFloat(where.value.max);
             case 'notBetween':// 不介于
-                return !(parseFloat(value) >= parseFloat(where.min) && parseFloat(value) <= parseFloat(where.max));
+                return !(parseFloat(value) >= parseFloat(where.value.min) && parseFloat(value) <= parseFloat(where.value.max));
             case 'contains':// 包含
                 return String(value).trim().toUpperCase().includes(String(where.value).trim().toUpperCase());
             case 'notContains':// 不包含
@@ -729,6 +731,7 @@ export const date = {
             '去年': [startMonth['去年'], endMonth['去年']],
             ...month,
             '本月': [startMonth['本月'], endMonth['本月']],
+            '3月内': [date.datetimeFormat(dayjs().subtract(3, 'month').startOf('month').toDate(), format), startMonth['本月']],
             '7天内': [startMonth['7天内'], endMonth['7天内']],
             '3天内': [startMonth['3天内'], endMonth['3天内']],
             '昨天': [startMonth['昨天'], endMonth['昨天']],

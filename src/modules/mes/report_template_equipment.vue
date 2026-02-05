@@ -10,8 +10,8 @@
           <t-form-item label="设备" name="equipment_id" >
             <t-select v-model="dialogConfigE.data.equipment_id" :options="vData.selectOptions.equipment_id"  :filterable="dialogConfigE.type === 'addEquipment'" :multiple="dialogConfigE.type === 'addEquipment'" :disabled="dialogConfigE.type == 'editEquipment'"  />
           </t-form-item>
-          <t-form-item label="多工单上机" name="ismultiselect" >
-            <t-select filterable v-model="dialogConfigE.data.ismultiselect" :options="vData.selectOptions.ismultiselect"/>
+          <t-form-item label="多工单上机" name="multiple" >
+            <t-select filterable v-model="dialogConfigE.data.multiple" :options="vData.selectOptions.multiple"/>
           </t-form-item>
           <t-form-item label="状态" name="status" >
             <t-select v-model="dialogConfigE.data.status" :options="vData.selectOptions.status"/>
@@ -46,7 +46,7 @@ const props = defineProps({
 const vData=reactive({
   template_id:null,
   template_name:null,
-  selectOptions: {status:[],equipment_id:[],template_id:[],ismultiselect:[]},
+  selectOptions: {status:[],equipment_id:[],template_id:[],multiple:[]},
 })
 const mainReport = ref();
 const mainReportShow = ref(false);
@@ -79,7 +79,7 @@ const fn = {
     if (!vData.template_id) {
       return dialog.warning('请选择模板');
     }
-    dialogConfigE.data = {status:1,template_id:vData.template_id,ismultiselect:'NO'};
+    dialogConfigE.data = {status:1,template_id:vData.template_id,multiple:'NO'};
     dialogConfigE.bind.title = '新增模板设备';
     dialogConfigE.type = 'addEquipment';
     dialogConfigE.isShow = true;
@@ -119,7 +119,7 @@ const dialogConfigE = reactive({
   rules:{
     template_id: [{required: true, message: '请选择模板', trigger: 'change'},],
     equipment_id: [{required: true, message: '请选择设备', trigger: 'change'},],
-    ismultiselect: [{required: true, message: '请选择是否多工单上机', trigger: 'change'},],
+    multiple: [{required: true, message: '请选择是否多工单上机', trigger: 'change'},],
     status: [{required: true, message: '请选择状态', trigger: 'change'},],
   },
   bind:{

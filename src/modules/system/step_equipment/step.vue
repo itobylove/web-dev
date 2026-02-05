@@ -50,11 +50,12 @@ const props = defineProps({
   query:{type:Object,default:{}},
   tableConfig: {type: Object, default: {}},
   menuConfig: {type: Object, default: {}},
+  config:{type:Object,default:{}}
 });
 
 const emit = defineEmits(['clickCell','afterLoaded'])
 
-//页面数据
+//页面数据vData.selectOptions.erp_step_id
 const vData=reactive({
   plant_id: siyi.user.plantId,
   selectOptions: {status:[],erp_step_id:[]},
@@ -69,7 +70,7 @@ const mainReportConfig = {
     menu: {
       import: {sort: 500, title: '从ERP导入', icon: 'ri-import-line', click: () => fn.importFromErp()},
       add: {sort: 650, title: '添加' , icon: 'ri-add-line', click: () => fn.addStep()},
-      edit: {sort: 651, title: '修改', icon: 'ri-edit-line', click: () => fn.editStep()},
+      // edit: {sort: 651, title: '修改', icon: 'ri-edit-line', click: () => fn.editStep()},
       del: {sort: 652, title: '删除', icon: 'ri-delete-bin-2-line', click: () => fn.delStep()},
       list: {title: '管理', click: ()=>fn.showList, icon: 'ri-list-check', sort: 700},
     },
@@ -210,14 +211,21 @@ const dialogConfig = reactive({
 })
 
 onMounted( () => {
-  api.get(apiUrl.sys.step.config).then(res => {
-    vData.selectOptions = getOptionsLabel(res?.option);
-    mainReportConfig.tableConfig = {...mainReportConfig.tableConfig, ...res.table};
-    mainReportConfig.tableConfig.columns = tableFn.createColumns(res.columns);
-    const statusSearch = mainReportConfig.searchConfig.search.find(item => item.field === 'status');
-    if (statusSearch) statusSearch.options.options = vData.selectOptions.status;
-    mainReportShow.value = true;
-  });
+  vData.selectOptions = getOptionsLabel(props.config?.option);
+  mainReportConfig.tableConfig = {...mainReportConfig.tableConfig, ...props.config.table};
+  mainReportConfig.tableConfig.columns = tableFn.createColumns(props.config.columns);
+  const statusSearch = mainReportConfig.searchConfig.search.find(item => item.field === 'status');
+  if (statusSearch) statusSearch.options.options = vData.selectOptions.status;
+  mainReportShow.value = true;
+
+  // api.get(apiUrl.sys.step.config).then(res => {
+  //   vData.selectOptions = getOptionsLabel(res?.option);
+  //   mainReportConfig.tableConfig = {...mainReportConfig.tableConfig, ...res.table};
+  //   mainReportConfig.tableConfig.columns = tableFn.createColumns(res.columns);
+  //   const statusSearch = mainReportConfig.searchConfig.search.find(item => item.field === 'status');
+  //   if (statusSearch) statusSearch.options.options = vData.selectOptions.status;
+  //   mainReportShow.value = true;
+  // });
 });
 
 </script>

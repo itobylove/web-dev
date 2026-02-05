@@ -135,7 +135,6 @@ const dialogConfig = reactive({
     code: [{required: true, message: '请输入单位编码', trigger: 'change'},],
     name: [{required: true, message: '请输入单位名称', trigger: 'change'},],
     status: [{required: true, message: '请选择状态', trigger: 'change'},],
-    erp_unit_id: [{required: true, message: '请选择ERP单位', trigger: 'change'},],
   },
   bind:{
     width: '50%',

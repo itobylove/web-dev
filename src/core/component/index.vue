@@ -1,33 +1,33 @@
 <template>
-  <div ref="siyiRef" :class="['siyi',{'pc':siyi.pc,'mobile':siyi.mobile},siyi.user.view.theme]">
+  <div ref="siyiRef" :class="['siyi',siyi.deviceName,siyi.user.view.theme]">
     <div class="logo" @click="siyi.navHide=!siyi.navHide" v-if="siyi.pc">LONGTENG</div>
     <div class="module">
       <div v-for="module in nav.nav.value"
-           :active="module.id===activeModule"
+           :active="module.id===refobj.activeModule"
            :module="module.id"
            :show="module.show"
-           @click="moduleSwitch(module.id,'click')"
-           @mouseover="moduleSwitch(module.id,'mouseover')"
-           @mouseleave="navShow=false">
+           @click="obj.moduleSwitch(module.id,'click')"
+           @mouseover="obj.moduleSwitch(module.id,'mouseover')"
+           @mouseleave="refobj.navShow=false">
         <span class="icon"><i :class="module.icon"/></span>
         <span class="title">{{ module.title }}</span>
       </div>
     </div>
     <div class="user" v-if="siyi.pc">
       <span class="name">{{ siyi.user.nickname }}，{{ siyi.user.username }}</span>
-      <span class="avatar" :style="avatar"></span>
+      <span class="avatar" :style="refobj.avatar"></span>
       <span class="icon" :title="core.themeSwitch('title')" @click="core.themeSwitch()"><i :class="core.themeSwitch('icon')"/></span>
       <span class="icon" :title="core.deviceSwitch('title')" @click="core.deviceSwitch()"><i :class="core.deviceSwitch('icon')"/></span>
-      <span class="icon" title="绑定微信" @click="getWeixinQrcode()"><i class="ri-wechat-fill"></i></span>
+      <span class="icon" title="绑定微信" @click="obj.getWeixinQrcode()"><i class="ri-wechat-fill"></i></span>
       <span class="icon" :title="core.fullscreenSwitch('title')" @click="siyi.navHide=core.fullscreenSwitch()">
         <i :class="core.fullscreenSwitch('icon')"/>
       </span>
       <span class="icon" title="退出" @click="logout(true)"><i class="ri-logout-circle-r-line"/></span>
     </div>
-    <div :class="['left',{'hide':siyi.navHide,'show':navShow}]" @mouseenter="navShow=siyi.navHide&&true" @mouseleave="navShow=false">
-      <div class="search"><input type="text" placeholder="搜索其实很方便" v-model="navSearch" @input="nav.filter(navSearch,activeModule)"></div>
+    <div :class="['left',{'hide':siyi.navHide,'show':refobj.navShow}]" @mouseenter="refobj.navShow=siyi.navHide&&true" @mouseleave="refobj.navShow=false">
+      <div class="search"><input type="text" placeholder="搜索其实很方便" v-model="refobj.navSearch" @input="nav.filter(refobj.navSearch,refobj.activeModule)"></div>
       <div class="nav">
-        <div class="module" v-for="module in nav.nav.value" :active="module.id===activeModule">
+        <div class="module" v-for="module in nav.nav.value" :active="module.id===refobj.activeModule">
           <a v-for="item in module.items"
              :auth="item.auth"
              :active="siyi.nav.id===item.id"
@@ -37,7 +37,7 @@
              :groupIcon="item.groupIcon"
              :groupShow="item.groupShow"
              :href="item.href?item.href:'#'+item.id"
-             @click.stop="navTo(item)">
+             @click.stop="obj.navTo(item)">
             <span class="icon" :style="{'background':(siyi.mobile&&item.auth)?item.background:''}"><i :class="item.icon"/></span>
             <span class="title">{{ item.title }}</span>
             <span class="operation">
@@ -48,7 +48,7 @@
           </a>
         </div>
       </div>
-      <div class="time" v-if="siyi.pc">{{ systemTime }}</div>
+      <div class="time" v-if="siyi.pc">{{ refobj.systemTime }}</div>
     </div>
     <main class="right" ref="rightRef">
       <transition>
@@ -58,15 +58,15 @@
       </transition>
     </main>
     <aside class="mobileTabBar" v-if="siyi.mobile">
-      <a :class="[{active:mobileTabBarItem==='home'}]" title="主页" href="#home" @click="navTo({id:'home'})">
+      <a :class="[{active:refobj.mobileTabBarItem==='home'}]" title="主页" href="#home" @click="obj.navTo({id:'home'})">
         <span class="icon"><i class="ri-home-8-line"/></span>
         <span class="title">主页</span>
       </a>
-      <a :class="[{active:mobileTabBarItem==='module'}]" title="模块" href="javascript:void(0)" @click="mobileModule()">
+      <a :class="[{active:refobj.mobileTabBarItem==='module'}]" title="模块" href="javascript:void(0)" @click="obj.mobileModule()">
         <span class="icon"><i class="ri-apps-line"/></span>
         <span class="title">模块</span>
       </a>
-      <a :class="[{active:mobileTabBarItem==='profile'}]" title="我的" href="#profile" @click="navTo({id:'profile'})">
+      <a :class="[{active:refobj.mobileTabBarItem==='profile'}]" title="我的" href="#profile" @click="obj.navTo({id:'profile'})">
         <span class="icon"><i class="ri-user-line"/></span>
         <span class="title">我的</span>
       </a>
@@ -74,106 +74,115 @@
   </div>
 </template>
 <script setup>
-import {onActivated, onDeactivated, onMounted, ref} from 'vue'
-import * as core from '@/core/script/core.js'
-import * as nav from '@/core/script/nav.js'
-import {heartbeat, logout} from '@/core/script/user.js'
-import siyi from '@/core/script/siyi.js'
-import * as api from '@/core/script/api.js'
-import dialog from "@/core/script/dialog.js";
+import {onActivated, onDeactivated, onMounted, ref, reactive} from 'vue'
+import * as core from '@/core/script/core'
+import * as nav from '@/core/script/nav'
+import {heartbeat, logout} from '@/core/script/user'
+import siyi from '@/core/script/siyi'
+import * as api from '@/core/script/api'
+import dialog from "@/core/script/dialog";
 
-const siyiRef = ref('')//主容器
-const rightRef = ref('')//工作区容器
-const avatar = {backgroundImage: `url('${siyi.user.avatar}')`}//头像
-const systemTime = ref('')//时间
-const activeModule = ref('')//活动模块
-const navShow = ref(false)//导航悬浮显示
-const navLeft = ref('0px')//导航悬浮显示横向位置
-const navSearch = ref('')//导航搜索内容
-const rightZindex = ref(100)//手机端主工作区显示层级
-const mobileTabBarItem = ref('home')//手机底部菜单
+const siyiRef = ref('');//主容器
+const rightRef = ref('');//工作区容器
 
 
-//导航跳转
-const navTo = cfg => {
-  !cfg.href && nav.to(cfg.id)
-  if (siyi.mobile) {
-    mobileTabBarItem.value = cfg.id
-    rightZindex.value = 100
-  }
-}
+const refobj = reactive({
+  avatar: {backgroundImage: `url('${siyi.user.avatar}')`},//头像
+  systemTime: '',//时间
+  activeModule: '',//活动模块
+  navShow: false,//导航悬浮显示
+  navLeft: '0px',//导航悬浮显示横向位置
+  navSearch: '',//导航搜索内容
+  rightZindex: 100,//手机端主工作区显示层级
+  mobileTabBarItem: 'home',//手机底部菜单
+});
 
-const mobileModule = () => {
-  mobileTabBarItem.value = 'module'
-  rightZindex.value = 1
-}
 
-const getWeixinQrcode = async () => {
-  const loading = dialog.loading();
-  const {src, timeout} = await api.get(api.url.user.bindWeixin)
-  loading.close();
-  if (!src) return;
-  const _window = dialog.window(`<img src="${src}" style="width: 80%;height: 80%" />  <h3>请使用个人微信扫二维码，然后关注服务号绑定</h3>`, {},
-      {title: '个人微信绑定', width: '500px', height: '500px', bodyStyle: {display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center'}})
-  const timer = setTimeout(async () => {
-    const {src} = await api.get(api.url.user.bindWeixin)
-    if (!src) {
-      // 关闭窗口,清除定时器
-      clearTimeout(timer)
-      _window.close();
+const obj = {
+  /**
+   * 导航跳转
+   * @param cfg
+   */
+  navTo: cfg => {
+    !cfg.href && nav.to(cfg.id);
+    if (siyi.mobile) {
+      refobj.mobileTabBarItem = cfg.id;
+      refobj.rightZindex = 100;
     }
-  }, timeout)
-}
-
-
-//模块切换
-const moduleSwitch = (id, type) => {
-  if (!siyi.navHide && type === 'mouseover') return;
-  navSearch.value = ''
-  activeModule.value = id
-  nav.filter(navSearch.value, activeModule.value)
-  if (siyi.navHide) {
-    navShow.value = true
-    const ddrect = document.querySelector('body>.siyi>.module>div[module=' + id + ']').getBoundingClientRect()
-    navLeft.value = ddrect.left + window.scrollX + ddrect.width / 2 - 125 + 'px'
-  }
-}
-
-
-//锁屏
-let timer = null
-// 在首次挂载 以及每次从缓存中被重新插入的时候调用
-onActivated(() => {
-  if(siyi.isDev)return; // 如果是开发环境,直接返回,不作验证,因为会经常退出登陆
-  const hash = core.query.get(null, 'hash').slice(1)
-  mobileTabBarItem.value = ['home', 'profile'].includes(hash) ? hash : 'module'
-  nav.to(hash)
-  activeModule.value = siyi.nav.moduleid
-
-
-  // 倒计时，超时退出登录
-  timer = setInterval(async () => {
-    const time = parseInt(sessionStorage.getItem('x-api-time') - Date.now() / 1000)
-    systemTime.value = core.date.YmdHis() + ' ' + core.date.week() + ' (' + time + ')'
-    if (time <= 0) {
-      clearInterval(timer)
-      await logout()
+  },
+  /**
+   * 手机端模块切换
+   */
+  mobileModule: () => {
+    refobj.mobileTabBarItem = 'module';
+    refobj.rightZindex = 1;
+  },
+  /**
+   * 获取微信二维码
+   * @returns {Promise<void>}
+   */
+  getWeixinQrcode: async () => {
+    const loading = dialog.loading();
+    const {src, timeout} = await api.get(api.url.user.bindWeixin)
+    loading.close();
+    if (!src) return;
+    const _window = dialog.window(`<img src="${src}" style="width: 80%;height: 80%" />  <h3>请使用个人微信扫二维码，然后关注服务号绑定</h3>`, {},
+        {title: '个人微信绑定', width: '500px', height: '500px', bodyStyle: {display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center'}})
+    const timer = setTimeout(async () => {
+      const {src} = await api.get(api.url.user.bindWeixin);
+      if (!src) {
+        clearTimeout(timer);// 关闭窗口,清除定时器
+        _window.close();
+      }
+    }, timeout);
+  },
+  /**
+   * 模块切换
+   * @param id
+   * @param type
+   */
+  moduleSwitch: (id, type) => {
+    if (!siyi.navHide && type === 'mouseover') return;
+    refobj.navSearch = '';
+    refobj.activeModule = id;
+    nav.filter(refobj.navSearch, refobj.activeModule);
+    if (siyi.navHide) {
+      refobj.navShow = true;
+      const ddrect = document.querySelector('body>.siyi>.module>div[module=' + id + ']').getBoundingClientRect();
+      refobj.navLeft = ddrect.left + window.scrollX + ddrect.width / 2 - 125 + 'px';
     }
-    time % 30 === 0 && !siyi.isDev && heartbeat().then();//每隔30秒检查一次登录状态
-  }, 1000)
-})
+  },
+  timer: null,
+  onActivated: () => {
+    const hash = core.query.get(null, 'hash').slice(1);
+    refobj.mobileTabBarItem = ['home', 'profile'].includes(hash) ? hash : 'module';
+    nav.to(hash);
+    refobj.activeModule = siyi.nav.moduleid;
+    // 倒计时，超时退出登录
+    obj.timer = setInterval(async () => {
+      const time = parseInt(sessionStorage.getItem('x-api-time') - Date.now() / 1000);
+      refobj.systemTime = core.date.YmdHis() + ' ' + core.date.week() + ' (' + time + ')';
+      if (time <= 0) {
+        clearInterval(obj.timer);
+        !siyi.isDev && await logout();
+      }
+      time % 30 === 0 && !siyi.isDev && heartbeat().then();//每隔30秒检查一次登录状态
+    }, 1000);
+  },
+  onDeactivated: () => {
+    clearInterval(obj.timer);
+    obj.timer = null;
+  },
+  onMounted: () => {
+    core.query.set('token');// 清除token
+    !siyi.isDev && core.watermark();// 水印
+  }
+};
 
-// 在从 DOM 上移除、进入缓存 以及组件卸载时调用
-onDeactivated(() => {
-  clearInterval(timer)
-  timer = null
-})
 
-
-onMounted(() => {
-  core.query.set('token');// 清除token
-  siyi.isDev || core.watermark();// 水印
-}) //清空URL的token
+onActivated(() => obj.onActivated());// 在首次挂载 以及每次从缓存中被重新插入的时候调用
+onDeactivated(() => obj.onDeactivated());// 在从 DOM 上移除、进入缓存 以及组件卸载时调用
+onMounted(() => obj.onMounted());// 挂载
 
 </script>
 <style scoped>
@@ -501,7 +510,7 @@ onMounted(() => {
 
       &.show {
         height: auto;
-        left: v-bind(navLeft);
+        left: v-bind(refobj.navLeft);
         display: grid;
         grid-template-rows: 40px auto;
 
@@ -595,7 +604,7 @@ onMounted(() => {
     overflow: hidden;
     top: 0;
     left: 0;
-    z-index: v-bind(rightZindex);
+    z-index: v-bind(refobj.rightZindex);
     background-color: var(--right-background-color);
 
     > div {

@@ -15,7 +15,8 @@
             <t-input v-model="dialogConfig.data.code" />
           </t-form-item>
           <t-form-item label="参数分组" name="category">
-            <t-input v-model="dialogConfig.data.category" />
+            <select-input v-model="dialogConfig.data.category"  :options="vData.selectOptions.category_list"  />
+<!--            <t-input v-model="dialogConfig.data.category" />-->
           </t-form-item>
           <t-form-item label="页面组件" name="input_type">
             <t-select v-model="dialogConfig.data.input_type" :options="vData.selectOptions.input_type"/>
@@ -44,6 +45,7 @@
         </t-col></t-row>
       </t-form>
     </dialogComponent>
+    <input type="file" ref="fileInput" style="display:none" @change="fn.upload" />
   </div>
 </template>
 <script setup>
@@ -56,6 +58,7 @@ import dialog from "@/core/script/dialog.js";
 import {getOptionsLabel} from "@/utils/vars.js";
 import * as select from "@/core/config/select.js";
 import _ from 'lodash';
+import SelectInput from "@/core/component/SelectInput.vue";
 
 const props = defineProps({
   query:{type:Object,default:{}}
@@ -63,9 +66,11 @@ const props = defineProps({
 
 //页面数据
 const vData=reactive({
-  selectOptions: {status:[],value_type:[],input_type:[],unit_id:[]},
+  selectOptions: {status:[],value_type:[],input_type:[],unit_id:[],category_list:[]},
   ...props.query
 })
+
+const fileInput = ref();
 
 const mainReport = ref();
 const mainReportShow = ref(false);
@@ -73,7 +78,8 @@ const mainReportConfig = {
   menuConfig: {
     defaultMenuHideList: ['clearCache','submitApprove', 'resetApprove', 'approve', 'advancedExport'],
     menu: {
-      import: {sort: 500, title: '从ERP导入', icon: 'ri-import-line', click: () => fn.importFromErp()},
+      import: {sort: 500, title: '从ERP导入', icon: 'ri-download-line', click: () => fn.importFromErp()},
+      upload: {sort: 550, title: '从文件上传', icon: 'ri-upload-line', click: () => fn.upload()},
       add: {sort: 650, title: '新增' , icon: 'ri-add-line', click: () => fn.addParameter()},
       edit: {sort: 651, title: '修改', icon: 'ri-edit-line', click: () => fn.editParameter()},
       editCate: {sort: 651, title: '设置分组', icon: 'ri-edit-line', listAction: (rows)=>fn.setAttr('category',rows)},
@@ -151,6 +157,19 @@ const fn = {
     if (!res?.count) return;
     dialog.success('导入成功'+res.count+'个');
     await mainReport.value.reportConfig.getData();
+  },
+  upload: async (e) => {
+    const file = e?.target?.files?.[0];
+    console.log(file)
+    if (!file) {
+      fileInput.value.click();
+      return;
+    }
+    e.target.value = "";
+    const loading= dialog.loading(mainReport.value,'正在导入数据，请稍等！');
+    const res = await api.uploader({file}, api.url2.sys.parameter.upload);
+    loading.close();
+    res?.info && dialog.success(res.info) && await mainReport.value.reportConfig.getData();
   },
   setAttr: async (attrName, rows) => {
     const post = {};

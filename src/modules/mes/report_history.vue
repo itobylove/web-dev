@@ -18,7 +18,7 @@ const props = defineProps({
 
 //页面数据
 const vData=reactive({
-  selectOptions: {status:[],user_id:[],step_id:[],process_id:[],equipment_id:[]},
+  selectOptions: {status:[],user_id:[],step_id:[],process_id:[],station_id:[],equipment_id:[]},
 })
 const listReport = ref();
 const listReportShow = ref(false);
@@ -32,6 +32,7 @@ const listReportConfig = {
       {type: 'input', field: 'job', options: {placeholder: '生产型号'}},
       {type: 'select', field: 'step_id', options: {multiple:false,placeholder: '工序',style:{width:'160px'}, options: vData.selectOptions.step_id}},
       {type: 'select', field: 'process_id', options: {multiple:false,placeholder: '工艺',style:{width:'160px'}, options: vData.selectOptions.process_id}},
+      {type: 'select', field: 'station_id', options: {multiple:false,placeholder: '工段',style:{width:'160px'}, options: vData.selectOptions.station_id}},
       {type: 'select', field: 'equipment_id', options: {multiple:false,placeholder: '设备',style:{width:'160px'}, options: vData.selectOptions.equipment_id}},
       {type: 'select', field: 'employee_id', options: {multiple:false,placeholder: '人员',style:{width:'160px'}, options: vData.selectOptions.user_id}},
       {type: 'select', field: 'result', options: {multiple:false,placeholder: '结果',style:{width:'160px'}, options: vData.selectOptions.result}},
@@ -77,7 +78,7 @@ onMounted(() => {
     vData.selectOptions = getOptionsLabel(res?.option);
     listReportConfig.tableConfig = {...listReportConfig.tableConfig, ...res.table};
     listReportConfig.tableConfig.columns = tableFn.createColumns(res.columns);
-    const searchFields = ['status', 'result', 'employee_id', 'step_id', 'process_id', 'equipment_id'];
+    const searchFields = ['status', 'result', 'employee_id', 'step_id', 'process_id', 'equipment_id','station_id'];
     searchFields.forEach(field => {
       const searchItem = listReportConfig.searchConfig.search.find(item => item.field === field);
       if (searchItem) searchItem.options.options = vData.selectOptions[field] || [];

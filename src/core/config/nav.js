@@ -26,6 +26,7 @@ export const components = {
     peorder_mobile: reg({loader: () => import('@/modules/pe/peorder.v250313.vue'), loadingComponent, errorComponent}),
     ecnApprove: reg({loader: () => import('@/modules/pe/ecnApprove.v250313.vue'), loadingComponent, errorComponent}),
     ecnApprove_mobile: reg({loader: () => import('@/modules/pe/ecnApprove.v250313.vue'), loadingComponent, errorComponent}),
+    return_cost: reg({loader: () => import('@/modules/pe/returnCost.vue'), loadingComponent, errorComponent}),
     moWaitingMaterials: reg({loader: () => import('@/modules/sc/moWaitingMaterials.v250210.vue'), loadingComponent, errorComponent}),
     rukuScanCode_mobile: reg({loader: () => import('@/modules/sc/rukuScanCode.v240515.vue'), loadingComponent, errorComponent}),
     testStand_v240816: reg({loader: () => import('@/modules/sc/testStand.v240816.vue'), loadingComponent, errorComponent}),
@@ -72,7 +73,7 @@ export const components = {
     byd_toubiao: reg({loader: () => import('@/modules/table/byd_toubiao_v250118.vue'), loadingComponent, errorComponent}),
     job_weight: reg({loader: () => import('@/modules/sc/jobWeight.v250425.vue'), loadingComponent, errorComponent}),
     job_test_bench: reg({loader: () => import('@/modules/asset/testBench.v250510.vue'), loadingComponent, errorComponent}),
-    cost_config: reg({loader: () => import('@/modules/cost/config.v251125.vue'), loadingComponent, errorComponent}),
+    cost_item: reg({loader: () => import('@/modules/cost/item.v251125.vue'), loadingComponent, errorComponent}),
     cost_index: reg({loader: () => import('@/modules/cost/index.v251125.vue'), loadingComponent, errorComponent}),
     siyi_job: reg({loader: () => import('@/modules/cost/job.v260109.vue'), loadingComponent, errorComponent}),
     visitor: reg({loader: () => import('@/modules/visitor/index.v250622.vue'), loadingComponent, errorComponent}),
@@ -85,11 +86,13 @@ export const components = {
     pandian_step_material: reg({loader: () => import('@/modules/ac/pandian_step_material.vue'), loadingComponent, errorComponent}),
     materialStock: reg({loader: () => import('@/modules/sc/materialStock.v251010.vue'), loadingComponent, errorComponent}),
     biz_customer: reg({loader: () => import('@/modules/table/biz_customer.v251023.vue'), loadingComponent, errorComponent}),
-    mesHoliday:reg({loader: () => import('@/modules/sc/mesHoliday.vue'), loadingComponent, errorComponent}),
-    mes_production_report:reg({loader: () => import('@/modules/mes/production_report.vue'), loadingComponent, errorComponent}),
-    mes_production_report_mobile:reg({loader: () => import('@/modules/mes/production_report.vue'), loadingComponent, errorComponent}),
-    sys_unit:reg({loader: () => import('@/modules/system/unit.vue'), loadingComponent, errorComponent}),
-    sys_unit_mobile:reg({loader: () => import('@/modules/system/unit.vue'), loadingComponent, errorComponent}),
+    mesHoliday: reg({loader: () => import('@/modules/sc/mesHoliday.vue'), loadingComponent, errorComponent}),
+    mes_production_report: reg({loader: () => import('@/modules/mes/production_report.vue'), loadingComponent, errorComponent}),
+    mes_production_report_mobile: reg({loader: () => import('@/modules/mes/production_report.vue'), loadingComponent, errorComponent}),
+    mes_nc_vrs_production_report: reg({loader: () => import('@/modules/mes/nc_vrs_production_report.vue'), loadingComponent, errorComponent}),
+    mes_nc_vrs_production_report_mobile: reg({loader: () => import('@/modules/mes/nc_vrs_production_report.vue'), loadingComponent, errorComponent}),
+    sys_unit: reg({loader: () => import('@/modules/system/unit.vue'), loadingComponent, errorComponent}),
+    sys_unit_mobile: reg({loader: () => import('@/modules/system/unit.vue'), loadingComponent, errorComponent}),
     sys_step: reg({loader: () => import('@/modules/system/step_equipment/step.vue'), loadingComponent, errorComponent}),
     sys_step_equipment: reg({loader: () => import('@/modules/system/step_equipment/index.vue'), loadingComponent, errorComponent}),
     sys_step_report: reg({loader: () => import('@/modules/system/step_equipment/report.vue'), loadingComponent, errorComponent}),
@@ -113,6 +116,8 @@ export const components = {
     mes_report_template_parameter_mobile: reg({loader: () => import('@/modules/mes/report_template_parameter.vue'), loadingComponent, errorComponent}),
     mes_production_report_data: reg({loader: () => import('@/modules/mes/report_history.vue'), loadingComponent, errorComponent}),
     mes_production_report_data_mobile: reg({loader: () => import('@/modules/mes/report_history.vue'), loadingComponent, errorComponent}),
+    sys_category: reg({loader: () => import('@/modules/system/category.vue'), loadingComponent, errorComponent}),
+    sys_category_mobile: reg({loader: () => import('@/modules/system/category.vue'), loadingComponent, errorComponent}),
 }
 
 //模块与导航，可以从后端获取
@@ -143,6 +148,21 @@ export const nav = ref([
         title: '报表',
         icon: 'ri-file-chart-line',
         items: [
+            {
+                id: '',
+                title: '报表',
+                icon: 'ri-file-chart-line',
+                items: [
+                    {
+                        id: 'lt_report_wip01', cid: 'publicReport', title: '1060-横向WIP数量+面积',
+                        query: {search: [{type: 'select', load: 'factory', field: 'factory', options: {placeholder: '生产工厂'}}],}
+                    },
+                    {
+                        id: 'lt_report_wip01', cid: 'publicReport', title: '1060-横向WIP数量+面积',
+                        query: {search: [{type: 'select', load: 'factory', field: 'factory', options: {placeholder: '生产工厂'}}],}
+                    },
+                ],
+            },
             {
                 id: 'lt_report_wip01', cid: 'publicReport', title: '1060-横向WIP数量+面积',
                 query: {search: [{type: 'select', load: 'factory', field: 'factory', options: {placeholder: '生产工厂'}}],}
@@ -202,8 +222,8 @@ export const nav = ref([
                 title: '1026-物料库存明细',
                 query: {
                     search: [
-                        {type: 'select', load: 'factory', field: 'factory', style: {width: '300px'},options: {placeholder: '生产工厂'}},
-                        {type: 'select', load: 'warehouse', field: 'warehouse', style: {width: '300px'},options: {placeholder: '仓库'}},
+                        {type: 'select', load: 'factory', field: 'factory', style: {width: '300px'}, options: {placeholder: '生产工厂'}},
+                        {type: 'select', load: 'warehouse', field: 'warehouse', style: {width: '300px'}, options: {placeholder: '仓库'}},
                     ],
                 }
             },
@@ -444,7 +464,7 @@ export const nav = ref([
                 title: '1007-订单明细',
                 query: {
                     search: [
-                        {type: 'select', load: 'factory', field: 'factory', options: {style:"width:260px",label:"生产工厂：",placeholder: '请选择'}},
+                        {type: 'select', load: 'factory', field: 'factory', options: {style: "width:260px", label: "生产工厂：", placeholder: '请选择'}},
                         {
                             type: 'rangeTime', field: 'createDate',
                             value: [core.date.time('YYYY-MM-DD 00:00:00'), core.date.time('YYYY-MM-DD 23:59:59')],
@@ -453,7 +473,7 @@ export const nav = ref([
                         },
                         {type: 'input', field: 'salesPartNum', options: {placeholder: '本厂编号'}},
                         // {type: 'input', field: 'code', options: {placeholder: '客户代号'}},
-                        {type: 'select', load: 'customer', field: 'custId', options: {minCollapsedNum:3,style:"width:320px",placeholder: '客户代码'}},
+                        {type: 'select', load: 'customer', field: 'custId', options: {minCollapsedNum: 3, style: "width:320px", placeholder: '客户代码'}},
                     ],
                 }
             },
@@ -1684,14 +1704,14 @@ export const nav = ref([
                 query: {
                     search: [
                         {type: 'select', load: 'factory', field: 'factory', value: [1], options: {placeholder: '生产工厂'}},
-                        {type:  'select',load: 'process', field: 'process', options: {title:'包含工序', placeholder: '包含工序'}},
-                        {type:  'select',load: 'job', field: 'jobId', options: {style:"width:300px",title:'型号', placeholder: '型号'}},
-                        {type: 'select', field: 'moType', options: {options:moTypeOptions,title:'投产类型',placeholder: '投产类型'}},
-                        {type: 'select', field: 'woStatus', options: {options:woStatusOptions,title:'工单状态',placeholder: '工单状态'}},
+                        {type: 'select', load: 'process', field: 'process', options: {title: '包含工序', placeholder: '包含工序'}},
+                        {type: 'select', load: 'job', field: 'jobId', options: {style: "width:300px", title: '型号', placeholder: '型号'}},
+                        {type: 'select', field: 'moType', options: {options: moTypeOptions, title: '投产类型', placeholder: '投产类型'}},
+                        {type: 'select', field: 'woStatus', options: {options: woStatusOptions, title: '工单状态', placeholder: '工单状态'}},
                         {
                             type: 'rangeTime', field: 'date',
                             value: [core.date.time('YYYY-MM-DD 00:00:00'), core.date.time('YYYY-MM-DD 23:59:59')],
-                            options: {title:'发放日期',placeholder: '发放日期'}
+                            options: {title: '发放日期', placeholder: '发放日期'}
                         },
                     ],
                 }
@@ -2005,7 +2025,7 @@ export const nav = ref([
                         },
                     ]
                 }
-            },{
+            }, {
                 id: 'lt_report_zhlcfl',
                 cid: 'publicReport',
                 title: '1099-ZHLCFL',
@@ -2020,7 +2040,7 @@ export const nav = ref([
                         },
                     ]
                 }
-            },{
+            }, {
                 id: 'lt_report_1462newseq',
                 cid: 'publicReport',
                 title: '1100-1462客户流水号',
@@ -2029,9 +2049,9 @@ export const nav = ref([
                     search: [
                         {type: 'input', field: 'salesPartNum', style: {width: '200px'}, options: {placeholder: '部件编号'}},
                     ],
-                    menu:{approve:{hide:true},resetApprove:{hide:true},submitApprove:{hide:true},}
+                    menu: {approve: {hide: true}, resetApprove: {hide: true}, submitApprove: {hide: true},}
                 }
-            },{
+            }, {
                 id: 'lt_report_0947newseq',
                 cid: 'publicReport',
                 title: '1100-0947客户流水号',
@@ -2040,7 +2060,18 @@ export const nav = ref([
                     search: [
                         {type: 'input', field: 'salesPartNum', style: {width: '200px'}, options: {placeholder: '部件编号'}},
                     ],
-                    menu:{approve:{hide:true},resetApprove:{hide:true},submitApprove:{hide:true},}
+                    menu: {approve: {hide: true}, resetApprove: {hide: true}, submitApprove: {hide: true},}
+                }
+            }, {
+                id: 'lt_report_1263newseq',
+                cid: 'publicReport',
+                title: '1100-1263客户流水号',
+                icon: 'ri-play-list-add-line',
+                query: {
+                    search: [
+                        {type: 'input', field: 'salesPartNum', style: {width: '200px'}, options: {placeholder: '部件编号'}},
+                    ],
+                    menu: {approve: {hide: true}, resetApprove: {hide: true}, submitApprove: {hide: true},}
                 }
             },
             {
@@ -2058,16 +2089,16 @@ export const nav = ref([
                         },
 
                     ],
-                    menu:{approve:{hide:true},resetApprove:{hide:true},submitApprove:{hide:true},}
+                    menu: {approve: {hide: true}, resetApprove: {hide: true}, submitApprove: {hide: true},}
                 }
-            },{
+            }, {
                 id: 'lt_report_fgcx',
                 cid: 'publicReport',
                 title: '1102-返工记录查询',
                 icon: 'ri-play-list-add-line',
                 query: {
                     search: [
-                        {type: 'select', load: 'factory',value:[siyi.user.plantId], field: 'factory', options: {placeholder: '工厂'}},
+                        {type: 'select', load: 'factory', value: [siyi.user.plantId], field: 'factory', options: {placeholder: '工厂'}},
                         {
                             type: 'rangeTime', field: 'createDate',
                             value: [core.date.list().startMonth['今天'], core.date.list().endMonth['今天']],
@@ -2075,7 +2106,7 @@ export const nav = ref([
                         },
 
                     ],
-                    menu:{approve:{hide:true},resetApprove:{hide:true},submitApprove:{hide:true},}
+                    menu: {approve: {hide: true}, resetApprove: {hide: true}, submitApprove: {hide: true},}
                 }
             },
         ]
@@ -2128,16 +2159,16 @@ export const nav = ref([
                 cid: 'publicReport',
                 title: '钻带孔数',
                 query: {
-                    menu:{
-                        approve:{hide:true},resetApprove:{hide:true},submitApprove:{hide:true},
+                    menu: {
+                        approve: {hide: true}, resetApprove: {hide: true}, submitApprove: {hide: true},
                         showMi: {title: '查看MI', sort: 105, icon: 'ri-file-pdf-2-line', listAction: (list, reportTable) => ApiRequest.showMi(list, reportTable, 'jobid')}
                     },
                     search: [
-                        {type: 'select', load: 'factory', field: 'factory', options: {placeholder: '生产工厂'},value: [siyi.user.plantId]},
-                        {type: 'select', load: 'customer', field: 'custId', options: {minCollapsedNum:1,style:"width:160px",placeholder: '客户代码'}},
+                        {type: 'select', load: 'factory', field: 'factory', options: {placeholder: '生产工厂'}, value: [siyi.user.plantId]},
+                        {type: 'select', load: 'customer', field: 'custId', options: {minCollapsedNum: 1, style: "width:160px", placeholder: '客户代码'}},
                         {type: 'select', load: 'job', remote: true, field: 'job', options: {empty: "请输入型号", placeholder: '生产型号', style: "width:290px"}},
-                        {type: 'select',  field: 'status', options: {options:jobStatusOptions,placeholder: '状态', style: "width:160px"}},
-                        {type: 'select',  field: 'approveStatus', options: {options:jobApproveStatus,placeholder: '审批状态', style: "width:160px"}},
+                        {type: 'select', field: 'status', options: {options: jobStatusOptions, placeholder: '状态', style: "width:160px"}},
+                        {type: 'select', field: 'approveStatus', options: {options: jobApproveStatus, placeholder: '审批状态', style: "width:160px"}},
                         {
                             type: 'rangeTime', field: 'date',
                             value: [core.date.list().startMonth['本月'], core.date.list().endMonth['本月']],
@@ -2149,6 +2180,11 @@ export const nav = ref([
                         options: {select: {outsideClickDeselect: false}}
                     },
                 }
+            },
+            {
+                id: 'return_cost',
+                title: '返单成本登记',
+                icon: 'ri-refund-2-line',
             },
         ]
     },
@@ -2438,19 +2474,19 @@ export const nav = ref([
                     ],
                 }
             },
-           /* {
-                id: 'lt_report_chanchuDetails_CKL', cid: 'publicReport', title: '产出明细(C开料)',
-                query: {
-                    search: [
-                        {type: 'select', field: 'jobid', load: "job", remote: true, options: {empty: "请输入型号", placeholder: '生产型号', style: "width:265px"}},
-                        {
-                            type: 'rangeTime', field: 'time',
-                            value: [core.date.list().startMonth['今天'], core.date.list().endMonth['今天']],
-                            options: {placeholder: '产出时间'}
-                        },
-                    ],
-                }
-            },*/
+            /* {
+                 id: 'lt_report_chanchuDetails_CKL', cid: 'publicReport', title: '产出明细(C开料)',
+                 query: {
+                     search: [
+                         {type: 'select', field: 'jobid', load: "job", remote: true, options: {empty: "请输入型号", placeholder: '生产型号', style: "width:265px"}},
+                         {
+                             type: 'rangeTime', field: 'time',
+                             value: [core.date.list().startMonth['今天'], core.date.list().endMonth['今天']],
+                             options: {placeholder: '产出时间'}
+                         },
+                     ],
+                 }
+             },*/
             /*    {
                     id: 'woPlan',
                     title: '计划排产',
@@ -2496,10 +2532,11 @@ export const nav = ref([
             // {id: 'testStand_v240816', title: '测试架看板', icon: 'ri-layout-masonry-fill'},
             {id: 'job_weight', title: '单SET重量采集', icon: 'ri-weight-line', api: [apiUrl.erp.job.getWeight], query: {type: 'SET'}},
             {id: 'job_weight_pnl', cid: 'job_weight', title: '单PNL重量采集', icon: 'ri-weight-line', api: [apiUrl.erp.job.getWeight], query: {type: 'PNL'}},
-            {id: 'materialStock', title: '物料库存看板', icon: 'ri-home-9-line',api:[apiUrl.sc.warehouse.materialStock]},
-            {id: 'materialStock_173',cid: 'materialStock', title: '物料库存看板(B板材仓)', icon: 'ri-home-9-line',
-                api:[apiUrl.sc.warehouse.materialStock],
-                query:{warehouse:['173'],title:'物料库存看板'},
+            {id: 'materialStock', title: '物料库存看板', icon: 'ri-home-9-line', api: [apiUrl.sc.warehouse.materialStock]},
+            {
+                id: 'materialStock_173', cid: 'materialStock', title: '物料库存看板(B板材仓)', icon: 'ri-home-9-line',
+                api: [apiUrl.sc.warehouse.materialStock],
+                query: {warehouse: ['173'], title: '物料库存看板'},
             },
             {
                 id: 'mesHoliday',
@@ -2672,16 +2709,20 @@ export const nav = ref([
                 icon: 'ri-play-list-add-line',
                 query: {
                     search: [
-                        {type: 'select', load: 'material_category',value:['40'], field: 'category', options: {placeholder: '类型'}},
+                        {type: 'select', load: 'material_category', value: ['40'], field: 'category', options: {placeholder: '类型'}},
                         {type: 'input', field: 'code', style: {width: '200px'}, options: {placeholder: '代码'}},
                         {type: 'input', field: 'name', style: {width: '200px'}, options: {placeholder: '名称'}},
                         {type: 'input', field: 'standard', style: {width: '300px'}, options: {placeholder: '规格'}},
-                        {type: 'select',field: 'ifActive',value:'1',style: {width: '200px'},options: {multiple:false,options:[
-                            {value:'',label:'状态：全部'},{value:'1',label:'状态：激活'},{value:'0',label:'状态：停用'}
-                        ]}},
+                        {
+                            type: 'select', field: 'ifActive', value: '1', style: {width: '200px'}, options: {
+                                multiple: false, options: [
+                                    {value: '', label: '状态：全部'}, {value: '1', label: '状态：激活'}, {value: '0', label: '状态：停用'}
+                                ]
+                            }
+                        },
                     ],
-                    menu:{approve:{hide:true},resetApprove:{hide:true},submitApprove:{hide:true},},
-                    tableConfig: {autoLoad:false},
+                    menu: {approve: {hide: true}, resetApprove: {hide: true}, submitApprove: {hide: true},},
+                    tableConfig: {autoLoad: false},
                 }
             },
             {
@@ -2708,7 +2749,7 @@ export const nav = ref([
                         },
                     ],
                     menu: {
-                        approve:{hide:true},resetApprove:{hide:true},submitApprove:{hide:true},
+                        approve: {hide: true}, resetApprove: {hide: true}, submitApprove: {hide: true},
                         savePrice: {title: '保存价格', sort: 105, icon: 'ri-save-line', listAction: ApiRequest.lt_report_os_po_price.savePrice},
                         showMi: {title: '查看MI', sort: 105, icon: 'ri-file-pdf-2-line', listAction: (list, reportTable) => ApiRequest.showMi(list, reportTable, 'jobid')}
                     },
@@ -2869,11 +2910,11 @@ export const nav = ref([
                 id: 'lt_report_hbccgxcbhz', cid: 'publicReport', title: '产出工序成本汇总',
                 query: {
                     search: [
-                        {type: 'select', load: 'factory', field: 'factory',value:[1],style: {width: '200px'}, options: {placeholder: '工厂'}},
+                        {type: 'select', load: 'factory', field: 'factory', value: [1], style: {width: '200px'}, options: {placeholder: '工厂'}},
                         {
-                            type: 'date', field: 'period',style: {width: '300px'},
+                            type: 'date', field: 'period', style: {width: '300px'},
                             value: core.date.lastMonth('YYYY/M'),
-                            options: {label:"会计期间：",mode:"month",placeholder: '会计期间',format:"YYYY/M"}
+                            options: {label: "会计期间：", mode: "month", placeholder: '会计期间', format: "YYYY/M"}
                         },
                     ],
 
@@ -2890,11 +2931,15 @@ export const nav = ref([
                 id: 'mes_production_report',
                 title: '生产记录',
                 icon: 'ri-play-list-add-line',
-                //api: [apiUrl.sales.salesOrderPlan.index, apiUrl.sales.salesOrderPlan.huizong],
+            },
+            {
+                id: 'mes_nc_vrs_production_report',
+                title: '内层VRS/AOI生产记录',
+                icon: 'ri-play-list-add-line',
             },
             {
                 id: 'mes_production_report_data',
-                icon:'ri-community-line',
+                icon: 'ri-community-line',
                 title: '生产报表数据',
             },
         ]
@@ -2905,7 +2950,7 @@ export const nav = ref([
         icon: 'ri-calculator-line',
         items: [
             {
-                id: 'cost_config',
+                id: 'cost_item',
                 title: '标准成本-设置',
                 icon: 'ri-computer-line',
                 query: {},
@@ -2918,31 +2963,31 @@ export const nav = ref([
             },
             {
                 id: 'sys_step_equipment',
-                icon:'ri-community-line',
+                icon: 'ri-community-line',
                 query: {},
                 title: '工序设置',
             },
             {
                 id: 'sys_step_report',
-                icon:'ri-community-line',
+                icon: 'ri-community-line',
                 query: {},
                 title: '工序数据',
             },
             {
                 id: 'sys_parameter',
-                icon:'ri-community-line',
+                icon: 'ri-community-line',
                 query: {},
                 title: '参数库',
             },
             {
                 id: 'sys_parameter_rules',
-                icon:'ri-community-line',
+                icon: 'ri-community-line',
                 query: {},
                 title: '参数取值规则',
             },
             {
                 id: 'siyi_job',
-                icon:'ri-community-line',
+                icon: 'ri-community-line',
                 query: {},
                 title: '虚拟MI',
             },
@@ -2956,49 +3001,49 @@ export const nav = ref([
         items: [
             {
                 id: 'user_auth_apply',
-                icon:'ri-key-2-line',
+                icon: 'ri-key-2-line',
                 title: '权限审核',
             },
             {
                 id: 'auth_item',
-                icon:'ri-shield-keyhole-line',
+                icon: 'ri-shield-keyhole-line',
                 title: '权限管理',
             },
             {
                 id: 'auth_item_lists',
-                icon:'ri-shield-keyhole-line',
+                icon: 'ri-shield-keyhole-line',
                 title: '权限管理',
             },
             {
                 id: 'user_list',
-                icon:'ri-user-line',
+                icon: 'ri-user-line',
                 title: '用户管理',
             },
             {
                 id: 'user_sns',
-                icon:'ri-wechat-2-line',
+                icon: 'ri-wechat-2-line',
                 title: '微信登录',
             },
             {
                 id: 'dept_position',
-                icon:'ri-building-line',
+                icon: 'ri-building-line',
                 title: '部门管理',
             },
             {
                 id: 'queue_list',
-                icon:'ri-play-list-2-line',
+                icon: 'ri-play-list-2-line',
                 title: '任务队列',
             },
             {
                 id: 'log_list',
                 query: {type: 0},
-                icon:'ri-file-history-line',
+                icon: 'ri-file-history-line',
                 title: 'API日志',
             },
             {
                 id: 'log_list2',
                 cid: 'log_list',
-                icon:'ri-file-history-line',
+                icon: 'ri-file-history-line',
                 query: {type: 1},
                 title: 'ERP日志',
             },
@@ -3010,51 +3055,57 @@ export const nav = ref([
             },
             {
                 id: 'dev_test',
-                icon:'ri-flask-line',
+                icon: 'ri-flask-line',
                 query: {},
                 title: '测试',
             },
-           /* {
-                id: 'sys_step',
-                icon:'ri-community-line',
-                query: {},
-                title: '工序',
-            },
-            {
-                id: 'sys_process',
-                icon:'ri-community-line',
-                query: {},
-                title: '工艺',
-            },
-            {
-                id: 'sys_station',
-                icon:'ri-community-line',
-                query: {},
-                title: '工段',
-            },
-            {
-                id: 'sys_equipment',
-                icon:'ri-community-line',
-                query: {},
-                title: '设备',
-            },*/
+            /* {
+                 id: 'sys_step',
+                 icon:'ri-community-line',
+                 query: {},
+                 title: '工序',
+             },
+             {
+                 id: 'sys_process',
+                 icon:'ri-community-line',
+                 query: {},
+                 title: '工艺',
+             },
+             {
+                 id: 'sys_station',
+                 icon:'ri-community-line',
+                 query: {},
+                 title: '工段',
+             },
+             {
+                 id: 'sys_equipment',
+                 icon:'ri-community-line',
+                 query: {},
+                 title: '设备',
+             },*/
             {
                 id: 'sys_unit',
-                icon:'ri-community-line',
+                icon: 'ri-community-line',
                 query: {},
                 title: '单位',
             },
             {
                 id: 'sys_employee',
-                icon:'ri-community-line',
+                icon: 'ri-community-line',
                 query: {},
                 title: '人员',
             },
             {
                 id: 'sys_supplier',
-                icon:'ri-community-line',
+                icon: 'ri-community-line',
                 query: {},
                 title: '供应商',
+            },
+            {
+                id: 'sys_category',
+                icon: 'ri-book-shelf-line',
+                query: {},
+                title: '分类',
             },
         ]
     },

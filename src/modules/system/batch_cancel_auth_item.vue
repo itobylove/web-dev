@@ -6,7 +6,7 @@
     </div>
 </template>
 <script setup>
-    import { ref, reactive } from 'vue';
+    import { ref } from 'vue';
     import TableComponent from '@/core/component/table_v2.vue';
     import apiUrl2 from '@/core/config/url2.js';
     import * as api from "@/core/script/api.js";
@@ -14,8 +14,8 @@
     import * as tableFn from "@/core/script/tableFn.js";
     import _ from "lodash";
     const employeeTable = ref();
-    const table = reactive({
-        employeeTableConfig:ref({
+    const table = {
+        employeeTableConfig:{
             menuConfig:{
                 enableHeader: true,
                 defaultMenuHideList: ['search','clearCache','submitApprove', 'resetApprove', 'approve','pageExport', 'advancedExport','moreSettings','clearWhere',],
@@ -35,12 +35,12 @@
                 disablePage: true,
                 columns: [
                     {field: 'id', title: '员工ID', align: 'left', width:80},
-                    {field: 'code', title: '员工号', align: 'left'},
-                    {field: 'name', title: '员工姓名', align: 'left'},
+                    {field: 'username', title: '员工号', align: 'left'},
+                    {field: 'nickname', title: '员工姓名', align: 'left'},
                 ],
             } 
-        })
-    });
+        }
+    };
     const fn = {
         batchCancelAuthItem(){
             const uids = tableFn.getCheckedRecords(employeeTable.value.reportConfig).map(i => i.id);
@@ -65,7 +65,7 @@
 <style scoped>
     .container{
         display: flex;
-        height: 100vh;
+        height: 100%;
         .employees-lists-table{
             flex: 1;
         }

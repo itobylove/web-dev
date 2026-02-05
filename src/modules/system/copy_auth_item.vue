@@ -1,7 +1,7 @@
 <template>
     <div class="copy-auth-item-container">
         <div class="employee-table">
-            <TableComponent v-bind="table.employeeTableConfig"/>
+            <TableComponent ref="userTable" v-bind="table.employeeTableConfig"/>
         </div>
         <div class="select-employee-auth-item-lists">
             <TableComponent ref="selectEmployeeAuthItemTable" v-bind="table.selectEmployeeAuthItemTableConfig"/>
@@ -12,13 +12,12 @@
     </div>
 </template>
 <script setup>
-    import { ref, reactive } from 'vue';
+    import { ref } from 'vue';
     import TableComponent from '@/core/component/table_v2.vue';
     import apiUrl2 from '@/core/config/url2.js';
     import * as api from "@/core/script/api.js";
     import dialog from "@/core/script/dialog.js";
     import * as tableFn from "@/core/script/tableFn.js";
-    // import {updateRow} from "@/core/script/tableFn.js";
     import _ from 'lodash'
     const props = defineProps({
         query: {
@@ -27,12 +26,13 @@
         },
     })
     const selectEmployeeAuthItemTable = ref(null);
+    const userTable = ref(null)
     const allEmployeeTable = ref(null);
     const fromUid = ref(0);
     const fromName = ref('');
-    const table = reactive({
+    const table = {
         //已授权员工列表
-        employeeTableConfig: ref({
+        employeeTableConfig: {
             menuConfig:false,
             searchConfig: false,
             query: {
@@ -43,22 +43,22 @@
                 url: apiUrl2.sys.auth.getEmployeeLists,
                 disablePage: true,
                 columns: [
-                    {field: 'uid', title: '员工ID', align: 'left'},
-                    {field: 'code', title: '员工号', align: 'left'},
-                    {field: 'name', title: '员工姓名', align: 'left'},
+                    {field: 'uid', title: '员工ID', align: 'left', width: 120},
+                    {field: 'username', title: '员工号', align: 'left', width: 200},
+                    {field: 'nickname', title: '员工姓名', align: 'left', width: 200},
                 ],
                 events:{
                     click_cell: ({originData}) => {
                         allEmployeeTable.value.reportConfig.getData({id: originData.uid}, true);
                         selectEmployeeAuthItemTable.value.reportConfig.getData({id: originData.uid}, true);
                         fromUid.value = originData.uid;
-                        fromName.value = originData.name;
+                        fromName.value = originData.nickname;
                     },
                 },
             }            
-        }),
+        },
         //所选员工权限列表
-        selectEmployeeAuthItemTableConfig: ref({
+        selectEmployeeAuthItemTableConfig: {
             menuConfig:false,
             searchConfig: false,
             tableConfig: {
@@ -69,9 +69,9 @@
                     {field: 'remark', title: '权限名称', align: 'left'}
                 ],
             },
-        }),
+        },
         // 所有员工列表
-        allEmployeeTableConfig: ref({
+        allEmployeeTableConfig: {
             menuConfig: {
                 enableHeader: true,
                 defaultMenuHideList: ['search','clearCache','submitApprove', 'resetApprove', 'approve','pageExport', 'advancedExport','moreSettings','clearWhere',],
@@ -91,12 +91,12 @@
                 disablePage: true,
                 columns: [
                     {field: 'id', title: '员工ID', align: 'left'},
-                    {field: 'code', title: '员工号', align: 'left'},
-                    {field: 'name', title: '员工姓名', align: 'left'},
+                    {field: 'username', title: '员工号', align: 'left'},
+                    {field: 'nickname', title: '员工姓名', align: 'left'},
                 ],
             },
-        }),
-    })
+        },
+    }
     const fn = {
          async copyAuthItemToEmployee(){
             if(fromUid.value === 0){
@@ -122,6 +122,9 @@
                 });
                 if(res.count > 0) {
                     dialog.success(`成功为${res.count}位员工复制权限`);
+                    tableFn.update(selectEmployeeAuthItemTable.value.reportConfig);
+                    tableFn.update(allEmployeeTable.value.reportConfig);
+                    userTable.value.reportConfig.getData()
                 } else {
                     dialog.info('所选员工均已拥有该权限，无需重复分配');
                 }
@@ -133,7 +136,7 @@
     .copy-auth-item-container {
         display: flex;
         gap: 3px;
-        height: 100vh;
+        height: 100%;
         .select-employee-auth-item-lists{
             flex: 1;
         }

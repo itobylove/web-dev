@@ -28,6 +28,9 @@
           <t-form-item label="下公差单位" name="downtoleranceunit_id" >
             <t-select v-model="dialogConfigP.data.downtoleranceunit_id" :options="vData.selectOptions.downtoleranceunit_id" clearable  @clear="fn.clearField('downtoleranceunit_id')" />
           </t-form-item>
+          <t-form-item label="公差类型" name="tolerance_type" >
+            <t-select v-model="dialogConfigP.data.tolerance_type" :options="vData.selectOptions.tolerance_type"/>
+          </t-form-item>
           <t-form-item label="类型" name="qc_type" >
             <t-select v-model="dialogConfigP.data.qc_type" :options="vData.selectOptions.qc_type"/>
           </t-form-item>
@@ -82,7 +85,7 @@ const props = defineProps({
 const vData=reactive({
   template_id:null,
   template_name:null,
-  selectOptions: {status:[],qc_type:[],template_id:[],parameter_id:[],erp_parameter_id:[],uptoleranceunit_id:[],downtoleranceunit_id:[]},
+  selectOptions: {status:[],tolerance_type:[],qc_type:[],template_id:[],parameter_id:[],erp_parameter_id:[],uptoleranceunit_id:[],downtoleranceunit_id:[]},
 })
 const mainReport = ref();
 const mainReportShow = ref(false);

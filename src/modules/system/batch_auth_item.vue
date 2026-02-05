@@ -9,7 +9,7 @@
     </div>
 </template>
 <script setup>
-    import { ref, reactive } from 'vue';
+    import { ref } from 'vue';
     import TableComponent from '@/core/component/table_v2.vue';
     import apiUrl2 from '@/core/config/url2.js';
     import * as api from "@/core/script/api.js";
@@ -22,8 +22,8 @@
         authItemTable.value.reportConfig.getData({uid:e.id});
         employee.value = e
     },500)
-    const table = reactive({
-        employeeTableConfig:ref({
+    const table = {
+        employeeTableConfig:{
             menuConfig:false,
             searchConfig: {},
             tableConfig: {
@@ -32,8 +32,8 @@
                 disablePage: true,
                 columns: [
                     {field: 'id', title: '员工ID', align: 'left', width:80},
-                    {field: 'code', title: '员工号', align: 'left'},
-                    {field: 'name', title: '员工姓名', align: 'left'},
+                    {field: 'username', title: '员工号', align: 'left'},
+                    {field: 'nickname', title: '员工姓名', align: 'left'},
                 ],
                 events:{
                     click_cell: ({originData}) => {
@@ -41,8 +41,8 @@
                     },
                 },
             }  
-        }),
-        authItemTableConfig:ref({
+        },
+        authItemTableConfig:{
             menuConfig:{
                 enableHeader: true,
                 defaultMenuHideList: ['search','clearCache','submitApprove', 'resetApprove', 'approve','pageExport', 'advancedExport','moreSettings','clearWhere',],
@@ -66,8 +66,8 @@
                     {field: 'title', title: '描述', align: 'left'},
                 ]
             } 
-        })
-    });
+        }
+    };
     const fn = {
         addAuthItem(){
             if(employee.value == null){
@@ -75,7 +75,7 @@
                 return;
             }
             let employeesIds = tableFn.getCheckedRecords(authItemTable.value.reportConfig).map(i => i.id);
-            let msg = `您确定要对员工《${employee.value.name}》的权限进行批量操作吗？`;
+            let msg = `您确定要对员工《${employee.value.nickname}》的权限进行批量操作吗？`;
             dialog.confirm(msg,async()=>{
                 const ret = await api.post(apiUrl2.sys.auth.operateAuth,{
                     employeesIds,
@@ -92,7 +92,7 @@
 </script>
 <style scoped>
     .batch-auth-item-container{
-        height: 100vh;
+        height: 100%;
         display: flex;
         gap: 3px;
         .employees-lists-table{

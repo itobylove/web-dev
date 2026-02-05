@@ -1,19 +1,29 @@
 <template>
   <teleport :to="dialog.container">
-    <div ref="dialogDom" :class="['dialogBox',dialog.type,dialog.device,dialog.className,{open:dialogReactive.openAnimation,close:dialogReactive.closeAnimation}]" :style="dialogReactive.dialogStyle" @mousedown="dialog.zIndex()" @mouseenter="dialog.mouseenter()" @mouseleave="dialog.mouseleave()">
+    <div ref="dialogDom"
+         :class="['dialogBox',dialog.type,dialog.device,dialog.className,{open:dialogReactive.openAnimation,close:dialogReactive.closeAnimation}]"
+         :style="dialogReactive.dialogStyle"
+         @mousedown="dialog.zIndex()"
+         @mouseenter="dialog.mouseenter()"
+         @mouseleave="dialog.mouseleave()">
       <div class="header" v-if="dialog.showHeader" @mousedown="dialog.mousedown('move',$event)" @mouseup="dialog.mouseup()">
         <div ref="titleDom" class="title" v-if="dialog.showTitle" @dblclick="dialog.fullscreenSwitch()">
           <slot name="title">{{ dialogReactive.title }}</slot>
         </div>
-        <i :class="['fullscreen',dialogReactive.isFullscreen?'ri-fullscreen-exit-fill':'ri-fullscreen-line']" @click="dialog.fullscreenSwitch()" v-if="dialog.showFullscreen&&dialog.changeSize"/>
+        <i :class="['fullscreen',dialogReactive.isFullscreen?'ri-fullscreen-exit-fill':'ri-fullscreen-line']"
+           @click="dialog.fullscreenSwitch()"
+           v-if="dialog.showFullscreen&&dialog.changeSize"/>
         <i class="close ri-close-line" @click="dialog.close()" v-if="dialog.showClose"/>
       </div>
       <div class="main">
-        <div ref="bodyDom" class="body" :style="dialog.bodyStyle" @mousedown="dialog.bodyMove&&dialog.mousedown('move',$event)" @mouseup="dialog.bodyMove&&dialog.mouseup()">
+        <div ref="bodyDom" class="body"
+             :style="dialog.bodyStyle"
+             @mousedown="dialog.bodyMove&&dialog.mousedown('move',$event)"
+             @mouseup="dialog.bodyMove&&dialog.mouseup()">
           <slot name="default">
             <div class="content">
               <i :class="dialog.iconName[dialog.type]" v-if="dialog.showIcon==='icon'"></i>
-              <img :src="noData" v-if="dialog.showIcon==='yazi'"/>
+              <img v-if="dialog.showIcon==='yazi'" :src="noData"/>
               <span ref="textDom" class="text" v-if="dialog.showText">{{ dialogReactive.content }}</span>
               <i class="close ri-close-fill" @click="dialog.close()" v-if="dialog.showTextClose"></i>
               <t-input class="input" v-model="dialogReactive.inputValue" v-bind="dialogReactive.input" v-if="dialog.showInput"/>
@@ -46,7 +56,7 @@ import noData from '@/core/assets/img/nodata.gif';
 import siyi from '@/core/script/siyi.js';
 import * as load from '@/core/script/load.js';
 import * as core from '@/core/script/core.js';
-import {sendTrack} from "@/utils/track.js";
+import {sendTrack} from '@/utils/track.js';
 
 
 const dialogDom = ref();  //窗口dom
@@ -61,23 +71,24 @@ siyi.zIndex = siyi.zIndex > 0 ? siyi.zIndex++ : 999999; //层级
 
 const props = defineProps({
   type: {type: String, default: 'window', validator: val => ['info', 'success', 'warning', 'error', 'question', 'loading', 'confirm', 'input', 'select', 'window'].includes(val)},//类型
-  createType: {type: String, default: null, validator: val => ['html', 'js'].includes(val)},             //调用形式：html标签模式，js模式
+  createType: {type: String, default: null, validator: val => ['html', 'js'].includes(val)}, //调用形式：html标签模式，js模式
+  event: {type: Object, default: null},               //JS模式外部的event对象
   container: {type: [Object, String], default: null}, //容器,要将窗口移动到指定的容器内
   className: {type: String, default: null},                  //容器类名
   bodyStyle: {type: Object, default: null},                  //body样式
-  appendChild: {type: String, default: null, validator: val => ['body', 'text'].includes(val)},                 //添加内容挂载点JS形式调用才有作用
-  title: {type: [String, Object], default: null},            //标题JS形式调用才有作用
-  content: {type: [String, Object], default: null},          //内容JS形式调用才有作用
-  titleProps: {type: Object, default: null},                 //标题Props JS形式调用才有作用
-  contentProps: {type: Object, default: null},               //内容Props JS形式调用才有作用
+  appendChild: {type: String, default: null, validator: val => ['body', 'text'].includes(val)},  //添加内容挂载点JS模式调用才有作用
+  title: {type: [String, Object], default: null},            //标题JS模式调用才有作用
+  content: {type: [String, Object], default: null},          //内容JS模式调用才有作用
+  titleProps: {type: Object, default: null},                 //标题Props JS模式调用才有作用
+  contentProps: {type: Object, default: null},               //内容Props JS模式调用才有作用
   width: {type: [Number, String], default: null},        //窗口宽  可以是 % 数字 auto  px
   height: {type: [Number, String], default: null},       //窗口高  可以是 % 数字 auto   px
   minWidth: {type: Number, default: null},              //最小宽度
   minHeight: {type: Number, default: null},              //最小高度
   maxWidth: {type: Number, default: null},                 //最大宽度
   maxHeight: {type: Number, default: null},                //最大高度
-  left: {type: [Number, String], default: null},       //左 可以是 center % 数字 px
-  top: {type: [Number, String], default: null},        //上 可以是 center % 数字 px
+  left: {type: [Number, String], default: null},       //左 可以是 center % 数字 px mouse
+  top: {type: [Number, String], default: null},        //上 可以是 center % 数字 px mouse
   offset: {type: Number, default: null},               //边界保留像素，防止拖出视图区外
   headerBg: {type: String, default: null},            //标题背景
   bodyBg: {type: String, default: null},                 //主体背景色
@@ -108,6 +119,17 @@ const props = defineProps({
   select: {type: Object, default: null},                     //选择框配置
   input: {type: Object, default: null},                      //输入框配置
   value: {type: String, default: null},//输入框值
+  beforeInitCallback: {type: Function, default: null},//初始化回调
+  afterInitCallback: {type: Function, default: null},//打开前回调
+  beforeOpenCallback: {type: Function, default: null},//打开前回调
+  afterOpenCallback: {type: Function, default: null},//打开后回调
+  beforeCloseCallback: {type: Function, default: null},//关闭前回调
+  afterCloseCallback: {type: Function, default: null},//关闭后回调
+  beforeEnlargeCallback: {type: Function, default: null},//放大前回调
+  afterEnlargeCallback: {type: Function, default: null},//放大后回调
+  beforeRestoreCallback: {type: Function, default: null},//还原前回调
+  afterRestoreCallback: {type: Function, default: null},//还原后回调
+  clickMaskCallback: {type: Function, default: null},//点击遮罩关闭窗口
   okCallback: {type: Function, default: null},//确定回调
   noCallback: {type: Function, default: null},//取消回调
   otherCallback: {type: Function, default: null},//其他回调
@@ -143,6 +165,7 @@ const defaultConfig = {
   window: {
     type: 'window',
     createType: 'html',
+    event: {},
     container: '',
     className: '',
     bodyStyle: {},
@@ -188,6 +211,17 @@ const defaultConfig = {
     select: {},
     input: {},
     value: '',
+    beforeInitCallback: async () => '',
+    afterInitCallback: async () => '',
+    beforeOpenCallback: async () => '',
+    afterOpenCallback: async () => '',
+    beforeCloseCallback: async () => '',
+    afterCloseCallback: async () => '',
+    beforeEnlargeCallback: async () => '',
+    afterEnlargeCallback: async () => '',
+    beforeRestoreCallback: async () => '',
+    afterRestoreCallback: async () => '',
+    clickMaskCallback: async () => '',
     okCallback: async () => '',
     noCallback: async () => '',
     otherCallback: async () => '',
@@ -195,6 +229,7 @@ const defaultConfig = {
   loading: {
     type: 'loading',
     createType: 'html',
+    event: {},
     container: '',
     className: '',
     bodyStyle: {},
@@ -240,6 +275,17 @@ const defaultConfig = {
     select: {},
     input: {},
     value: '',
+    beforeInitCallback: async () => '',
+    afterInitCallback: async () => '',
+    beforeOpenCallback: async () => '',
+    afterOpenCallback: async () => '',
+    beforeCloseCallback: async () => '',
+    afterCloseCallback: async () => '',
+    beforeEnlargeCallback: async () => '',
+    afterEnlargeCallback: async () => '',
+    beforeRestoreCallback: async () => '',
+    afterRestoreCallback: async () => '',
+    clickMaskCallback: async () => '',
     okCallback: async () => '',
     noCallback: async () => '',
     otherCallback: async () => '',
@@ -247,6 +293,7 @@ const defaultConfig = {
   confirm: {
     type: 'confirm',
     createType: 'html',
+    event: {},
     container: '',
     className: '',
     bodyStyle: {},
@@ -292,6 +339,17 @@ const defaultConfig = {
     select: {},
     input: {},
     value: '',
+    beforeInitCallback: async () => '',
+    afterInitCallback: async () => '',
+    beforeOpenCallback: async () => '',
+    afterOpenCallback: async () => '',
+    beforeCloseCallback: async () => '',
+    afterCloseCallback: async () => '',
+    beforeEnlargeCallback: async () => '',
+    afterEnlargeCallback: async () => '',
+    beforeRestoreCallback: async () => '',
+    afterRestoreCallback: async () => '',
+    clickMaskCallback: async () => '',
     okCallback: async () => '',
     noCallback: async () => '',
     otherCallback: async () => '',
@@ -299,6 +357,7 @@ const defaultConfig = {
   input: {
     type: 'input',
     createType: 'html',
+    event: {},
     container: '',
     className: '',
     bodyStyle: {},
@@ -344,6 +403,17 @@ const defaultConfig = {
     select: {},
     input: {},
     value: '',
+    beforeInitCallback: async () => '',
+    afterInitCallback: async () => '',
+    beforeOpenCallback: async () => '',
+    afterOpenCallback: async () => '',
+    beforeCloseCallback: async () => '',
+    afterCloseCallback: async () => '',
+    beforeEnlargeCallback: async () => '',
+    afterEnlargeCallback: async () => '',
+    beforeRestoreCallback: async () => '',
+    afterRestoreCallback: async () => '',
+    clickMaskCallback: async () => '',
     okCallback: async () => '',
     noCallback: async () => '',
     otherCallback: async () => '',
@@ -351,6 +421,7 @@ const defaultConfig = {
   select: {
     type: 'select',
     createType: 'html',
+    event: {},
     container: '',
     className: '',
     bodyStyle: {},
@@ -396,6 +467,17 @@ const defaultConfig = {
     select: {},
     input: {},
     value: [],
+    beforeInitCallback: async () => '',
+    afterInitCallback: async () => '',
+    beforeOpenCallback: async () => '',
+    afterOpenCallback: async () => '',
+    beforeCloseCallback: async () => '',
+    afterCloseCallback: async () => '',
+    beforeEnlargeCallback: async () => '',
+    afterEnlargeCallback: async () => '',
+    beforeRestoreCallback: async () => '',
+    afterRestoreCallback: async () => '',
+    clickMaskCallback: async () => '',
     okCallback: async () => '',
     noCallback: async () => '',
     otherCallback: async () => '',
@@ -403,6 +485,7 @@ const defaultConfig = {
   info: {
     type: 'info',
     createType: 'html',
+    event: {},
     container: '',
     className: '',
     bodyStyle: {},
@@ -448,6 +531,17 @@ const defaultConfig = {
     select: {},
     input: {},
     value: '',
+    beforeInitCallback: async () => '',
+    afterInitCallback: async () => '',
+    beforeOpenCallback: async () => '',
+    afterOpenCallback: async () => '',
+    beforeCloseCallback: async () => '',
+    afterCloseCallback: async () => '',
+    beforeEnlargeCallback: async () => '',
+    afterEnlargeCallback: async () => '',
+    beforeRestoreCallback: async () => '',
+    afterRestoreCallback: async () => '',
+    clickMaskCallback: async () => '',
     okCallback: async () => '',
     noCallback: async () => '',
     otherCallback: async () => '',
@@ -545,6 +639,7 @@ Object.assign(dialog, {
   init: async () => {
     const obj = {status: true};
     emits('beforeInit', obj);
+    await dialog.beforeInitCallback(obj);//为了同步等待
     if (obj.status === false) return;
     if (dialog.createType === 'js') { //JS形式调用
       if (dialog.showInput) {
@@ -564,7 +659,15 @@ Object.assign(dialog, {
     }
     dialog.position();
     emits('afterInit');
+    await dialog.afterInitCallback(obj);//为了同步等待
   },
+  /**
+   * 获取宽高左上
+   * @param val
+   * @param type
+   * @param wh
+   * @returns {number|number}
+   */
   getWHLT: (val, type, wh = 0) => {
     const parentNode = dialogDom.value.parentNode;
     if (isFinite(val)) {
@@ -572,14 +675,25 @@ Object.assign(dialog, {
     } else if (/px$/.test(val)) {
       val = Number(val.replace(/px$/, ''));
     } else if (/%$/.test(val)) {
-      val = Number(val.replace(/%$/, '')) / 100 * (['w', 'l'].includes(type) ? parentNode.clientWidth : parentNode.clientHeight);
+      val = Number(val.replace(/%$/, '')) / 100 * (['w', 'l'].includes(type) ? parentNode.offsetWidth : parentNode.offsetHeight);
     } else if (val === 'auto' && ['w', 'h'].includes(type)) {
-      val = type === 'w' ? dialogDom.value.clientWidth : dialogDom.value.clientHeight;
+      val = type === 'w' ? dialogDom.value.offsetWidth : dialogDom.value.offsetHeight;
     } else if (val === 'center' && ['l', 't'].includes(type)) {
-      val = Math.max(((type === 'l' ? parentNode.clientWidth : parentNode.clientHeight) - wh) / 2, 0);
+      val = Math.max(((type === 'l' ? parentNode.offsetWidth : parentNode.offsetHeight) - wh) / 2, 0);
+    } else if (val === 'mouse' && ['l', 't'].includes(type)) {
+      const bcr = core.getBoundingClientRect(dialogDom.value, dialog.event);
+      if (type === 'l') {
+        val = bcr.x - bcr.containerLeft;
+        val = val + wh > bcr.containerWidth ? val - wh : val;
+      } else {
+        val = bcr.y - bcr.containerTop;
+      }
     }
     return ['w', 'h'].includes(type) ? val + 2 : val; //因为border 有2px 会导致字母情况下宽度不够而换行
   },
+  /**
+   * 弹窗位置
+   */
   position: () => {
     !dialogDom.value?.parentNode && console.warn('弹窗挂载点未找到:', dialogDom.value);
     dialog.zIndex();
@@ -616,7 +730,7 @@ Object.assign(dialog, {
     const obj = dialog.getResult('no');
     obj.close = true;
     emits('no', obj);
-    await dialog.noCallback(obj);
+    await dialog.noCallback(obj);//为了同步等待
     obj.close && dialog.close();
   },
   //确定
@@ -624,20 +738,21 @@ Object.assign(dialog, {
     const obj = dialog.getResult('ok');
     obj.close = true;
     emits('ok', obj);
-    await dialog.okCallback(obj);
+    await dialog.okCallback(obj);//为了同步等待
     obj.close && dialog.close();
   },
   other: async () => {
     const obj = dialog.getResult('other');
     obj.close = true;
     emits('other', obj);
-    await dialog.otherCallback(obj);
+    await dialog.otherCallback(obj);//为了同步等待
     obj.close && dialog.close();
   },
   //点击遮罩，默认不关闭窗口，事件返回true表示关闭窗口
-  clickMask: () => {
+  clickMask: async () => {
     const obj = {close: false};
     emits('clickMask', obj);
+    await dialog.clickMaskCallback(obj);//为了同步等待
     if (obj.close === true) dialog.close();
   },
   //按ESC关闭
@@ -650,10 +765,11 @@ Object.assign(dialog, {
   },
   historyDialogStyle: {}, //历史位置与尺寸
   //全屏
-  enlarge: enlarge => {//强制全屏
+  enlarge: async enlarge => {//强制全屏
     if (dialog.changeSize || enlarge) {
       const obj = {status: true};
       emits('beforeEnlarge', obj);
+      await dialog.beforeEnlargeCallback();//为了同步等待
       if (obj.status === false) return;
       dialogReactive.isFullscreen = true;
       dialog.historyDialogStyle = {...dialogReactive.dialogStyle}; //记录原始位置与尺寸
@@ -663,40 +779,49 @@ Object.assign(dialog, {
       dialogReactive.dialogStyle.top = 0;
       dialogReactive.dialogStyle.borderRadius = 0;
       emits('afterEnlarge');
+      await dialog.afterEnlargeCallback(obj);//为了同步等待
     }
   },
   //还原
-  restore: () => {
+  restore: async () => {
     if (dialog.changeSize) {
       const obj = {status: true};
       emits('beforeRestore', obj);
+      await dialog.beforeRestoreCallback();
       if (obj.status === false) return;
       dialogReactive.isFullscreen = false;
       Object.assign(dialogReactive.dialogStyle, dialog.historyDialogStyle); //还原
       dialogReactive.dialogStyle.borderRadius = 'revert-layer';
       dialog.zIndex();
       emits('afterRestore');
+      await dialog.afterRestoreCallback(obj);//为了同步等待
     }
   },
-  open: () => {
+  open: async () => {
     const obj = {status: true};
     emits('beforeOpen', obj)
+    await dialog.beforeOpenCallback(obj);//为了同步等待
     if (obj.status === false) return;
     dialogReactive.openAnimation = true;
     dialogReactive.closeAnimation = false;
-    setTimeout(() => emits('afterOpen'), 300); //300毫秒后回调打开后事件
+    setTimeout(async () => {
+      emits('afterOpen');
+      await dialog.afterOpenCallback(obj);//为了同步等待
+    }, 300); //300毫秒后回调打开后事件
   },
   closeTimer: null, //定时器
   close: (time = 0) => {
-    dialog.closeTimer = setTimeout(() => {
+    dialog.closeTimer = setTimeout(async () => {
       const obj = {status: true};
       emits('beforeClose', obj);
+      await dialog.beforeCloseCallback(obj);//为了同步等待
       if (obj.status === false) return;
       dialogReactive.openAnimation = false;
       dialogReactive.closeAnimation = true;
-      setTimeout(() => {
+      setTimeout(async () => {
         dialog.contentApp && dialog.contentApp.unmount();
         emits('afterClose');
+        await dialog.afterCloseCallback(obj);//为了同步等待
       }, dialog.type === 'loading' ? 0 : 300);
       clearTimeout(dialog.closeTimer); //清除定时器
       dialog.closeTimer = null;
@@ -752,7 +877,7 @@ Object.assign(dialog, {
 //挂载后
 onMounted(async () => {
   await dialog.init(); //初始化
-  dialog.open(); //打开窗口
+  await dialog.open(); //打开窗口
   document.addEventListener('mouseup', dialog.mouseup); //鼠标抬起时
   document.addEventListener('keydown', dialog.escClose); //esc退出
   dialog.resizeObserver.observe(dialogDom.value.parentNode); //容器大小改变时触发事件

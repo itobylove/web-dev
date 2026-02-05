@@ -4,20 +4,9 @@
       <dl :class="['tab',refobj.tabType]">
         <dt class="report" @click="obj.tabSwitch('report')">生产报表</dt>
         <dt class="reportDetails" @click="obj.tabSwitch('reportDetails')">生产记录</dt>
-        <!--
-        <dt class="scrapDetails" @click="tabSwitch('scrapDetails')">报废明细</dt>
-        <dt class="outputDetails" @click="tabSwitch('outputDetails')">产出明细</dt>
-        <dt class="circulation" @click="tabSwitch('circulation')">生产过数</dt>
-        <dt class="inspection" @click="tabSwitch('inspection')">设备点检</dt>
-        <dt class="maintenance" @click="tabSwitch('maintenance')">设备保养</dt>
-        -->
         <dt v-if="siyi.user.administrator" class="templateConfig" @click="obj.tabSwitch('templateConfig')">模板配置</dt>
       </dl>
       <dl class="menu" v-if="refobj.tabType==='report'">
-        <!--
-        <dd :class="[{'active':reportData.status}]" @click="fa">首检</dd>
-        <dd :class="[{'active':reportData.status}]" @click="ipqc">抽检</dd>
-        -->
         <dd :class="[{'active':refobj.status}]" @click="obj.del">重扫</dd>
         <dd :class="[{'active':refobj.status}]" @click="obj.save">下机</dd>
       </dl>
@@ -89,9 +78,9 @@
               <td class="sort">{{ sort + 1 }}</td>
               <td class="name">{{ item.name }}</td>
               <td class="value">
-                <t-input-number class="number" v-if="item.input_type==='number'" v-model="item.value" v-bind="item.options" :disabled="!refobj.status"/>
+                <t-input-number class="number" v-if="item.input_type==='number'" v-model="item.value" v-bind="item.options" :disabled="!refobj.status" :readonly="item.template_parameter_id === 80 || item.template_parameter_id === 81 "  @change="obj.changeParam(item)"/>
                 <t-input class="string" v-else-if="item.input_type==='string'" v-model="item.value" v-bind="item.options" :disabled="!refobj.status"/>
-                <t-radio-group class="radio" v-else-if="item.input_type==='radio'" v-model="item.value" v-bind="item.options" :disabled="!refobj.status"/>
+                <t-radio-group class="radio" v-else-if="item.input_type==='radio'" v-model="item.value" v-bind="item.options" :disabled="!refobj.status"  />
                 <t-select class="select" v-else-if="item.input_type==='select'" v-model="item.value" v-bind="item.options" :disabled="!refobj.status"/>
                 <t-switch class="switch" v-else-if="item.input_type==='switch'" v-model="item.value" v-bind="item.options" :disabled="!refobj.status"/>
                 <t-time-picker class="time" v-else-if="item.input_type==='time'" v-model="item.value" v-bind="item.options" :disabled="!refobj.status"/>
@@ -287,7 +276,7 @@ const obj = {
     number: {allowInputOverLimit: true, theme: 'column', size: 'large'}, //允许超出 目前是记录 超出不合格即可
     select: {filterable: true, multiple: true, minCollapsedNum: 1, size: 'large'},
     switch: {label: ['是', '否'], customValue: ['是', '否'], size: 'large'},
-    radio: {size: 'large'},
+    radio: {size: 'large',options:[]},
   },
   /**
    * 返工开关
@@ -311,6 +300,7 @@ const obj = {
   selectTpl: config => {
     Object.assign(refobj, config, JSON.parse(sessionStorage.getItem(sessionStorage.getItem('x-api-key'))));
     templateBox.value?.close();
+    obj.wo('WOC2601221941-00-001-003');
   },
   wolistShow: () => {
     if(refobj.wolist.length>1 && Boolean(refobj.wonumber)){
@@ -516,9 +506,8 @@ const obj = {
    */
   tolerance: () => {
     refobj.parameters.forEach(item => {
-      item.options = {...obj.defaultOptions[item.input_type], ...item.options};//合并配置项
+      item.options = {...obj.defaultOptions[item.input_type], ...item.options};
       if (item.qc_type === 'DL') {//定量
-
         // 统一数值
         const standard = Number(item.standard) || 0;
         const up = Number(item.uptolerance) || 0;
@@ -567,6 +556,7 @@ const obj = {
           item.value = item.input_type === 'date' ? core.date.time() : core.date.date();
         }
       }
+
     });
   },
   /**
@@ -589,6 +579,57 @@ const obj = {
     if (!template) {dialog.error('当前账号未配置该设备，请联系管理员添加！');return;}
     Object.assign(refobj, {equipment_id: template.equipment_id, equipment_name: template.equipment_name});
   },
+  /**
+   * 参数改变事件
+   */
+  changeParam: (item) => {
+    if (item.qc_type === 'BF') {
+      obj.calculateScrapTotal();
+      obj.calculatePassRate();
+    } else if (item.qc_type === 'BL') {
+      obj.calculatePassRate();
+    }
+  },
+
+  /**
+   * 计算某个类型参数的总和
+   */
+  calculateTotal : (qcType) => {
+    return refobj.parameters.filter(p => p.qc_type === qcType)
+        .reduce((sum, param) => sum + (parseFloat(param.value) || 0), 0);
+  },
+
+  /**
+   * 计算报废总数：所有qc_type为BF的参数之和
+   */
+   calculateScrapTotal : () => {
+    const totalScrap = obj.calculateTotal('BF');
+
+    const scrapTotalParam = refobj.parameters.find(p => p.template_parameter_id === 80);
+    if (scrapTotalParam) {
+      scrapTotalParam.value = totalScrap.toString();
+    }
+  },
+
+  /**
+   * 计算一次合格率
+   */
+  calculatePassRate : () => {
+    const totalSet = refobj.qty_set_backlog || 0; //总SET数
+    const scrapValue = parseFloat(refobj.parameters.find(p => p.template_parameter_id === 80)?.value) || 0; //报废数量
+    const defectValue = obj.calculateTotal('BL'); //不良数
+
+    if (totalSet > 0) {
+      //(总set - 报废数- 不良数)/ 总set数
+      const passRate = ((totalSet - scrapValue - defectValue) / totalSet * 100).toFixed(2);
+
+      const passRateParam = refobj.parameters.find(p => p.template_parameter_id === 81);
+      if (passRateParam) {
+        passRateParam.value = passRate.toString();
+      }
+    }
+  },
+
 }
 
 
@@ -601,9 +642,9 @@ onActivated(() => {
     const [prefix, code] = char.split('#');
     if (prefix === 'employee') {
       obj.employee(code);
-    }else if (prefix === 'equipment') {
+    } else if (prefix === 'equipment') {
       obj.equipment(code);
-    }else {
+    } else {
       refobj.employee_id > 0 && refobj.template_id > 0  ? obj.wo(char) : dialog.error('没有选择操作员或者设备模板');
     }
   }, document.body, 50);

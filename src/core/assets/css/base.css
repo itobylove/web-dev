@@ -79,3 +79,55 @@ a {
 .scroll-auto {
     overflow: auto;
 }
+
+
+.siyi-table {
+    border: 1px solid #ddd;
+    overflow-y: auto;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    > table {
+        width: 100%;
+        border-spacing: 0;
+        border-collapse: separate;
+        /*table-layout: fixed;*/
+        font-size: 12px;
+        line-height: 30px;
+        color: #000;
+        text-align: center;
+
+        > thead {
+            background-color: #f5f5f5;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            will-change: transform; /* 提示浏览器提前优化 */
+        }
+
+        > thead > tr > th, > tbody > tr > td {
+            border-right: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
+        }
+
+        > tbody > tr:nth-child(even) {
+            background-color: #f8fbff;
+        }
+
+        > thead > tr > th:last-child, > tbody > tr > td:last-child {
+            border-right: none;
+        }
+
+        > thead > tr:first-child > th, > tbody > tr:first-child > td {
+            border-top: none;
+        }
+
+        > tbody > tr:last-child > td {
+            border-bottom: none;
+        }
+    }
+}
+
+

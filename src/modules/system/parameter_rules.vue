@@ -33,7 +33,7 @@
             <t-input v-model="editBox.data.code" />
           </t-form-item>
           <t-form-item label="分组" name="tag_list">
-            <select-input v-model="editBox.data.tag_list"  :options="vData.selectOptions.tag_list" />
+            <select-input-multiple v-model="editBox.data.tag_list"  :options="vData.selectOptions.tag_list" />
           </t-form-item>
           <t-form-item label="备注" name="remark">
             <t-input v-model="editBox.data.remark" />
@@ -71,7 +71,7 @@ import {getOptionsLabel, list2Group} from "@/utils/vars.js";
 import siyi from "@/core/script/siyi.js";
 import {plantList} from "@/utils/erp.js";
 import dialog from "@/core/script/dialog.js";
-import SelectInput from "@/core/component/SelectInput.vue";
+import SelectInputMultiple from "@/core/component/SelectInputMultiple.vue";
 import uploadFile from "@/core/component/upload.vue";
 
 const props = defineProps({

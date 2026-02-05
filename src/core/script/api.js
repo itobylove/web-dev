@@ -66,8 +66,8 @@ http.interceptors.response.use(res => {
         sessionStorage.removeItem('x-api-key')
         sessionStorage.removeItem('x-api-time')
     }
-    if (res.data?.action === 'to_login') {
-        user.logout().then({});// 重新登录
+    if ((res.data?.action ?? res.data?.data?.action) === 'to_login') {
+        user.logout().then(() => null);// 重新登录
     }
     if ([301, 302].includes(res.data.status)) {
         res.data.message && dialog.info(res.data.message)// 这句没啥作用，都跳转了提示也看不到了
@@ -188,6 +188,20 @@ export const apiFetch = async (url, params = {}, options = {}, toJson = true) =>
         headers: getHttpDefaultHeaders(),
     }));
     return toJson ? response.json() : response
+}
+
+/**
+ * 带超时的fetch
+ * @param url
+ * @param options
+ * @param timeout
+ * @returns {Promise<T | void>}
+ */
+export async function fetchWithTimeout(url, options = {}, timeout = 3000) {
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    return fetch(url, { ...options, signal: controller.signal })
+    .finally(() => clearTimeout(id));
 }
 
 /**
@@ -376,13 +390,12 @@ export const getCurrentPage = (type, currentPage, listSize, pageSize) => {
     return currentPage;
 }
 
-export const getClientIP = async (field = null) => {
+export const getClientIP3 = async (field = null) => {
     try {
         const storage = useStorage();
         let ipInfo = storage.get('clientIp');
         if (typeof ipInfo?.ip === "undefined" || ipInfo?.ip?.length < 1) {
-            // 备用api https://myip.ipip.net/json
-            const apiResult = await (await fetch('https://api.vore.top/api/IPdata?ip=', {referrerPolicy: 'no-referrer'})).json();
+            const apiResult = await (await fetchWithTimeout('https://api.vore.top/api/IPdata?ip=', {referrerPolicy: 'no-referrer'})).json();
             if (apiResult?.ipinfo?.text){
                 ipInfo = {
                     ip: apiResult.ipinfo.text,
@@ -399,7 +412,28 @@ export const getClientIP = async (field = null) => {
     }
 }
 
-
+export const getClientIP = async (field = null) => {
+    try {
+        const storage = useStorage();
+        let ipInfo = storage.get('clientIp');
+        if (!ipInfo?.ip) {
+            const res = await (await fetchWithTimeout('https://myip.ipip.net/json', { referrerPolicy: 'no-referrer' })).json();
+            if (res?.data?.ip) {
+                const loc = (res.data?.location || []).filter(Boolean);
+                ipInfo = {
+                    ip: res.data.ip,
+                    isp: loc.pop(),
+                    location: loc.join(' '),
+                };
+                storage.set('clientIp', ipInfo, { expire: 86400 });
+            }
+        }
+        return field ? ipInfo?.[field] : ipInfo;
+    } catch (e) {
+        console.log('getClientIP', e);
+        return null;
+    }
+};
 
 // 获取客户端IP (腾讯地图)
 export const getClientIP2 = async (field = null) => {

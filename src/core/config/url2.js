@@ -49,6 +49,14 @@ const apiUrl = new Proxy(
                 editParameter: '/mes/report-template/saveParameter',
                 delParameter: '/mes/report-template/deleteParameter',
             },
+            return_cost:{
+                index:'/mes/return-cost/index',
+                config:'/mes/return-cost/config',
+                getData:'/mes/return-cost/getData',
+                editData:'/mes/return-cost/editData',
+                updateArea:'/mes/return-cost/updateArea',
+                getJobInfo:'/mes/return-cost/getJobInfo'
+            }
 
         },
         job:{
@@ -77,6 +85,7 @@ const apiUrl = new Proxy(
                 init: '/cost/config/init',
                 list: '/cost/config/list',
                 save: '/cost/config/save',
+                set: '/cost/config/set',
                 delete: '/cost/config/delete',
             },
             item:{
@@ -85,11 +94,11 @@ const apiUrl = new Proxy(
                 save: '/cost/item/save',
                 delete: '/cost/item/delete',
             },
-            boom:{
-                init: '/cost/boom/init',
-                list: '/cost/boom/list',
-                save: '/cost/boom/save',
-                delete: '/cost/boom/delete',
+            bom:{
+                init: '/cost/bom/init',
+                list: '/cost/bom/list',
+                save: '/cost/bom/save',
+                delete: '/cost/bom/delete',
             },
         },
         sys: {
@@ -104,6 +113,7 @@ const apiUrl = new Proxy(
             step:{
                 config: '/base/step/config',
                 list: '/base/step/list',
+                attach:'/base/Step/getAttrToId',   //  指定ID获取工序属性、参数等信息
                 add: '/base/step/save',
                 edit: '/base/step/save',
                 del: '/base/step/delete',
@@ -120,6 +130,7 @@ const apiUrl = new Proxy(
             process:{
                 config: '/base/process/config',
                 list: '/base/process/list',
+                attach:'/base/process/getAttrToId',   //  指定ID获取工艺属性、参数等信息
                 add: '/base/process/save',
                 edit: '/base/process/save',
                 del: '/base/process/delete',
@@ -140,6 +151,7 @@ const apiUrl = new Proxy(
             station:{
                 init: '/base/station/init',
                 list: '/base/station/list',
+                attach:'/base/station/getAttrToId',   //  指定ID获取工段属性、参数等信息数据
                 save: '/base/station/save',
                 delete: '/base/station/delete',
                 process:{
@@ -164,9 +176,11 @@ const apiUrl = new Proxy(
             equipment:{
                 config: '/base/equipment/config',
                 list: '/base/equipment/list',
+                attach:'/base/equipment/getAttrToId',   //  指定ID获取设备属性、参数、人员等信息
                 add: '/base/equipment/save',
                 edit: '/base/equipment/save',
                 del: '/base/equipment/delete',
+                attr: '/base/equipment/getAttrInfo', // 获取指定ID的设备属性信息
                 station:{
                     config: '/base/equipmentStation/config',
                     list: '/base/equipmentStation/list',
@@ -176,9 +190,13 @@ const apiUrl = new Proxy(
                 user:{
                     config: '/base/equipment/userConfig',
                     list: '/base/equipment/userList',
-                    add: '/base/equipment/saveUser',
-                    edit: '/base/equipment/saveUser',
-                    del: '/base/equipment/deleteUser',
+                    user: '/base/equipmentUser/getList', // 工序设置里，获取所有用户列表，设备添加用户时需要
+                    adds: '/base/equipmentUser/adds', // 新增用户-设备关联信息
+                    edits: '/base/equipmentUser/edits', // 修改用户-设备关联信息
+                    dels: '/base/equipmentUser/dels', // 删除用户-设备关联信息
+                    // add: '/base/equipment/saveUser',
+                    // edit: '/base/equipment/saveUser',
+                    // del: '/base/equipment/deleteUser',
                 }
             },
             employee:{
@@ -196,6 +214,7 @@ const apiUrl = new Proxy(
                 set: '/base/parameter/set',
                 del: '/base/parameter/delete',
                 import: '/base/parameter/import',
+                upload: '/base/parameter/upload',
                 getErpParameters: '/base/parameter/getErpParameters',
             },
             parameter_rules:{
@@ -225,8 +244,16 @@ const apiUrl = new Proxy(
                 copyAuthAssignment:'/sys/authitem/copyAuthAssignment',
                 getAuthItemDetailsById:'/sys/authitem/getAuthItemDetailsById',
                 operateAuth:'/sys/authitem/operateAuth',
-                batchCancelAuthItem:'/sys/authitem/batchCancelAuthItem'
-            }
+                batchCancelAuthItem:'/sys/authitem/batchCancelAuthItem',
+                updateAuthItem:'/sys/authitem/updateAuthItem'
+            },
+            category:{
+                config: '/base/category/config',
+                list: '/base/category/list',
+                add: '/base/category/save',
+                edit: '/base/category/save',
+                del: '/base/category/delete',
+            },
         }
     },
     {

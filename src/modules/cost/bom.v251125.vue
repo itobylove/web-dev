@@ -7,23 +7,17 @@
           <t-form-item label="工厂" name="plant_id">
             <t-select v-model="editBox.data.plant_id"  :options="plantList"/>
           </t-form-item>
-          <t-form-item label="类型" name="type">
-            <t-select v-model="editBox.data.type" :options="vData.selectOptions.type" empty="请先选择类型"/>
+          <t-form-item label="名称" name="name">
+            <t-input v-model="editBox.data.name" autofocus/>
           </t-form-item>
-          <t-form-item label="成本类型" name="item_type">
-            <t-select v-model="editBox.data.item_type" :options="vData.selectOptions.item_type" @change="editBox.change('item_type',$event)"/>
+          <t-form-item label="代码" name="code">
+            <t-input v-model="editBox.data.code" />
           </t-form-item>
-          <t-form-item label="成本项" name="item_id">
-            <t-select v-model="editBox.data.item_id" :options="editBox.selectOptions.item_id" empty="请先选择成本类型"/>
+          <t-form-item label="ERP类型" name="erp_type">
+            <t-select v-model="editBox.data.erp_type" multiple filterable :options="vData.selectOptions.erp_type"/>
           </t-form-item>
-          <t-form-item label="物料" name="bom_id" v-if="['bom','process_dynamic','process_static'].includes(editBox.data.item_type)">
-            <t-select v-model="editBox.data.bom_id" :options="vData.selectOptions.bom_id"/>
-          </t-form-item>
-          <t-form-item label="工序" name="step_id" v-if="['bom','process_dynamic','process_static'].includes(editBox.data.item_type)">
-            <t-select v-model="editBox.data.step_id" :options="vData.selectOptions.step_id"/>
-          </t-form-item>
-          <t-form-item label="工艺" name="process_id" v-if="['bom','process_dynamic','process_static'].includes(editBox.data.item_type)">
-            <t-select v-model="editBox.data.process_id" :options="vData.selectOptions.process_id"/>
+          <t-form-item label="排序" name="sort" >
+            <t-input-number v-model="editBox.data.sort" theme="column" style="width: 100%" type="integer" min="0" step="1" max="9999"  placeholder="数字小靠前" />
           </t-form-item>
           <t-form-item label="状态" name="status" >
             <t-select v-model="editBox.data.status" :options="vData.selectOptions.status"/>
@@ -47,56 +41,55 @@ import * as listTableFn from "@/core/script/tableFn.js";
 import * as api from "@/core/script/api.js"
 import {getOptionsLabel} from "@/utils/vars.js";
 import siyi from "@/core/script/siyi.js";
-import dialog from "@/core/script/dialog.js";
-import itemPage from "./item.v251125.vue";
-import bomPage from "./bom.v251125.vue";
-import ParameterRules from "../system/parameter_rules.vue";
 import {plantList} from "@/utils/erp.js";
+import dialog from "@/core/script/dialog.js";
 
-const report = ref()
+const props = defineProps({
+  query:{type:Object,default:{}}
+});
 
 //页面数据
 const vData=reactive({
   plant_id:siyi.user.plantId,
-  selectOptions: {status:[],item_type:[],item_id:[],bom_id:[],process_id:[],step_id:[]},
+  selectOptions: {status:[],type:[],erp_type:[]},
+  ...props.query
 })
 
 
+const report = ref()
+
 const editBox=reactive({
   isShow:false,
-  selectOptions:{},
   data:{
     plant_id:vData.plant_id,
   },
   rules:{
     plant_id: [{required: true, message: '请选择工厂', trigger: 'change'},],
-    item_id: [{required: true, message: '请选择成本项', trigger: 'change'},],
+    name: [{required: true, message: '请输入名称', trigger: 'change'},],
+    // code: [{required: true, message: '请选择代码', trigger: 'change'},],
+    // erp_type: [{required: true, message: '请选择类型', trigger: 'change'},],
     status: [{required: true, message: '请选择状态', trigger: 'change'},],
   },
-  bind:{width: '60%', height: '80%', title: "添加"},
-  form:{style: {padding: '20px 10px',},
+  bind:{
+    width: '50%',
+    height: '80%',
+    title: "添加"
   },
-  change: async (key,value) => {
-    if (key==='item_type'){
-      editBox.selectOptions.item_id = vData.selectOptions.item_id.filter((item) => item.data.type === value);
-      editBox.data.item_id=null;
-    }
+  form:{
+    style: {
+      padding: '20px 10px',
+    },
   },
   submit: async ({validateResult, firstError}) => {
     if (validateResult !== true) return dialog.warning(firstError);
     const loading = dialog.loading(undefined, '保存中...');
-    const res = await api.post(api.url2.cost.config.save, editBox.data);
+    const res = await api.post(api.url2.cost.bom.save, editBox.data);
     loading && loading.close();
     if (res){
       dialog.success('保存成功');
       await report.value.reportConfig.getData();
       editBox.close();
     }
-  },
-  open: (data) => {
-    editBox.isShow=true;
-    editBox.data = {...data};
-    editBox.selectOptions.item_id = []; // 重置item_id
   },
   close: () => {
     editBox.data={};
@@ -119,43 +112,32 @@ const table = reactive({
   param:{},
 });
 
-
-
 const tableEvent = {
   plantChange: async (value) => {
     vData.plant_id = value;
   },
   showEdit: async (rows) => {
     const row = rows?.[0] || {};
-    editBox.open({
+    editBox.isShow=true;
+    editBox.data={
       plant_id:vData.plant_id,
       status:1,
       ...row
-    })
+    }
   },
   delete: async (rows) => {
     const id = rows.map((row) => row.id);
     const result = await dialog.confirmAsync('确定要删除'+id.length+'条数据吗？');
     if (!result) return;
     const loading = dialog.loading(undefined, '删除中...');
-    const res = await api.post(api.url2.cost.config.delete, {id});
+    const res = await api.post(api.url2.cost.bom.delete, {id});
     loading && loading.close();
     if (res){
       dialog.success('删除成功');
       await report.value.reportConfig.getData();
     }
   },
-  showItem: async () => {
-    dialog.window(itemPage, {query:{plant_id:vData.plant_id}},{width: '80%',height: '80%',title:"成本项管理"})
-  },
-  showBom: async () => {
-    dialog.window(bomPage, {query:{plant_id:vData.plant_id}},{width: '80%',height: '80%',title:"bom管理"})
-  },
-  showParameter: async () => {
-    dialog.window(ParameterRules, {query:{plant_id:vData.plant_id}},{width: '80%',height: '80%',title:"参数管理"})
-  },
 };
-
 
 
 const getSearchForm = () => {
@@ -170,9 +152,6 @@ const getMenus = () => {
     add: {title: '添加', click: () => tableEvent.showEdit(), icon: 'ri-add-line', sort: 40},
     edit: {title: '修改', listAction: tableEvent.showEdit, icon: 'ri-edit-line', sort: 50},
     del: {title: '删除', listAction: tableEvent.delete, icon: 'ri-del-line', sort: 60},
-    item: {title: '成本项设置', click: () => tableEvent.showItem(), icon: 'ri-settings-line', sort: 70},
-    process: {title: 'BOM设置', click: () => tableEvent.showBom(), icon: 'ri-menu-line', sort: 80},
-    parameter: {title: '参数设置', click: () => tableEvent.showParameter(), icon: 'ri-menu-line', sort: 80},
     moreSettings:{sort: 90,title:'表格设置'},
   };
 }
@@ -181,7 +160,7 @@ const getMenus = () => {
 // 页面初始化
 const initTable = async () => {
   const loading = dialog.loading(undefined, '页面加载中...');
-  const apiData = await api.get(api.url2.cost.config.init);
+  const apiData = await api.get(api.url2.cost.bom.init);
   loading && loading.close();
   vData.selectOptions = getOptionsLabel(apiData?.option);
   await tableEvent.plantChange(siyi.user.plantId);
@@ -201,7 +180,7 @@ const getReportConfig = () => {
       search:table.search,
     },
     tableConfig: {
-      url: api.url2.cost.config.list,
+      url: api.url2.cost.bom.list,
       showCheck: true,
       disablePage: true,
       useEncryptionFields: false,
@@ -224,3 +203,12 @@ onMounted(() => {
 
 </script>
 
+<style scoped>
+.mainPage{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+</style>

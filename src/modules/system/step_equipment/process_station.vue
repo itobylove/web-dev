@@ -20,7 +20,8 @@ const props = defineProps({
   process:{type:Object,default:null,required: false},
   tableConfig: {type: Object, default: {}},
   menuConfig: {type: Object, default: {}},
-  query:{type:Object,default:{}}
+  query:{type:Object,default:{}},
+  config:{type:Object,default:{}},
 });
 
 const emit = defineEmits(['clickCell','afterLoaded'])
@@ -76,8 +77,8 @@ const tableEvent = {
 
 
 // 页面初始化
-const initTable = async () => {
-  const apiData = vData.apiData = await api.get(api.url2.sys.process.station.config);
+const initTable = () => {
+  const apiData = vData.apiData = props.config;
   vData.selectOptions = getOptionsLabel(apiData?.option);
   table.value={
     menuConfig: {

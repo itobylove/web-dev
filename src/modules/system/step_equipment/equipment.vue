@@ -9,50 +9,50 @@
     <dialogComponent v-if="dialogConfig.isShow" v-bind="dialogConfig.bind"  v-on="dialogConfig.on"  >
       <t-form :data="dialogConfig.data" :rules="dialogConfig.rules" @submit="dialogConfig.submit" v-bind="dialogConfig.form">
         <t-row>
-        <t-col :span="11" >
-          <t-form-item label="工厂" name="plant_id">
-            <t-select v-model="dialogConfig.data.plant_id"  :options="plantList" @change="dialogConfig.change('plant_id',$event)" />
-          </t-form-item>
-          <t-form-item label="类型" name="type">
-            <t-select filterable v-model="dialogConfig.data.type" :options="vData.selectOptions.type"/>
-          </t-form-item>
-          <t-form-item label="父级" name="pid" v-if="dialogConfig.data.type===1">
-            <t-select filterable v-model="dialogConfig.data.pid" :options="dialogConfig.selectOptions.pid"/>
-          </t-form-item>
-          <t-form-item label="ERP设备" name="erp_equipment_id" v-if="dialogConfig.data.type===0 && dialogConfig.data.plant_id===6">
-            <t-select filterable v-model="dialogConfig.data.erp_equipment_id" :options="vData.selectOptions.erp_equipment_id" clearable @clear="fn.clearField('erp_equipment_id')" @change="fn.handleErpEquipmentChange" />
-          </t-form-item>
-          <t-form-item label="工段" name="station_ids">
-            <t-select filterable multiple v-model="dialogConfig.data.station_ids" :options="dialogConfig.selectOptions.station_ids" />
-          </t-form-item>
-          <t-form-item label="名称" name="name">
-            <t-input v-model="dialogConfig.data.name" />
-          </t-form-item>
-          <t-form-item label="分组" name="pid" v-if="dialogConfig.data.type!==1">
-            <t-select filterable v-model="dialogConfig.data.pid" :options="dialogConfig.selectOptions.pid"/>
-          </t-form-item>
-          <t-form-item label="编码" name="code">
-            <t-input v-model="dialogConfig.data.code" />
-          </t-form-item>
-          <t-form-item label="型号" name="model" v-if="dialogConfig.data.type===0">
-            <t-input v-model="dialogConfig.data.model" />
-          </t-form-item>
-          <t-form-item label="供应商" name="supplier_id" v-if="dialogConfig.data.type===0">
-            <t-select filterable v-model="dialogConfig.data.supplier_id" :options="vData.selectOptions.supplier_id"/>
-          </t-form-item>
-          <t-form-item label="排序" name="sort" >
-            <t-input-number v-model="dialogConfig.data.sort" theme="column" style="width: 100%" type="integer" min="0" step="1" max="9999"  placeholder="数字小靠前" />
-          </t-form-item>
-          <t-form-item label="状态" name="status" >
-            <t-select v-model="dialogConfig.data.status" :options="vData.selectOptions.status"/>
-          </t-form-item>
-          <t-form-item label="备注" name="remark">
-            <t-input v-model="dialogConfig.data.remark" />
-          </t-form-item>
-          <t-form-item>
-            <t-button theme="primary" type="submit">保存</t-button>
-          </t-form-item>
-        </t-col>
+          <t-col :span="11" >
+            <t-form-item label="工厂" name="plant_id">
+              <t-select v-model="dialogConfig.data.plant_id"  :options="plantList" @change="dialogConfig.change('plant_id',$event)" />
+            </t-form-item>
+            <t-form-item label="类型" name="type">
+              <t-select filterable v-model="dialogConfig.data.type" :options="vData.selectOptions.type"/>
+            </t-form-item>
+            <t-form-item label="分组类型" name="group_type"  v-if="dialogConfig.data.type===1"> <!--设备分组 选择分组类型-->
+              <t-select filterable v-model="dialogConfig.data.group_type" :options="vData.selectOptions.group_type"/>
+            </t-form-item>
+            <t-form-item label="设备分组" name="equipment_group_ids"  v-if="dialogConfig.data.type===0"> <!--设备 选择分组-->
+              <t-select filterable multiple reserveKeyword  v-model="dialogConfig.data.equipment_group_ids" :options="vData.selectOptions.equipment_group_ids"/>
+            </t-form-item>
+            <t-form-item label="ERP设备" name="erp_equipment_id" v-if="dialogConfig.data.type===0 && dialogConfig.data.plant_id===6">
+              <t-select filterable v-model="dialogConfig.data.erp_equipment_id" :options="vData.selectOptions.erp_equipment_id" clearable @clear="fn.clearField('erp_equipment_id')" @change="fn.handleErpEquipmentChange" />
+            </t-form-item>
+            <t-form-item label="工段" name="station_ids">
+              <t-select filterable multiple reserveKeyword v-model="dialogConfig.data.station_ids" :options="dialogConfig.selectOptions.station_ids" />
+            </t-form-item>
+            <t-form-item label="名称" name="name">
+              <t-input v-model="dialogConfig.data.name" />
+            </t-form-item>
+            <t-form-item label="编码" name="code">
+              <t-input v-model="dialogConfig.data.code" />
+            </t-form-item>
+            <t-form-item label="型号" name="model" v-if="dialogConfig.data.type===0">
+              <t-input v-model="dialogConfig.data.model" />
+            </t-form-item>
+            <t-form-item label="供应商" name="supplier_id" v-if="dialogConfig.data.type===0">
+              <t-select filterable v-model="dialogConfig.data.supplier_id" :options="vData.selectOptions.supplier_id"/>
+            </t-form-item>
+            <t-form-item label="排序" name="sort" >
+              <t-input-number v-model="dialogConfig.data.sort" theme="column" style="width: 100%" type="integer" min="0" step="1" max="9999"  placeholder="数字小靠前" />
+            </t-form-item>
+            <t-form-item label="状态" name="status" >
+              <t-select v-model="dialogConfig.data.status" :options="vData.selectOptions.status"/>
+            </t-form-item>
+            <t-form-item label="备注" name="remark">
+              <t-input v-model="dialogConfig.data.remark" />
+            </t-form-item>
+            <t-form-item>
+              <t-button theme="primary" type="submit">保存</t-button>
+            </t-form-item>
+          </t-col>
         </t-row>
       </t-form>
     </dialogComponent>
@@ -87,7 +87,7 @@ const vData=reactive({
   pageConfig:{},
   equipment:{},
   plant_id: siyi.user.plantId,
-  selectOptions: {status:[],supplier_id:[],station_ids:[],erp_equipment_id:[],pid:[]},
+  selectOptions: {status:[],supplier_id:[],station_ids:[],erp_equipment_id:[],group_type:[],equipment_group_ids:[]},
   ...props.query
 })
 
@@ -135,7 +135,6 @@ const fn = {
     dialogConfig.type = 'edit';
     dialogConfig.data = {...row};
     await dialogConfig.change('plant_id', row.plant_id);
-    dialogConfig.selectOptions.pid = dialogConfig.selectOptions.pid.filter(item => item.value !== row['id']); // 父级不能包含自己
     dialogConfig.isShow = true
   },
   delEquipment: async (rows) => {
@@ -181,10 +180,9 @@ const mainReportConfig = {
   },
   searchConfig: {
     search: [
-      {type: 'select', field: 'plant_id',style: {width: '100px'},value: vData.plant_id, options: {multiple:false,placeholder: '工厂'},load:'factory'
-        ,onChange: (val) => {vData.plant_id = val;mainReport.value.reportConfig.getData()}},
-      {type: 'select', field: 'type', options: {multiple:false,placeholder: '类型', options: vData.selectOptions.type},
-        value: vData.type,onChange:(val)=>{vData.type=val; mainReport.value.reportConfig.getData();}},
+      {type: 'select', field: 'plant_id',style: {width: '100px'},value: vData.plant_id, options: {multiple:false,placeholder: '工厂'},load:'factory',onChange: (val) => {vData.plant_id = val;mainReport.value.reportConfig.getData()}},
+      {type: 'select', field: 'type', options: {multiple:false,placeholder: '类型', options: vData.selectOptions.type}, value: vData.type,onChange:(val)=>{vData.type=val; mainReport.value.reportConfig.getData();}},
+      {type: 'select', field: 'group_type', options: {multiple:false,placeholder: '分组类型', options: vData.selectOptions.group_type}, value: vData.group_type,onChange:(val)=>{vData.type=val; mainReport.value.reportConfig.getData();}},
       {type: 'input', field: 'code', options: {placeholder: '编码'}},
       {type: 'input', field: 'name', options: {placeholder: '名称'}},
       {type: 'select', field: 'status', options: {multiple:false,placeholder: '状态', options: vData.selectOptions.status}},
@@ -214,7 +212,7 @@ const mainReportConfig = {
 
 const dialogConfig = reactive({
   isShow:false,
-  selectOptions:{pid:[]},
+  selectOptions:{group_type:[]},
   data: {},
   rules:{
     type: [{required: true, message: '请选择类型', trigger: 'change'},],
@@ -236,7 +234,7 @@ const dialogConfig = reactive({
     if(key === 'plant_id') {
       dialogConfig.selectOptions.erp_equipment_id = vData.selectOptions.erp_equipment_id.filter(item => item.data.plantsId === value);
       dialogConfig.selectOptions.station_ids = vData.selectOptions.station_ids.filter(item => item.data.plant_id === value);
-      dialogConfig.selectOptions.pid = vData.selectOptions.pid.filter(item => item.data.plant_id === value); // 只包含本公司
+      dialogConfig.selectOptions.equipment_group_ids = vData.selectOptions.equipment_group_ids.filter(item => item.data.plant_id === value);
     }
   },
   submit: async ({validateResult, firstError}) => {
@@ -267,7 +265,7 @@ onMounted( () => {
     vData.selectOptions = getOptionsLabel(res?.option);
     mainReportConfig.tableConfig = {...mainReportConfig.tableConfig, ...res.table};
     mainReportConfig.tableConfig.columns = tableFn.createColumns(res.columns);
-    const searchFields = ['status', 'supplier_id', 'erp_equipment_id', 'station_ids','type'];
+    const searchFields = ['status', 'supplier_id', 'erp_equipment_id', 'station_ids','group_type','type','equipment_group_ids'];
     searchFields.forEach(field => {
       const searchItem = mainReportConfig.searchConfig.search.find(item => item.field === field);
       if (searchItem) searchItem.options.options = vData.selectOptions[field] || [];

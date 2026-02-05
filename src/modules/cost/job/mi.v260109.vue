@@ -70,7 +70,7 @@ const jobDetailFn={
     if (!vData.job?.erp_id) return ;
     const tableConfig = await api.get(api.url2.job.mi.job, {erp_id: vData.job.erp_id});
     jobDetail.tableConfig={...jobDetail.tableConfig,...tableConfig,
-      columns:listTableFn.createColumns(tableConfig.columns).concat(Array(50-tableConfig.columns.length).fill({field:'',title:'',showSort:false}))
+      columns:listTableFn.createColumns(tableConfig.columns.concat(Array(50-tableConfig.columns.length)))
     };
     vData.tableInit.jobDetail=true;
     jobDetailRef.value && jobDetailRef.value.reportConfig.getData();
@@ -143,7 +143,7 @@ const jobRoutes = {
       click_cell: async ({originData,field}) => {
         if (!field) return ;
         // const newJmpId = originData?.jmp_erp_id === vData.route?.jmp_erp_id ? null : originData.jmp_erp_id;
-        const newRouteId = originData?.route_erp_id === vData.route?.route_erp_id ? null : originData.route_erp_id;
+        const newRouteId = originData?.route_erp_id === vData.route?.route_erp_id ? null : originData?.route_erp_id;
         const newStationRouteId = originData?.route_erp_id === vData.route?.station_route_id ? null : originData.station_route_id;
         vData.route = originData;
         // newJmpId && await jmpParamsFn.getData();

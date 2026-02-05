@@ -229,6 +229,7 @@ const dialogConfig = reactive({
 
 onMounted( () => {
   api.get(apiUrl.sys.process.config).then(res => {
+    console.log(res)
     vData.selectOptions = getOptionsLabel(res?.option);
     mainReportConfig.tableConfig = {...mainReportConfig.tableConfig, ...res.table};
     mainReportConfig.tableConfig.columns = tableFn.createColumns(res.columns);

@@ -1,13 +1,13 @@
-import {shallowRef} from 'vue'
-import {pinyin} from 'pinyin-pro'
-import * as core from '@/core/script/core.js'
-import {components, nav} from '@/core/config/nav.js'
-import {authApply, saveUserConfig} from '@/core/script/api.js'
-import dialog from '@/core/script/dialog.js'
-import siyi from '@/core/script/siyi.js'
+import {shallowRef} from 'vue';
+import {pinyin} from 'pinyin-pro';
+import * as core from '@/core/script/core';
+import {components, nav} from '@/core/config/nav';
+import {authApply, saveUserConfig} from '@/core/script/api';
+import dialog from '@/core/script/dialog';
+import siyi from '@/core/script/siyi';
 
 
-export const activeComponent = shallowRef()//当前活动的组件，默认为主页
+export const activeComponent = shallowRef();//当前活动的组件，默认为主页
 
 
 //模块与导航默认值处理
@@ -23,7 +23,7 @@ nav.value.forEach((module, m) => {
             items: [],
         },
         ...module
-    }
+    };
     nav.value[m].items.forEach((item, i) => {
         //默认可配置项
         const _item = {
@@ -42,18 +42,18 @@ nav.value.forEach((module, m) => {
                 filter: true,                      //true 允许过滤 false不允许过滤
                 api: [],                           //默认API（申请菜单权限时，和菜单权限一起申请）
                 scope: 'user',                     //权限范围 user:所有人;admin:管理员;employee:员工;supplier:供应商
-                auth:false,                        //是否有权限
+                auth: false,                        //是否有权限
                 menus: {},                         //电脑端菜单
                 tableOptions: {},                  //表格配置
                 moblieWhere: false,                //手机端搜索条件显示与隐藏
                 moblieMenu: false,                 //手机端操作菜单显示与隐藏
             },
             ...item
-        }
+        };
         //不可配置项
-        const id = _item.cid || _item.id
-        const component = components[siyi.pc ? id : `${id}_mobile`]
-        const isAuth = siyi.user.permissions.includes(`nav_${_item.id}`)
+        const id = _item.cid || _item.id;
+        const component = components[siyi.pc ? id : `${id}_mobile`];
+        const isAuth = siyi.user.permissions.includes(`nav_${_item.id}`);
         nav.value[m].items[i] = {
             ..._item,
             ...{
@@ -66,34 +66,34 @@ nav.value.forEach((module, m) => {
                 auth: _item.id === 'home' ? true : ((siyi.user.type === 1 && siyi.user.administrator) || isAuth || _item?.auth),     //有权限 亮 和 无权限 灰
                 component: component ? shallowRef(component) : false,   //组件
             }
-        }
-    })
+        };
+    });
     //如果不是管理，scope=admin 不给看
-    nav.value[m].items = nav.value[m].items.filter(item => siyi.user.administrator || (module?.scope !== 'admin' && item?.scope !== 'admin'))
+    nav.value[m].items = nav.value[m].items.filter(item => siyi.user.administrator || (module?.scope !== 'admin' && item?.scope !== 'admin'));
     //按PC端与移动端类型过滤导航
-    nav.value[m].items = nav.value[m].items.filter(item => item.component !== false)
+    nav.value[m].items = nav.value[m].items.filter(item => item.component !== false);
     //非内部员工 如供应商，将没有权限的导航直接过滤掉不给看
-    nav.value[m].items = nav.value[m].items.filter(item => siyi.user.type === 1 || item.auth)
+    nav.value[m].items = nav.value[m].items.filter(item => siyi.user.type === 1 || item.auth);
     //把有权限的排序到最前面
-    core.data.sortData(nav.value[m].items, 'auth', false)
+    core.data.sortData(nav.value[m].items, 'auth', false);
     //旧版本分组
     nav.value[m].items.forEach((item1, i1) => {
         if (item1.group && !item1.groupIcon) {
-            let i2 = 0
+            let i2 = 0;
             for (const key in nav.value[m].items) {
-                const item2 = nav.value[m].items[key]
+                const item2 = nav.value[m].items[key];
                 if (item1.group === item2.group && item2.groupIcon) {
-                    i2 = parseInt(key) + 1
-                    break
+                    i2 = parseInt(key) + 1;
+                    break;
                 }
             }
             //把删除的插入到指定位置
-            nav.value[m].items.splice(i2, 0, ...nav.value[m].items.splice(i1, 1))
+            nav.value[m].items.splice(i2, 0, ...nav.value[m].items.splice(i1, 1));
         }
-    })
-})
+    });
+});
 //将没有导航的的模块过滤掉
-nav.value = nav.value.filter(module => ['open', 'favorites'].includes(module.id) || module.items.length > 0)
+nav.value = nav.value.filter(module => ['open', 'favorites'].includes(module.id) || module.items.length > 0);
 
 /**
  * 给菜单申请权限
@@ -102,10 +102,8 @@ nav.value = nav.value.filter(module => ['open', 'favorites'].includes(module.id)
  */
 const menuAuthApply = async (item) => {
     const data = [{name: `nav_${item.id}`, title: item.title}];
-    item.api?.length > 0 && item.api.forEach((name) => {
-        data.push({name})
-    })
-    const res = await authApply({type: 2, data})
+    item.api?.length > 0 && item.api.forEach((name) => data.push({name}));
+    const res = await authApply({type: 2, data});
     return res ? dialog.success('申请成功,请等待审核') : false;
 }
 
@@ -119,33 +117,33 @@ let openList = []
  * @returns {boolean}
  */
 export const to = (id, query = {}) => {
-    if (id === siyi.nav.id) return true //如果是当前有页面不作处理
+    if (id === siyi.nav.id) return true;//如果是当前有页面不作处理
     for1:for (const module of nav.value) {
-        if (['open', 'favorites'].includes(module.id)) continue
+        if (['open', 'favorites'].includes(module.id)) continue;
         for (const item of module.items) {
             if (item.id === id) {
                 if (item.auth === false) {
-                    dialog.confirm(`“${item.title}”权限未开通，是否申请？`, () => menuAuthApply(item))
-                    return false
+                    dialog.confirm(`“${item.title}”权限未开通，是否申请？`, () => menuAuthApply(item));
+                    return false;
                 }
-                if (item.open === false) item.key = `${id}${Date.now()}`  //关闭后强制刷新
-                item.open = true                           //标记已经打开
-                siyi.from = {...siyi.nav}             //记录为来源导航
-                siyi.from.query = {...siyi.from.query, ...query} //上一次的query和当前的query合并
-                siyi.nav = {...item}                            //当前活动的导航
-                activeComponent.value = item.component        //当前活动的组件
-                !openList.includes(id) && openList.push(id)   //打开列表
-                break for1
+                if (item.open === false) item.key = `${id}${Date.now()}`; //关闭后强制刷新
+                item.open = true;                         //标记已经打开
+                siyi.from = {...siyi.nav};            //记录为来源导航
+                siyi.from.query = {...siyi.from.query, ...query}; //上一次的query和当前的query合并
+                siyi.nav = {...item};                          //当前活动的导航
+                activeComponent.value = item.component;      //当前活动的组件
+                !openList.includes(id) && openList.push(id);  //打开列表
+                break for1;
             }
         }
     }
     if (id !== siyi.nav.id) {
-        dialog.error('页面不存在')
-        return false
+        dialog.error('页面不存在');
+        return false;
     }
-    siyi.nav?.title && (document.title = siyi.nav.title) // 更新标题
-    uofm('open')   //更新打开的
-    return true
+    siyi.nav?.title && (document.title = siyi.nav.title); // 更新标题
+    uofm('open');  //更新打开的
+    return true;
 }
 
 
@@ -154,7 +152,7 @@ export const to = (id, query = {}) => {
  * @param queryParams
  * @returns {boolean}
  */
-export const back = (queryParams = {}) => to(siyi.from.id, queryParams)
+export const back = (queryParams = {}) => to(siyi.from.id, queryParams);
 
 
 /**
@@ -164,20 +162,20 @@ export const close = id => {
     for1:for (const module of nav.value) {
         for (const item of module.items) {
             if (item.id === id) {
-                item.open = false
-                openList = openList.filter(item => item !== id)
+                item.open = false;
+                openList = openList.filter(item => item !== id);
                 if (openList.length <= 0) {
-                    siyi.nav = {}
-                    siyi.nav = {}
+                    siyi.nav = {};
+                    siyi.nav = {};
                 }
-                break for1
+                break for1;
             }
         }
     }
-    const lastId = openList[openList.length - 1]
-    lastId === siyi.nav.id && uofm('open')
-    to(lastId || 'home')
-}
+    const lastId = openList[openList.length - 1];
+    lastId === siyi.nav.id && uofm('open');
+    to(lastId || 'home');
+};
 
 
 /**
@@ -188,20 +186,20 @@ export const favorites = async id => {
     for1:for (const module of nav.value) {
         for (const item of module.items) {
             if (item.id === id) {
-                item.favorites = !item.favorites
+                item.favorites = !item.favorites;
                 if (item.favorites) {
-                    siyi.user.favorites.nav.push(item.id)
+                    siyi.user.favorites.nav.push(item.id);
                 } else {
-                    siyi.user.favorites.nav = siyi.user.favorites.nav.filter(id => id !== item.id)
+                    siyi.user.favorites.nav = siyi.user.favorites.nav.filter(id => id !== item.id);
                 }
-                break for1
+                break for1;
             }
         }
     }
     //更新收藏
-    uofm('favorites')
-    await saveUserConfig('nav', siyi.user.favorites.nav, 1, 'favorites')
-}
+    uofm('favorites');
+    await saveUserConfig('nav', siyi.user.favorites.nav, 1, 'favorites');
+};
 
 
 /**
@@ -211,9 +209,9 @@ export const favorites = async id => {
  */
 const uofm = moduleid => {
     //映射收藏或者已打开的导航
-    const _items = []
+    const _items = [];
     //取到收藏或者已打开的列表
-    const lists = {open: openList, favorites: siyi.user.favorites.nav}
+    const lists = {open: openList, favorites: siyi.user.favorites.nav};
     //映射导航
     lists[moduleid].forEach(list =>
         nav.value.forEach(module => !['open', 'favorites'].includes(module.id) && module.items.forEach(item =>
@@ -224,13 +222,13 @@ const uofm = moduleid => {
     //取到对应的模块
     for (const module of nav.value) {
         if (module.id === moduleid) {
-            module.items = _items
-            break
+            module.items = _items;
+            break;
         }
     }
-}
+};
 //更新收藏
-uofm('favorites')
+uofm('favorites');
 
 
 /**
@@ -259,10 +257,8 @@ export const filter = (title, moduleid = '') => {
                 if (item.filter) {
                     title = String(title).trim().toUpperCase();
                     let str = String(item.title + item.id).trim().toUpperCase();
-                    //转换为拼音并取到首字母
-                    pinyin(str, {type: 'array'}).forEach(py => str += py[0].toUpperCase());
-                    //搜索到了
-                    item.show = title === '' || str.indexOf(title) > -1;
+                    pinyin(str, {type: 'array'}).forEach(py => str += py[0].toUpperCase());//转换为拼音并取到首字母
+                    item.show = title === '' || str.includes(title);//搜索到了
                 }
             })
         }
@@ -278,9 +274,9 @@ export const filter = (title, moduleid = '') => {
  */
 export const get = (id, module = false) => {
     for (const m in nav.value) {
-        if (module && nav.value[m] === id) return nav.value[m]
+        if (module && nav.value[m] === id) return nav.value[m];
         for (const i in nav.value[m].items) {
-            if (nav.value[m].items[i].id === id) return nav.value[m].items[i]
+            if (nav.value[m].items[i].id === id) return nav.value[m].items[i];
         }
     }
 }
@@ -294,7 +290,7 @@ export const groupSwitch = group => {
     nav.value.forEach(
         module => module.items.forEach(
             item => {
-                if (item.group === group && item.groupIcon === false) item.groupShow = !item.groupShow
+                if (item.group === group && item.groupIcon === false) item.groupShow = !item.groupShow;
             }
         )
     )
@@ -302,4 +298,4 @@ export const groupSwitch = group => {
 
 
 //导出
-export {nav}
+export {nav};
