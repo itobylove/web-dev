@@ -74,6 +74,7 @@ export const components = {
     job_weight: reg({loader: () => import('@/modules/sc/jobWeight.v250425.vue'), loadingComponent, errorComponent}),
     job_test_bench: reg({loader: () => import('@/modules/asset/testBench.v250510.vue'), loadingComponent, errorComponent}),
     cost_item: reg({loader: () => import('@/modules/cost/item.v251125.vue'), loadingComponent, errorComponent}),
+    cost_quote: reg({loader: () => import('@/modules/cost/quote_list.vue'), loadingComponent, errorComponent}),
     cost_index: reg({loader: () => import('@/modules/cost/index.v251125.vue'), loadingComponent, errorComponent}),
     siyi_job: reg({loader: () => import('@/modules/cost/job.v260109.vue'), loadingComponent, errorComponent}),
     visitor: reg({loader: () => import('@/modules/visitor/index.v250622.vue'), loadingComponent, errorComponent}),
@@ -94,6 +95,8 @@ export const components = {
     sys_unit: reg({loader: () => import('@/modules/system/unit.vue'), loadingComponent, errorComponent}),
     sys_unit_mobile: reg({loader: () => import('@/modules/system/unit.vue'), loadingComponent, errorComponent}),
     sys_step: reg({loader: () => import('@/modules/system/step_equipment/step.vue'), loadingComponent, errorComponent}),
+    steps: reg({loader: () => import('@/modules/system/steps.vue'), loadingComponent, errorComponent}),
+    process: reg({loader: () => import('@/modules/system/process.vue'), loadingComponent, errorComponent}),
     sys_step_equipment: reg({loader: () => import('@/modules/system/step_equipment/index.vue'), loadingComponent, errorComponent}),
     sys_step_report: reg({loader: () => import('@/modules/system/step_equipment/report.vue'), loadingComponent, errorComponent}),
     sys_step_mobile: reg({loader: () => import('@/modules/system/step_equipment/step.vue'), loadingComponent, errorComponent}),
@@ -2950,6 +2953,12 @@ export const nav = ref([
         icon: 'ri-calculator-line',
         items: [
             {
+                id: 'cost_quote',
+                title: '成本报价',
+                icon: 'ri-computer-line',
+                query: {},
+            },
+            {
                 id: 'cost_item',
                 title: '标准成本-设置',
                 icon: 'ri-computer-line',
@@ -3059,12 +3068,18 @@ export const nav = ref([
                 query: {},
                 title: '测试',
             },
-            /* {
-                 id: 'sys_step',
-                 icon:'ri-community-line',
-                 query: {},
-                 title: '工序',
-             },
+            {
+                id: 'steps',
+                icon: 'ri-community-line',
+                title: '工序管理',
+            },
+            {
+                id: 'process',
+                icon: 'ri-community-line',
+                query: {},
+                title: '工艺管理',
+            },
+            /*
              {
                  id: 'sys_process',
                  icon:'ri-community-line',

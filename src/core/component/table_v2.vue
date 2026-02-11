@@ -62,7 +62,7 @@ const reportConfig = _.merge({}, tableFn.defaultConfig(props.vTableConfig), {
   getQuery: query => {
     return {
       exec: reportConfig.id,
-      where: {...(searchConfig !== false ? searchRef.value.get() : {}), ...props.where},
+      where: {...(searchConfig === false ? {} : (searchRef.value?.get() || {})), ...props.where},
       ...props.query,
       ...query
     }; //合并自定义参数

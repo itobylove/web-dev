@@ -1325,33 +1325,3 @@ defineExpose({...dialog, dialogReactive}) // 暴露 updateContent 方法给外�
   }
 }
 </style>
-<style>
-/*处理腾讯tabs样式*/
-.dialogBox > .main > .body {
-  .t-tabs {
-    height: 100%;
-
-    > .t-tabs__header > .t-tabs__nav > .t-tabs__nav-container > .t-tabs__nav-scroll > .t-tabs__nav-wrap > .t-tabs__nav-item {
-      height: 36px;
-      line-height: 36px;
-    }
-
-    > .t-tabs__header > .t-tabs__nav > .t-tabs__nav-container:after {
-      background-color: #cfd5de;
-    }
-
-    > .t-tabs__content {
-      height: calc(100% - 36px);
-
-      > .t-tab-panel {
-        height: 100%;
-        overflow: hidden auto;
-
-        &::-webkit-scrollbar {
-          display: none;
-        }
-      }
-    }
-  }
-}
-</style>

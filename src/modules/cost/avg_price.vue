@@ -5,7 +5,7 @@
       <t-form :data="editBox.data" :rules="editBox.rules" @submit="editBoxFn.submit" v-bind="editBox.form">
         <t-col span="11" >
           <t-form-item label="成本项" name="item_id">
-            <t-input :value="vData.item.type_text +' > '+ vData.item.category +(vData.item.category?' > ':'')+ vData.item.name" type="text" readonly />
+            <t-input :value="vData.item.type_text +' > '+ (vData.item.category || '') +(vData.item.category?' > ':'')+ vData.item.name" type="text" readonly />
           </t-form-item>
           <t-form-item label="级别" name="avg_level">
             <t-select v-model="editBox.data.avg_level" :options="vData.selectOptions.avg_level" @change="editBoxFn.change($event,'avg_level')" />
@@ -19,8 +19,8 @@
           <t-form-item label="设备组" name="asset_group_id" v-if="editBox.data.avg_level===dData.AVG_LEVEL_ASSET_GROUP">
             <t-select v-model="editBox.data.asset_group_id" :options="vData.selectOptions.asset_group_id" @change="editBoxFn.change($event,'asset_group_id')" clearable filterable  reserveKeyword minCollapsedNum="3" />
           </t-form-item>
-          <t-form-item label="工艺" name="process_id" v-if="editBox.data.avg_level===dData.AVG_LEVEL_ASSET_GROUP && editBox.data.asset_group_id">
-              <t-select v-model="editBox.data.process_id" :options="vData.selectOptions.process_id" readonly  placeholder="请选择设备组"  multiple reserveKeyword  />
+          <t-form-item label="工艺" name="step_process_id" v-if="editBox.data.avg_level===dData.AVG_LEVEL_ASSET_GROUP && editBox.data.asset_group_id">
+              <t-select v-model="editBox.data.step_process_id" :options="editBox.step_process_list" readonly  placeholder="请选择设备组"  multiple reserveKeyword  />
           </t-form-item>
           <t-form-item label="费率" name="avg_price" >
             <t-input  v-model="editBox.data.avg_price" theme="column" style="width: 100%" type="number" min="0"  max="9999" class="avg_price" placeholder="只填费率" >
@@ -65,6 +65,8 @@ import dialog from "@/core/script/dialog.js";
 import dayjs from "dayjs";
 import {list2Group} from "@/utils/vars.js";
 import {getPlant} from "@/utils/erp.js";
+import * as core from "@/core/script/core.js";
+import apiUrl2 from "@/core/config/url2.js";
 
 const props = defineProps({
   item:{type:Object,default:{}},
@@ -127,9 +129,12 @@ const tableEvent = {
     }
   },
   getAvgTitle: (item) => {
-    let title =vData.selectOptions?.[AVG_FIELDS[item.avg_level]]?.find(v=>v.value===item[AVG_FIELDS[item.avg_level]])?.label || ''
+    const option=vData.selectOptions?.[AVG_FIELDS[item.avg_level]]?.find(v=>v.value===item[AVG_FIELDS[item.avg_level]]);
+    let title =option?.label;
     if (item.avg_level===dData.AVG_LEVEL_ASSET_GROUP){
-      title = "【" + vData.selectOptions.process_id.find(v => v.value === item.process_id).label + "】" + title;
+      title = "【" + vData.selectOptions.process_id.find(v => v.value === item.process_id && v.data.step_id=== item.step_id)?.label + "】" + title;
+    }else if (item.avg_level===dData.AVG_LEVEL_PROCESS){
+      title = option.data.name;
     }else if (item.avg_level===dData.AVG_LEVEL_PLANT){
       title = item.plant_id_text;
     }
@@ -147,9 +152,8 @@ const table = {
       disable: {title: '停用', listAction: (rows)=>tableEvent.status(rows,0), icon: 'ri-stop-large-line', sort: 60},
       del: {title: '删除', listAction: tableEvent.delete, icon: 'ri-delete-bin-line', sort: 60},
     },
-    defaultMenuShowList:['search'],
+    defaultMenuShowList:['search','moreSettings'],
   },
-  searchConfig:false,
   tableConfig:{
     id:'cost_config_avg_price',
     get: async () => {
@@ -203,7 +207,16 @@ const table = {
         }
       },
       dblclick_cell: async ({originData,field}) => {
-        // console.log(originData,field)
+        if (['avg_unit_name','avg_unit'].includes(field)  && originData?.id){
+          const avg_unit  = await dialog.selectAsync(vData.selectOptions['unit_id'], originData['avg_unit'], '请选择单位');
+          if (!avg_unit) return;
+          const res = await tableEvent.set(originData.id,'avg_unit', avg_unit);
+          if (res) {
+            const avg_unit_name = vData.selectOptions.unit_id.find(v=>v.value===avg_unit)?.label || '';
+            const newRow = {...originData,avg_unit_name};
+            await listTableFn.updateRow(report.value.reportConfig,newRow);
+          }
+        }
       },
     },
   },
@@ -213,7 +226,7 @@ const editBox=reactive({
   process_list:[],
   isShow:false,
   data:{
-    plant_id:null,item_name:'',process_names:[],
+    plant_id:null,item_name:'',step_process_id:'',
   },
   rules:{
     plant_id: [{required: true, message: '请选择工厂', trigger: 'change'},],
@@ -279,8 +292,19 @@ const editBoxFn={
         editBox.rules[field].find(rule=>typeof rule?.required==='boolean').required=avg_field===field;
       })
     }else if(field==='asset_group_id'){
-      const option = vData.selectOptions.asset_group_id.find(v=>v.value===value);
-      editBox.data.process_id=option.data?.process_ids || [];
+      editBox.step_process_list=[];
+      editBox.data.step_process_id=[];
+      const asset_group = vData.selectOptions.asset_group_id.find(v=>v.value===value);
+      console.log('asset_group',asset_group);
+      asset_group.data.step_ids.forEach(step_id=>{
+        asset_group.data.step_process[step_id].forEach(process_id=>{
+          const processLabel = vData.selectOptions.process_id.find(v=>v.value===process_id && v.data.step_id===step_id)
+          console.log('processLabel',processLabel);
+          const step_process_id = step_id+'_'+process_id;
+          editBox.step_process_list.push({...processLabel,value:step_process_id});
+          editBox.data.step_process_id.push(step_process_id)
+        })
+      })
       editBox.rules.process_id.find(rule=>typeof rule?.required==='boolean').required=true;
     }
    },

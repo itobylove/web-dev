@@ -13,7 +13,7 @@ import * as api from "@/core/script/api.js";
 import dialog from "@/core/script/dialog.js";
 import * as tableFn from "@/core/script/tableFn.js";
 import * as VTable from '@visactor/vtable';
-import { InputEditor } from "@visactor/vtable-editors";
+import { InputEditor, DateInputEditor } from "@visactor/vtable-editors";
 const tableRef = ref(null);
 const refobj = reactive({
     created_date: 0,//创建日期
@@ -45,15 +45,11 @@ const refobj = reactive({
     copper_save_weight: 0,//pnl节约铜重(（修改后-修改前）*100*铜厚/10000*8.9)
     copper_price: 0,//单价（抓取铜球价格）
     copper_save_money: 0,//节省价格（修改后铜重-修改前铜重）*单价
-    //文字油墨降本
-    print_ink_before: 0, //修改前字符面积(手动填写)
-    print_ink_after: 0, //修改后字符面积(手动填写)
-    print_ink_price: 0, //单价（文字油墨单耗）
-    print_ink_save_price: 0, //节省价格（修改前字符面积-修改后字符面积）*单价
 })
 onMounted(async () => {
     nextTick(() => {
         VTable.register.editor('input-editor', new InputEditor());
+        VTable.register.editor('date-input-editor', new DateInputEditor());
     });
     // await api.get(apiUrl2.mes.return_cost.config).then((res) => {//获取表头信息
     //     // tableRef.value.reportConfig.columns = tableFn.createColumns(res.columns, res.table.columnSplit || '#');
@@ -73,7 +69,7 @@ const table = {
     searchConfig: false,
     tableConfig: {
         url: apiUrl2.mes.return_cost.index,
-        showCheck: 'radio',
+        showCheck: true,
         checkField: false,
         disablePage: true,
         options: {
@@ -81,7 +77,7 @@ const table = {
             defaultRowHeight: 180,
         },
         columns: [
-            { field: 'created_date', title: '日期', align: 'left' },
+            { field: 'created_date', title: '日期', align: 'left', width: '125px', editor: 'date-input-editor' },
             { field: 'product_model', title: '型号', align: 'left' },
             { field: 'area', title: '面积', align: 'left' },
             { field: 'stacked_boards_num_before', title: '修改前叠板数', align: 'left', editor: 'input-editor' },
@@ -90,12 +86,28 @@ const table = {
             { field: 'drill_time_after', title: '修改后钻孔时间', align: 'left', editor: 'input-editor' },
             { field: 'drill_efficiency_improve_rate', title: '效率提升', align: 'left' },
             { field: 'drill_save_money', title: '钻孔节省金额', align: 'left' },
-            { field: 'utilization_rate_before', title: '修改前利用率', align: 'left', editor: 'input-editor' },
-            { field: 'utilization_rate_after', title: '修改后利用率', align: 'left', editor: 'input-editor' },
+            {
+                field: 'utilization_rate_before', title: '修改前利用率', align: 'left', editor: 'input-editor',
+                fieldFormat(args) {
+                    if (args?.['utilization_rate_before'] !== undefined && args?.['utilization_rate_before'] !== '' && args?.['utilization_rate_before'] !== null) {
+                        return args?.['utilization_rate_before'] + '%';
+                    }
+                }
+            },
+            {
+                field: 'utilization_rate_after', title: '修改后利用率', align: 'left', editor: 'input-editor',
+                fieldFormat(args) {
+                    if (args?.['utilization_rate_after'] !== undefined && args?.['utilization_rate_after'] !== '' && args?.['utilization_rate_after'] !== null) {
+                        return args?.['utilization_rate_after'] + '%';
+                    }
+                }
+            },
             {
                 field: 'bom_pp_lists',
                 title: '获取型号bom的板材和pp',
                 align: 'left',
+                cellType: 'text',
+                width: 230,
                 customRender(args) {
                     const { dataValue } = args;
                     const elements = [];
@@ -126,7 +138,7 @@ const table = {
             { field: 'pnl_area_before', title: '修改前pnl面积', align: 'left', editor: 'input-editor' },
             { field: 'pnl_area_after', title: '修改后pnl面积', align: 'left', editor: 'input-editor' },
             { field: 'pnl_efficiency_improve_rate', title: '效率提升', align: 'left' },
-            { field: 'pnl_efficiency_money', title: '效率金额', align: 'left' },
+            { field: 'pnl_efficiency_money', title: '效率金额', align: 'left', editor: 'input-editor' },
             { field: 'pnl_save_money', title: '节省金额', align: 'left' },
             { field: 'copper_area_before', title: '双面外层修改前铜面积（dm²）', align: 'left', editor: 'input-editor' },
             { field: 'copper_area_after', title: '双面外层修改后铜面积', align: 'left', editor: 'input-editor' },
@@ -134,20 +146,24 @@ const table = {
             { field: 'copper_save_weight', title: 'pnl节约铜重(（修改后-修改前）*100*铜厚/10000*8.9)', align: 'left' },
             { field: 'copper_price', title: '单价（抓取铜球价格）', align: 'left' },
             { field: 'copper_save_money', title: '节省价格（修改后铜重-修改前铜重）*单价', align: 'left' },
-            { field: 'print_ink_before', title: '修改前字符面积', align: 'left', editor: 'input-editor' },
-            { field: 'print_ink_after', title: '修改后字符面积', align: 'left', editor: 'input-editor' },
-            { field: 'print_ink_price', title: '单价（文字油墨单耗）', align: 'left' },
-            { field: 'print_ink_save_price', title: '节省价格（修改前字符面积-修改后字符面积）*单价#F', align: 'left' },
         ],
         events: {
             change_cell_value: async (e) => {
-                if (e.changedValue !== e.rawValue && e.changedValue != '') {
-                    const feildName = tableRef.value.reportConfig.table.getHeaderField(e.col, e.row);//获取列名
+                if (e.changedValue !== e.currentValue && e.changedValue != '') {
+                    const fieldName = tableRef.value.reportConfig.table.getHeaderField(e.col, e.row);//获取列名
                     const record = tableRef.value.reportConfig.table.getRecordByCell(e.col, e.row); //根据单元格获取行数据
                     let updateData = {}
+                    //修改日期
+                    if (fieldName === 'created_date') {
+                        updateData = {
+                            id: record.id,
+                            created_date: record.created_date,
+                        };
+                        fn.editData(updateData)
+                    }
                     //钻孔模块
                     const drillArr = Array.of('stacked_boards_num_before', 'stacked_boards_num_after', 'drill_time_before', 'drill_time_after');//钻孔模块需要手动输入参数的单元格
-                    if (drillArr.includes(feildName)) {
+                    if (drillArr.includes(fieldName)) {
                         if (Number.isNaN(Number(record.stacked_boards_num_before)) && (record.stacked_boards_num_before !== undefined && record.stacked_boards_num_before !== null && record.stacked_boards_num_before !== '')) { //判断用户输入的是否数字
                             dialog.info('修改前叠板数请输入数字')
                             tableRef.value.reportConfig.table.changeCellValue(e.col, e.row, '');
@@ -173,8 +189,11 @@ const table = {
                             (record.drill_time_before != undefined && record.drill_time_before !== null && record.drill_time_before !== '') &&
                             (record.drill_time_after != undefined && record.drill_time_after !== null && record.drill_time_after !== '')) {
                             //计算钻孔效率提升率（修改后叠板数/修改前叠板数*修改前钻孔时间/修改后钻孔时间）
-                            const drillRate = (((parseInt(record.stacked_boards_num_after) / parseInt(record.stacked_boards_num_before)) * (parseInt(record.drill_time_after) / parseInt(record.drill_time_before))) * 100).toFixed(2);
+                            const rate = (parseInt(record.stacked_boards_num_after) / parseInt(record.stacked_boards_num_before)) * (parseInt(record.drill_time_after) / parseInt(record.drill_time_before))
+                            const drillRate = (rate * 100).toFixed(2);
                             tableRef.value.reportConfig.table.changeCellValue(9, e.row, drillRate + '%');
+                            const drillSaveMoney = (17 / rate).toFixed(4);
+                            tableRef.value.reportConfig.table.changeCellValue(10, e.row, drillSaveMoney);
                             updateData = {
                                 id: record.id,
                                 stacked_boards_num_before: record.stacked_boards_num_before,
@@ -182,6 +201,7 @@ const table = {
                                 drill_time_before: record.drill_time_before,
                                 drill_time_after: record.drill_time_after,
                                 drill_efficiency_improve_rate: drillRate,
+                                drill_save_money: drillSaveMoney
                             };
                             fn.editData(updateData)
                         }
@@ -189,13 +209,13 @@ const table = {
                     }
                     //利用率模块
                     const useRateArr = Array.of('utilization_rate_before', 'utilization_rate_after');//钻孔模块需要手动输入参数的单元格
-                    if (useRateArr.includes(feildName)) {
+                    if (useRateArr.includes(fieldName)) {
                         if (Number.isNaN(Number(record.utilization_rate_before)) && (record.utilization_rate_before !== undefined && record.utilization_rate_before !== null && record.utilization_rate_before !== '')) { //判断用户输入的是否数字
                             dialog.info('修改前利用率请输入数字')
                             tableRef.value.reportConfig.table.changeCellValue(e.col, e.row, '');
                             return;
                         }
-                        if (Number.isNaN(Number(record.utilization_rate_after)) && (record.utilization_rate_after != undefined && record.utilization_rate_after !== null && record.utilization_rate_after !== '')) { //判断用户输入的是否数字
+                        if (Number.isNaN(Number(record.utilization_rate_before)) && (record.utilization_rate_after !== undefined && record.utilization_rate_after !== null && record.utilization_rate_after !== '')) { //判断用户输入的是否数字
                             dialog.info('修改后利用率请输入数字')
                             tableRef.value.reportConfig.table.changeCellValue(e.col, e.row, '');
                             return;
@@ -204,8 +224,10 @@ const table = {
                             (record.utilization_rate_after != undefined && record.utilization_rate_after !== null && record.utilization_rate_after !== '')) {
                             //节省金额（修改后利用率-修改前利用率）* 材料价格
                             const materialPrice = tableRef.value.reportConfig.table.getRecordByCell(13, e.row)?.material_price; //材料价格;
-                            const utilizationSaveMoney = (((Number(record.utilization_rate_after) / 100 - Number(record.utilization_rate_before) / 100)) * materialPrice).toFixed(2);
+                            const area = tableRef.value.reportConfig.table.getRecordByCell(3, e.row)?.area; //面积;
+                            const utilizationSaveMoney = (((Number(record.utilization_rate_after) / 100 - Number(record.utilization_rate_before) / 100)) * materialPrice * area).toFixed(4);
                             tableRef.value.reportConfig.table.changeCellValue(15, e.row, utilizationSaveMoney);
+                            //utilization_save_money
                             updateData = {
                                 id: record.id,
                                 utilization_rate_before: record.utilization_rate_before,
@@ -217,28 +239,49 @@ const table = {
 
                     }
                     //加大拼版效率提升模块
-                    const pnlArr = Array.of('pnl_area_before', 'pnl_area_after');//钻孔模块需要手动输入参数的单元格
-                    if (pnlArr.includes(feildName)) {
+                    const pnlArr = Array.of('pnl_area_before', 'pnl_area_after', 'pnl_efficiency_money');//钻孔模块需要手动输入参数的单元格
+                    if (pnlArr.includes(fieldName)) {
                         if (Number.isNaN(Number(record.pnl_area_before)) && (record.pnl_area_before !== undefined && record.pnl_area_before !== null && record.pnl_area_before !== '')) { //判断用户输入的是否数字
                             dialog.info('修改前pnl面积请输入数字')
                             tableRef.value.reportConfig.table.changeCellValue(e.col, e.row, '');
                             return;
                         }
-                        if (Number.isNaN(Number(record.pnl_area_after)) && (record.pnl_area_after != undefined && record.pnl_area_after !== null && record.pnl_area_after !== '')) { //判断用户输入的是否数字
+                        if (Number.isNaN(Number(record.pnl_area_after)) && (record.pnl_area_after !== undefined && record.pnl_area_after !== null && record.pnl_area_after !== '')) { //判断用户输入的是否数字
                             dialog.info('修改后pnl面积请输入数字')
                             tableRef.value.reportConfig.table.changeCellValue(e.col, e.row, '');
                             return;
                         }
+                        if (Number.isNaN(Number(record.pnl_efficiency_money)) && (record.pnl_efficiency_money !== undefined && record.pnl_efficiency_money !== null && record.pnl_efficiency_money !== '')) { //判断用户输入的是否数字
+                            dialog.info('效率金额请输入数字')
+                            tableRef.value.reportConfig.table.changeCellValue(e.col, e.row, 104);
+                            return;
+                        } else {
+                            if ((record.pnl_efficiency_improve_rate !== undefined && record.pnl_efficiency_improve_rate !== null && record.pnl_efficiency_improve_rate !== '')) { //判断用户输入的是否数字
+                                //pnl_save_money 节省金额
+                                const pnlSaveMoney = (Number(record.pnl_efficiency_money) * Number(record.pnl_efficiency_improve_rate.slice(0, -1)) / 100).toFixed(4);
+                                tableRef.value.reportConfig.table.changeCellValue(20, e.row, pnlSaveMoney);
+                                updateData = {
+                                    id: record.id,
+                                    pnl_efficiency_money: record.pnl_efficiency_money,
+                                    pnl_save_money: pnlSaveMoney,
+                                };
+                                fn.editData(updateData)
+                            }
+                        }
                         if ((record.pnl_area_before !== undefined && record.pnl_area_before !== null && record.pnl_area_before !== '') &&
-                            (record.pnl_area_after != undefined && record.pnl_area_after !== null && record.pnl_area_after !== '')) {
+                            (record.pnl_area_after !== undefined && record.pnl_area_after !== null && record.pnl_area_after !== '')) {
                             //效率提升(修改后pnl面积/修改前pnl面积)
-                            const pnlImproveRate = (((Number(record.pnl_area_after) / 100) / (Number(record.pnl_area_before) / 100)) * 100).toFixed(2);
+                            const pnlRate = Number(record.pnl_area_after) / Number(record.pnl_area_before);
+                            const pnlSaveMoney = (Number(record.pnl_efficiency_money) * pnlRate).toFixed(4);
+                            const pnlImproveRate = (pnlRate * 100).toFixed(2);
                             tableRef.value.reportConfig.table.changeCellValue(18, e.row, pnlImproveRate + '%');
+                            tableRef.value.reportConfig.table.changeCellValue(20, e.row, pnlSaveMoney);
                             updateData = {
                                 id: record.id,
                                 pnl_area_before: record.pnl_area_before,
                                 pnl_area_after: record.pnl_area_after,
                                 pnl_efficiency_improve_rate: pnlImproveRate,
+                                pnl_save_money: pnlSaveMoney,
                             };
                             fn.editData(updateData)
                         }
@@ -246,7 +289,7 @@ const table = {
                     }
                     //铜皮改铜点模块
                     const copperArr = Array.of('copper_area_before', 'copper_area_after', 'copper_thick');//钻孔模块需要手动输入参数的单元格
-                    if (copperArr.includes(feildName)) {
+                    if (copperArr.includes(fieldName)) {
                         if (Number.isNaN(Number(record.copper_area_before)) && (record.copper_area_before !== undefined && record.copper_area_before !== null && record.copper_area_before !== '')) { //判断用户输入的是否数字
                             dialog.info('修改前铜面积请输入数字')
                             tableRef.value.reportConfig.table.changeCellValue(e.col, e.row, '');
@@ -283,36 +326,6 @@ const table = {
                             fn.editData(updateData)
                         }
                     }
-                    //文字油墨降本模块
-                    const printInkArr = Array.of('print_ink_before', 'print_ink_after');//钻孔模块需要手动输入参数的单元格
-                    if (printInkArr.includes(feildName)) {
-                        if (Number.isNaN(Number(record.print_ink_before)) && (record.print_ink_before !== undefined && record.print_ink_before !== null && record.print_ink_before !== '')) { //判断用户输入的是否数字
-                            dialog.info('修改前利用率请输入数字')
-                            tableRef.value.reportConfig.table.changeCellValue(e.col, e.row, '');
-                            return;
-                        }
-                        if (Number.isNaN(Number(record.print_ink_after)) && (record.print_ink_after != undefined && record.print_ink_after !== null && record.print_ink_after !== '')) { //判断用户输入的是否数字
-                            dialog.info('修改后利用率请输入数字')
-                            tableRef.value.reportConfig.table.changeCellValue(e.col, e.row, '');
-                            return;
-                        }
-                        if ((record.print_ink_before !== undefined && record.print_ink_before !== null && record.print_ink_before !== '') &&
-                            (record.print_ink_after != undefined && record.print_ink_after !== null && record.print_ink_after !== '')) {
-                            //节省价格（修改前字符面积-修改后字符面积）* 单价
-                            const printInkPrice = tableRef.value.reportConfig.table.getRecordByCell(13, e.row)?.print_ink_price; //材料价格
-                            const printInkSavePrice = (((Number(record.print_ink_before) / 100) - (Number(record.print_ink_after) / 100)) * printInkPrice).toFixed(2);
-                            tableRef.value.reportConfig.table.changeCellValue(30, e.row, printInkSavePrice);
-                            updateData = {
-                                id: record.id,
-                                print_ink_before: record.print_ink_before,
-                                print_ink_after: record.print_ink_after,
-                                print_ink_save_price: printInkSavePrice,
-                            };
-                            fn.editData(updateData)
-                        }
-                    }
-
-
                 }
             }
         }
@@ -328,7 +341,7 @@ const fn = {
                 api.get(apiUrl2.mes.return_cost.getData, {
                     jobId
                 }).then(res => {
-                    tableFn.addRow(tableRef.value.reportConfig, res.data)
+                    tableRef.value.reportConfig.getData();
                 })
             }),
             '请选择型号',
@@ -339,7 +352,7 @@ const fn = {
                     },
                     onSearch: async (val, obj) => {
                         //获取型号信息
-                        await api.get(apiUrl2.mes.return_cost.getJobInfo,{keyword: val}).then((res) =>{
+                        await api.get(apiUrl2.mes.return_cost.getJobInfo, { keyword: val }).then((res) => {
                             obj.select.options = res.job
                         });
                     }
@@ -347,24 +360,30 @@ const fn = {
             }
         );
     },
-    async updateArea() {
-        // const ids = tableFn.getCheckedRecords(tableRef.value.reportConfig).map( i => i.id);
-        const record = tableFn.getCheckedRecords(tableRef.value.reportConfig)?.[0];//获取选中项
-        if(record === undefined || record.length === 0){
+    updateArea() {
+        const ids = tableFn.getCheckedRecords(tableRef.value.reportConfig).map(i => i.id);
+        if (ids.length === 0) {
             dialog.info('请选择要更新的型号');
             return;
         }
-        const res = await api.post(apiUrl2.mes.return_cost.updateArea,{
-            ids:record.id
+        dialog.confirm('确定要批量更新面积吗？', async () => {
+            const loading = dialog.loading();
+            const res = await api.post(apiUrl2.mes.return_cost.updateArea, {
+                ids
+            });
+            if (res.ret) {
+                dialog.success('更新面积成功');
+                tableRef.value.reportConfig.getData({}, true);
+            } else {
+                dialog.success('面积无新变化');
+            }
+            loading.close();
         });
-        if(res.ret){
-            dialog.success('型号《' + record.product_model + '》更新面积成功');
-            tableRef.value.reportConfig.getData();
-        }else{
-            dialog.success('型号《' + record.product_model + '》面积无新变化');
-        }
     },
     async editData(data) {
+        if (data.id === undefined) {
+            return
+        }
         api.post(apiUrl2.mes.return_cost.editData, { data });
     },
 }

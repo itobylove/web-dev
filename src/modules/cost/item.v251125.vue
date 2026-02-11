@@ -2,8 +2,8 @@
   <div ref="box" :class="['mainPage','page-'+table.tableConfig.id]">
     <TableComponent class="page-list"  v-if="table.isInit"  ref="report" v-bind="getReportConfig()"/>
     <div class="page-detail" v-if="table.isInit" >
-      <AvgPrice :item="vData.item" :select-options="vData.selectOptions" v-if="vData.item" v-show="vData.item.type!=='bom'"  />
-      <div class="item-editor" v-if="vData.item" v-show="vData.item.type==='bom'">
+      <AvgPrice :item="vData.item" :select-options="vData.selectOptions" v-if="vData.item && vData.item.type!=='bom'"  />
+      <div class="item-editor" v-if="vData.item && vData.item.type==='bom'">
           <t-textarea v-model="vData.item.description" :autosize="{ minRows: 10 }" placeholder="请输入计算公式 " />
           <t-button class="item-editor-btn" theme="primary" @click="tableEvent.save()">保存</t-button>
       </div>
@@ -55,7 +55,6 @@ import dialog from "@/core/script/dialog.js";
 import bomPage from "./bom.v251125.vue";
 import ParameterRules from "../system/parameter_rules.vue";
 import {plantList} from "@/utils/erp.js";
-import MenuComponent from "@/core/component/menu.vue";
 import dayjs from "dayjs";
 
 
@@ -185,7 +184,23 @@ const getReportConfig = () => {
           if (!field) return ;
           vData.item = originData;
           // tableEvent.getConfig(originData)
+        },
+        change_cell_value: ({row, col, changedValue, currentValue}) => {
+          col = col - (report.value.reportConfig.options.rowSeriesNumber ? 1 : 0);//处理起始列
+          const columns = report.value.reportConfig.options.columns.filter(column => column.hide === false)[col];
+          if (columns.field==='description' && changedValue !== currentValue) {
+            const newRow = report.value.reportConfig.options.records[row - 1];
+            newRow.index > 0 && api.post(api.url2.cost.item.description, newRow).then(res => {
+              res &&  dialog.success('保存成功');
+            })
+          }
+        },
+      },
+      colAfterCallback: (col) => {
+        if (col.field === 'description') {
+          col.editor = 'inputEditor';
         }
+        return col;
       },
     },
   }

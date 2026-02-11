@@ -81,6 +81,14 @@ const apiUrl = new Proxy(
                 init: '/cost/index/init',
                 list: '/cost/index/list',
             },
+            quote:{
+                init: '/cost/quote/init',
+                list: '/cost/quote/list',
+            },
+            product_group:{
+                init: '/cost/quote/init',
+                list: '/cost/quote/list',
+            },
             config:{
                 init: '/cost/config/init',
                 list: '/cost/config/list',
@@ -93,6 +101,7 @@ const apiUrl = new Proxy(
                 list: '/cost/item/list',
                 save: '/cost/item/save',
                 delete: '/cost/item/delete',
+                description: '/cost/item/description',
             },
             bom:{
                 init: '/cost/bom/init',
@@ -109,6 +118,12 @@ const apiUrl = new Proxy(
                 edit: '/base/unit/save',
                 del: '/base/unit/delete',
                 import: '/base/unit/import',
+            },
+            steps:{
+                config: '/base/steps/config',
+                list: '/base/steps/list',
+                processConfig: '/base/steps/processConfig',
+                processList: '/base/steps/processList',
             },
             step:{
                 config: '/base/step/config',
@@ -130,6 +145,8 @@ const apiUrl = new Proxy(
             process:{
                 config: '/base/process/config',
                 list: '/base/process/list',
+                assetsConfig: '/base/process/assetsConfig',
+                assetsList: '/base/process/assetsList',
                 attach:'/base/process/getAttrToId',   //  指定ID获取工艺属性、参数等信息
                 add: '/base/process/save',
                 edit: '/base/process/save',
