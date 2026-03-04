@@ -47,7 +47,7 @@ const tableEvent = {
     const existIds = tableRef.value.reportConfig.table.options.records.map(item => item.id).filter(item => item); // 已经存在的参数ID
     const options = vData.selectOptions.parameter_id.filter((item) => !existIds.includes(item.value) );
     const newIds = await dialog.selectAsync(options,'','可添加的参数('+getPlant(vData.plant_id)+' '+vData.station_name+')', {width:'800px',height:'200px'},{
-      multiple: true,placeholder: '请输入名称过滤',clearable:true,minCollapsedNum:10,
+      multiple: true,placeholder: '请输入名称过滤',clearable:true,minCollapsedNum:10,reserveKeyword:true,
     })
     if (!newIds)  return;
     const loading = dialog.loading(undefined, '保存中...');

@@ -101,7 +101,19 @@ const apiUrl = new Proxy(
                 list: '/cost/item/list',
                 save: '/cost/item/save',
                 delete: '/cost/item/delete',
-                description: '/cost/item/description',
+            },
+            package:{
+                init: '/cost/package/init',
+                list: '/cost/package/list',
+                save: '/cost/package/save',
+                delete: '/cost/package/delete',
+            },
+            packageItem:{
+                init: '/cost/package-item/init',
+                list: '/cost/package-item/list',
+                save: '/cost/package-item/save',
+                set: '/cost/package-item/set',
+                delete: '/cost/package-item/delete',
             },
             bom:{
                 init: '/cost/bom/init',
@@ -124,6 +136,9 @@ const apiUrl = new Proxy(
                 list: '/base/steps/list',
                 processConfig: '/base/steps/processConfig',
                 processList: '/base/steps/processList',
+                processListAll: '/base/steps/getProcessListAll',
+                bindProcessToStep: '/base/steps/bindProcessToStep',
+                unbindProcess: '/base/steps/unbindProcess',
             },
             step:{
                 config: '/base/step/config',
@@ -271,6 +286,29 @@ const apiUrl = new Proxy(
                 edit: '/base/category/save',
                 del: '/base/category/delete',
             },
+            asset:{
+                config:'/asset/assets/config',
+                index:'/asset/assets/index',
+                getUsers:'/asset/assets/getUsers',
+                getuserConfig:'/asset/assets/userConfig',
+                deleteUser:'/asset/assets/deleteUser',
+                addAssetsUser:'/asset/assets/addAssetsUser',
+                addAssetGroup:'/asset/assets/addAssetGroup',
+            },
+            asset1:{
+                mainConfig:'/base/assets/mainConfig',
+                mainList:'/base/assets/mainList',
+                userConfig:'/base/assets/userConfig',
+                userList:'/base/assets/userList',
+                assetsConfig:'/base/assets/assetsConfig',
+                assetsList:'/base/assets/assetsList',
+            }
+        },
+        common:{
+            plantList: '/common/getPlantsLists',
+            assetCategoryList: '/common/getAssetsCategoryLists',
+            assetGroupList: '/common/getAssetsGroupLists',
+            getGroupTypeLists: '/common/getGroupTypeLists',
         }
     },
     {

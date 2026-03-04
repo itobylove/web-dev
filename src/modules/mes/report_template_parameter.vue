@@ -5,7 +5,7 @@
       <t-form :data="dialogConfigP.data" :rules="dialogConfigP.rules" @submit="dialogConfigP.submit" v-bind="dialogConfigP.form">
         <t-col span="11" >
           <t-form-item label="模板" name="template_id" >
-            <t-select v-model="dialogConfigP.data.template_id" :options="vData.selectOptions.template_id" />
+            <t-select filterable v-model="dialogConfigP.data.template_id" :options="vData.selectOptions.template_id" />
           </t-form-item>
           <t-form-item label="参数" name="parameter_id" >
             <t-select filterable v-model="dialogConfigP.data.parameter_id" :options="vData.selectOptions.parameter_id"/>
@@ -20,13 +20,13 @@
             <t-input-number v-model="dialogConfigP.data.uptolerance" theme="column" style="width: 100%" type="float" min="0" step="0.1" max="9999"   />
           </t-form-item>
           <t-form-item label="上公差单位" name="uptoleranceunit_id" >
-            <t-select v-model="dialogConfigP.data.uptoleranceunit_id" :options="vData.selectOptions.uptoleranceunit_id" clearable  @clear="fn.clearField('uptoleranceunit_id')" />
+            <t-select filterable v-model="dialogConfigP.data.uptoleranceunit_id" :options="vData.selectOptions.uptoleranceunit_id" clearable  @clear="fn.clearField('uptoleranceunit_id')" />
           </t-form-item>
           <t-form-item label="下公差" name="downtolerance" >
             <t-input-number v-model="dialogConfigP.data.downtolerance" theme="column" style="width: 100%" type="float" min="0" step="0.1" max="9999"   />
           </t-form-item>
           <t-form-item label="下公差单位" name="downtoleranceunit_id" >
-            <t-select v-model="dialogConfigP.data.downtoleranceunit_id" :options="vData.selectOptions.downtoleranceunit_id" clearable  @clear="fn.clearField('downtoleranceunit_id')" />
+            <t-select filterable v-model="dialogConfigP.data.downtoleranceunit_id" :options="vData.selectOptions.downtoleranceunit_id" clearable  @clear="fn.clearField('downtoleranceunit_id')" />
           </t-form-item>
           <t-form-item label="公差类型" name="tolerance_type" >
             <t-select v-model="dialogConfigP.data.tolerance_type" :options="vData.selectOptions.tolerance_type"/>
@@ -38,7 +38,7 @@
             <t-input v-model="dialogConfigP.data.erpdatamap_key" />
           </t-form-item>
           <t-form-item label="配置项" name="input_options" >
-            <t-textarea v-model="dialogConfigP.data.input_options" :autosize="true" />
+            <t-textarea v-model="dialogConfigP.data.input_options" :autosize="{ minRows: 2, maxRows: 5 }" />
           </t-form-item>
           <t-form-item label="计算取值项" name="default_value" >
             <t-input v-model="dialogConfigP.data.default_value" />

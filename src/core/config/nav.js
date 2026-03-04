@@ -76,6 +76,7 @@ export const components = {
     cost_item: reg({loader: () => import('@/modules/cost/item.v251125.vue'), loadingComponent, errorComponent}),
     cost_quote: reg({loader: () => import('@/modules/cost/quote_list.vue'), loadingComponent, errorComponent}),
     cost_index: reg({loader: () => import('@/modules/cost/index.v251125.vue'), loadingComponent, errorComponent}),
+    cost_package: reg({loader: () => import('@/modules/cost/package.vue'), loadingComponent, errorComponent}),
     siyi_job: reg({loader: () => import('@/modules/cost/job.v260109.vue'), loadingComponent, errorComponent}),
     visitor: reg({loader: () => import('@/modules/visitor/index.v250622.vue'), loadingComponent, errorComponent}),
     visitor_mobile: reg({loader: () => import('@/modules/visitor/index.v250622.vue'), loadingComponent, errorComponent}),
@@ -97,6 +98,8 @@ export const components = {
     sys_step: reg({loader: () => import('@/modules/system/step_equipment/step.vue'), loadingComponent, errorComponent}),
     steps: reg({loader: () => import('@/modules/system/steps.vue'), loadingComponent, errorComponent}),
     process: reg({loader: () => import('@/modules/system/process.vue'), loadingComponent, errorComponent}),
+    assets: reg({loader: () => import('@/modules/system/assets.vue'), loadingComponent, errorComponent}),
+    assets1: reg({loader: () => import('@/modules/system/assets1.vue'), loadingComponent, errorComponent}),
     sys_step_equipment: reg({loader: () => import('@/modules/system/step_equipment/index.vue'), loadingComponent, errorComponent}),
     sys_step_report: reg({loader: () => import('@/modules/system/step_equipment/report.vue'), loadingComponent, errorComponent}),
     sys_step_mobile: reg({loader: () => import('@/modules/system/step_equipment/step.vue'), loadingComponent, errorComponent}),
@@ -2971,6 +2974,12 @@ export const nav = ref([
                 query: {},
             },
             {
+                id: 'cost_package',
+                icon: 'ri-community-line',
+                query: {},
+                title: '包管理',
+            },
+            {
                 id: 'sys_step_equipment',
                 icon: 'ri-community-line',
                 query: {},
@@ -3078,6 +3087,18 @@ export const nav = ref([
                 icon: 'ri-community-line',
                 query: {},
                 title: '工艺管理',
+            },
+            {
+                id:'assets1',
+                icon: 'ri-device-line',
+                query: {},
+                title: '资产管理',
+            },
+            {
+                id:'assets',
+                icon: 'ri-device-line',
+                query: {},
+                title: '设备管理',
             },
             /*
              {

@@ -60,32 +60,34 @@ onMounted(async () => {
 const table = {
     menuConfig: {
         enableHeader: true,
-        defaultMenuHideList: ['search', 'clearCache', 'submitApprove', 'resetApprove', 'approve', 'pageExport', 'advancedExport', 'moreSettings', 'clearWhere',],
+        defaultMenuHideList: ['search', 'clearCache', 'submitApprove', 'resetApprove', 'approve', 'advancedExport', 'moreSettings', 'clearWhere',],
         menu: {
             add: { sort: 151, title: '添加型号', icon: 'ri-add-line', click: () => fn.addModel() },
             update: { sort: 152, title: '更新面积', icon: 'ri-refresh-line', click: () => fn.updateArea() },
         },
     },
-    searchConfig: false,
+    searchConfig: {},
     tableConfig: {
         url: apiUrl2.mes.return_cost.index,
         showCheck: true,
         checkField: false,
         disablePage: true,
+
         options: {
             heightMode: 'autoHeight',
             defaultRowHeight: 180,
+            frozenColCount: 5,//冻结列
         },
         columns: [
             { field: 'created_date', title: '日期', align: 'left', width: '125px', editor: 'date-input-editor' },
-            { field: 'product_model', title: '型号', align: 'left' },
+            { field: 'product_model', title: '型号', align: 'left', editor: 'input-editor' },
             { field: 'area', title: '面积', align: 'left' },
             { field: 'stacked_boards_num_before', title: '修改前叠板数', align: 'left', editor: 'input-editor' },
             { field: 'stacked_boards_num_after', title: '修改后叠板数', align: 'left', editor: 'input-editor' },
             { field: 'drill_time_before', title: '修改前钻孔时间', align: 'left', editor: 'input-editor' },
             { field: 'drill_time_after', title: '修改后钻孔时间', align: 'left', editor: 'input-editor' },
             { field: 'drill_efficiency_improve_rate', title: '效率提升', align: 'left' },
-            { field: 'drill_save_money', title: '钻孔节省金额', align: 'left' },
+            { field: 'drill_save_money', title: '节省金额', align: 'left' },
             {
                 field: 'utilization_rate_before', title: '修改前利用率', align: 'left', editor: 'input-editor',
                 fieldFormat(args) {
@@ -106,8 +108,7 @@ const table = {
                 field: 'bom_pp_lists',
                 title: '获取型号bom的板材和pp',
                 align: 'left',
-                cellType: 'text',
-                width: 230,
+                width: '480px',
                 customRender(args) {
                     const { dataValue } = args;
                     const elements = [];
@@ -143,9 +144,9 @@ const table = {
             { field: 'copper_area_before', title: '双面外层修改前铜面积（dm²）', align: 'left', editor: 'input-editor' },
             { field: 'copper_area_after', title: '双面外层修改后铜面积', align: 'left', editor: 'input-editor' },
             { field: 'copper_thick', title: '铜厚（um）', align: 'left', editor: 'input-editor' },
-            { field: 'copper_save_weight', title: 'pnl节约铜重(（修改后-修改前）*100*铜厚/10000*8.9)', align: 'left' },
-            { field: 'copper_price', title: '单价（抓取铜球价格）', align: 'left' },
-            { field: 'copper_save_money', title: '节省价格（修改后铜重-修改前铜重）*单价', align: 'left' },
+            { field: 'copper_save_weight', title: 'pnl节约铜重(g/m³)', align: 'left' },
+            { field: 'copper_price', title: '单价(元/g)', align: 'left' },
+            { field: 'copper_save_money', title: '节省价格', align: 'left' },
         ],
         events: {
             change_cell_value: async (e) => {
@@ -161,6 +162,29 @@ const table = {
                         };
                         fn.editData(updateData)
                     }
+                    //修改型号
+                    if (fieldName === 'product_model') {
+                        if (e.rawValue !== record.product_model) {
+                            const loading = dialog.loading();
+                            updateData = {
+                                id: record.id,
+                                product_model: record.product_model,
+                                flag: 1,
+                            };
+                            const res = await fn.editData(updateData)
+                            if (res.ret) {
+                                dialog.success('编辑成功');
+                                tableRef.value.reportConfig.getData({},false);
+                            } else if (res.ret === -1) {
+                                dialog.warning('该型号不存在，请重新输入');
+                                tableRef.value.reportConfig.table.changeCellValue(e.col, e.row, e.currentValue);
+                            }else{
+                                dialog.warning('编辑失败，请稍后再试');
+                            }
+                            loading.close();
+                        }
+                    }
+
                     //钻孔模块
                     const drillArr = Array.of('stacked_boards_num_before', 'stacked_boards_num_after', 'drill_time_before', 'drill_time_after');//钻孔模块需要手动输入参数的单元格
                     if (drillArr.includes(fieldName)) {
@@ -188,11 +212,11 @@ const table = {
                             (record.stacked_boards_num_after != undefined && record.stacked_boards_num_after !== null && record.stacked_boards_num_after !== '') &&
                             (record.drill_time_before != undefined && record.drill_time_before !== null && record.drill_time_before !== '') &&
                             (record.drill_time_after != undefined && record.drill_time_after !== null && record.drill_time_after !== '')) {
-                            //计算钻孔效率提升率（修改后叠板数/修改前叠板数*修改前钻孔时间/修改后钻孔时间）
-                            const rate = (parseInt(record.stacked_boards_num_after) / parseInt(record.stacked_boards_num_before)) * (parseInt(record.drill_time_after) / parseInt(record.drill_time_before))
+                            //计算钻孔效率提升率（修改后叠板数/修改前叠板数*修改前钻孔时间/修改后钻孔时间）-1
+                            const rate = (parseInt(record.stacked_boards_num_after) / parseInt(record.stacked_boards_num_before)) * (parseInt(record.drill_time_before) / parseInt(record.drill_time_after)) -1;
                             const drillRate = (rate * 100).toFixed(2);
                             tableRef.value.reportConfig.table.changeCellValue(9, e.row, drillRate + '%');
-                            const drillSaveMoney = (17 / rate).toFixed(4);
+                            const drillSaveMoney = (17 * rate * Number(record.area)).toFixed(4);
                             tableRef.value.reportConfig.table.changeCellValue(10, e.row, drillSaveMoney);
                             updateData = {
                                 id: record.id,
@@ -271,8 +295,8 @@ const table = {
                         if ((record.pnl_area_before !== undefined && record.pnl_area_before !== null && record.pnl_area_before !== '') &&
                             (record.pnl_area_after !== undefined && record.pnl_area_after !== null && record.pnl_area_after !== '')) {
                             //效率提升(修改后pnl面积/修改前pnl面积)
-                            const pnlRate = Number(record.pnl_area_after) / Number(record.pnl_area_before);
-                            const pnlSaveMoney = (Number(record.pnl_efficiency_money) * pnlRate).toFixed(4);
+                            const pnlRate = Number(record.pnl_area_after) / Number(record.pnl_area_before) - 1;
+                            const pnlSaveMoney = (Number(record.area) * Number(record.pnl_efficiency_money) * pnlRate).toFixed(4);
                             const pnlImproveRate = (pnlRate * 100).toFixed(2);
                             tableRef.value.reportConfig.table.changeCellValue(18, e.row, pnlImproveRate + '%');
                             tableRef.value.reportConfig.table.changeCellValue(20, e.row, pnlSaveMoney);
@@ -308,12 +332,18 @@ const table = {
                         if ((record.copper_area_before !== undefined && record.copper_area_before !== null && record.copper_area_before !== '') &&
                             (record.copper_area_after != undefined && record.copper_area_after !== null && record.copper_area_after !== '') &&
                             (record.copper_thick != undefined && record.copper_thick !== null && record.copper_thick !== '')) {
-                            // pnl节约铜重（修改后-修改前）*100*铜厚/10000*8.9
-                            const pnlSaveCopperWeight = ((Number(record.copper_area_after) - Number(record.copper_area_before)) * 100 * Number(record.copper_thick) / 1000 * 8.9).toFixed(4);
+                            // pnl节约铜重（修改前-修改后）*100*铜厚/10000*8.9 / pnl长/pnl宽*1000000
+                            const rowData = tableRef.value.reportConfig.data[e.row - 1];
+                            const pnlLength = rowData?.pnl_length || 0; //PNLA长
+                            const pnlWidth = rowData?.pnl_width || 0; //PNLA宽
+                            let pnlSaveCopperWeight = 0;
+                            if (pnlLength !== 0 || pnlWidth !== 0) {
+                                pnlSaveCopperWeight = ((Number(record.copper_area_before) - Number(record.copper_area_after)) * 100 * Number(record.copper_thick) / 10000 * 8.9 / Number(pnlLength) / Number(pnlWidth) * 1000000).toFixed(4);
+                            }
                             tableRef.value.reportConfig.table.changeCellValue(24, e.row, pnlSaveCopperWeight)
                             const copperPrice = tableRef.value.reportConfig.table.getRecordByCell(13, e.row)?.copper_price; //铜单价
-                            //节省价格（修改后铜重-修改前铜重）*单价
-                            const copperSaveMoney = ((Number(record.copper_area_after) - Number(record.copper_area_before)) * copperPrice).toFixed(2);
+                            //节省价格:节约铜重*单价*面积
+                            const copperSaveMoney = (pnlSaveCopperWeight * copperPrice * Number(record.area)).toFixed(2);
                             tableRef.value.reportConfig.table.changeCellValue(26, e.row, copperSaveMoney);
                             updateData = {
                                 id: record.id,
@@ -380,11 +410,11 @@ const fn = {
             loading.close();
         });
     },
-    async editData(data) {
+    editData(data) {
         if (data.id === undefined) {
             return
         }
-        api.post(apiUrl2.mes.return_cost.editData, { data });
+        return api.post(apiUrl2.mes.return_cost.editData, { data });
     },
 }
 

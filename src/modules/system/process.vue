@@ -93,7 +93,7 @@ onMounted(() => {
   flex-direction: column;
 
   > .table {
-    height: 400px;
+    height: 40%;
     flex-shrink: 0;
   }
 

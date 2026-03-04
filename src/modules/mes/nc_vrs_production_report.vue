@@ -300,7 +300,6 @@ const obj = {
   selectTpl: config => {
     Object.assign(refobj, config, JSON.parse(sessionStorage.getItem(sessionStorage.getItem('x-api-key'))));
     templateBox.value?.close();
-    obj.wo('WOC2601221941-00-001-003');
   },
   wolistShow: () => {
     if(refobj.wolist.length>1 && Boolean(refobj.wonumber)){
@@ -544,11 +543,12 @@ const obj = {
           where = `${max}/${min}`;
         }
 
-        item.where = where;
+        if (!item.where) item.where = where;
+        if (item.max) max = item.max;
+        if (item.min) min = item.min;
         item.options.min = min !== null ? Number(min) : null;
         item.options.max = max !== null ? Number(max) : null;
       }
-
       if(item.input_type === 'date' || item.input_type === 'time'){
         if(item.options?.format){
           item.value = core.date.datetimeFormat(dateNow, item.options.format);
@@ -583,12 +583,17 @@ const obj = {
    * 参数改变事件
    */
   changeParam: (item) => {
-    if (item.qc_type === 'BF') {
-      obj.calculateScrapTotal();
-      obj.calculatePassRate();
-    } else if (item.qc_type === 'BL') {
-      obj.calculatePassRate();
+    if(refobj.template_id === 7){
+      if (item.qc_type === 'BF') {
+        obj.calculateScrapTotal('BF',80);
+        obj.calculatePassRate();
+      } else if (item.qc_type === 'BL') {
+        obj.calculatePassRate();
+      }
+    }else if( refobj.template_id === 8){
+      obj.calculateScrapTotal('BL',94);
     }
+
   },
 
   /**
@@ -600,12 +605,12 @@ const obj = {
   },
 
   /**
-   * 计算报废总数：所有qc_type为BF的参数之和
+   * 计算报废/不良总数：所有qc_type为BF/BL的参数之和
    */
-   calculateScrapTotal : () => {
-    const totalScrap = obj.calculateTotal('BF');
+   calculateScrapTotal : (qc_type,template_parameter_id) => {
+    const totalScrap = obj.calculateTotal(qc_type);
 
-    const scrapTotalParam = refobj.parameters.find(p => p.template_parameter_id === 80);
+    const scrapTotalParam = refobj.parameters.find(p => p.template_parameter_id === template_parameter_id);
     if (scrapTotalParam) {
       scrapTotalParam.value = totalScrap.toString();
     }

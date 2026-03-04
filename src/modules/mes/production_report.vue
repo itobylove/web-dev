@@ -554,12 +554,12 @@ const obj = {
         } else if (max !== null && min !== null) {
           where = `${max}/${min}`;
         }
-
-        item.where = where;
+        if (!item.where) item.where = where;
+        if (item.max) max = item.max;
+        if (item.min) min = item.min;
         item.options.min = min !== null ? Number(min) : null;
         item.options.max = max !== null ? Number(max) : null;
       }
-
       if(item.input_type === 'date' || item.input_type === 'time'){
         if(item.options?.format){
           item.value = core.date.datetimeFormat(dateNow, item.options.format);

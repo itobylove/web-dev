@@ -40,8 +40,26 @@ const defaults = {
       }
     }
   },
-  prevPage: {
+  create: {
     sort: 200,
+    title: '添加',
+    icon: 'ri-add-box-line',
+    click: () => dialog.info('此模块没有此功能'),
+  },
+  update: {
+    sort: 300,
+    title: '修改',
+    icon: 'ri-edit-box-line',
+    click: () => dialog.info('此模块没有此功能'),
+  },
+  delete: {
+    sort: 400,
+    title: '删除',
+    icon: 'ri-delete-bin-2-line',
+    click: () => dialog.info('此模块没有此功能'),
+  },
+  prevPage: {
+    sort: 500,
     title: '上一页',
     icon: 'ri-arrow-up-s-line',
     click() {
@@ -51,7 +69,7 @@ const defaults = {
     },
   },
   nextPage: {
-    sort: 300,
+    sort: 600,
     title: '下一页',
     icon: 'ri-arrow-down-s-line',
     click() {
@@ -62,31 +80,31 @@ const defaults = {
     },
   },
   submitApprove: {
-    sort: 400,
+    sort: 700,
     title: '提交',
     icon: 'ri-share-box-line',
     click: () => dialog.info('此模块没有此功能'),
   },
   resetApprove: {
-    sort: 500,
+    sort: 800,
     title: '撤回',
     icon: 'ri-arrow-go-back-line',
     click: () => dialog.info('此模块没有此功能'),
   },
   approve: {
-    sort: 600,
+    sort: 900,
     title: '审批',
     icon: 'ri-quill-pen-ai-line',
     click: () => tableFn.approve({table: props.table, detail: tableFn.detail(props.table, props.table.selectRow)}),
   },
   moreSettings: {
-    sort: 700,
+    sort: 1000,
     title: '设置',
     icon: 'ri-settings-3-line',
     click: () => tableFn.seting({table: props.table, search: props.search, menu: menuList.value}),
   },
   pageExport: {
-    sort: 800,
+    sort: 1100,
     title: '导出本页',
     icon: 'ri-file-excel-2-line',
     click: () => core.files.exportExcel({
@@ -96,13 +114,13 @@ const defaults = {
     }),
   },
   advancedExport: {
-    sort: 900,
+    sort: 1200,
     title: '高级导出',
     icon: 'ri-file-excel-2-line',
     click: () => tableFn.exportData({table: props.table, search: props.search?.search.searchList}),
   },
   clearWhere: {
-    sort: 1000,
+    sort: 1300,
     title: '清空条件',
     icon: 'ri-brush-3-line',
     click: () => {
@@ -111,7 +129,7 @@ const defaults = {
     },
   },
   clearCache: {
-    sort: 1100,
+    sort: 1400,
     title: '清空缓存',
     icon: 'ri-history-line',
     click: async () => {

@@ -31,12 +31,9 @@ const obj = {
             const _window = dialog.window(editPage, {
               close: async () => _window.close(),
             }, {
-              title: '快速报价',
-              width: '80%',
-              height: '80%',
+              title: '精细化报价',
               forceEnlarge: true,
-              onAfterClose: async () => {
-              },
+              onAfterClose: async () => {},
             });
           }
         },

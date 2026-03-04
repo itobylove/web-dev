@@ -55,7 +55,7 @@ const tableEvent = {
       options = vData.selectOptions.equipment_id.filter((item) => item.data.plant_id === vData.plant_id && !existIds.includes(item.value))
     }
     const newIds = await dialog.selectAsync(options,'','可添加的设备('+getPlant(vData.plant_id)+' '+vData.station_name+')', {width:'800px',height:'200px'},{
-      multiple: true,placeholder: '请输入名称过滤',clearable:true,minCollapsedNum:10,
+      multiple: true,placeholder: '请输入名称过滤',clearable:true,minCollapsedNum:10,reserveKeyword:true
     })
     if (!newIds)  return;
     const loading = dialog.loading(undefined, '保存中...');

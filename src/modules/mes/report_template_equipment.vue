@@ -8,7 +8,7 @@
             <t-select v-model="dialogConfigE.data.template_id" :options="vData.selectOptions.template_id" disabled />
           </t-form-item>
           <t-form-item label="设备" name="equipment_id" >
-            <t-select v-model="dialogConfigE.data.equipment_id" :options="vData.selectOptions.equipment_id"  :filterable="dialogConfigE.type === 'addEquipment'" :multiple="dialogConfigE.type === 'addEquipment'" :disabled="dialogConfigE.type == 'editEquipment'"  />
+            <t-select v-model="dialogConfigE.data.equipment_id" reserveKeyword  :options="[{label:'全选',checkAll:true},...vData.selectOptions.equipment_id]"  :filterable="dialogConfigE.type === 'addEquipment'" :multiple="dialogConfigE.type === 'addEquipment'" :disabled="dialogConfigE.type == 'editEquipment'"  />
           </t-form-item>
           <t-form-item label="多工单上机" name="multiple" >
             <t-select filterable v-model="dialogConfigE.data.multiple" :options="vData.selectOptions.multiple"/>
@@ -79,7 +79,7 @@ const fn = {
     if (!vData.template_id) {
       return dialog.warning('请选择模板');
     }
-    dialogConfigE.data = {status:1,template_id:vData.template_id,multiple:'NO'};
+    dialogConfigE.data = {status:1,template_id:vData.template_id};
     dialogConfigE.bind.title = '新增模板设备';
     dialogConfigE.type = 'addEquipment';
     dialogConfigE.isShow = true;
