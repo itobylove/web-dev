@@ -65,9 +65,6 @@ const obj = {
                             },
                             {
                                 title: "添加资产：", width: '60%', height: '80%', forceEnlarge: false, changeSize: false,
-                                // onAfterClose: async () => {
-                                //     mainTable.value.reportConfig.getData();
-                                // }
                             }
                         );
                     }
@@ -99,7 +96,6 @@ const obj = {
                             dialog.info('请先选择要修改的资产或资产组');
                             return;
                         }
-                        const data = asset.map(i => ({ id: i.id, type: i.type }));
                         let title = asset[0].type === 'group' ? '修改资产组' : '修改资产';
                         dialog.window(
                             addAsset,
@@ -116,10 +112,7 @@ const obj = {
                                 }
                             },
                             {
-                                title: title, width: '60%', height: '80%',
-                                // onAfterClose: async () => {
-                                //     mainTable.value.reportConfig.getData();
-                                // }
+                                title: title, width: '60%', height: '80%', forceEnlarge: false, changeSize: false,
                             }
                         );
                     }
@@ -173,9 +166,6 @@ const obj = {
                             },
                             {
                                 title: "添加资产人员：", width: '60%', height: '80%', forceEnlarge: false, changeSize: false,
-                                // onAfterClose: async () => {
-                                //     userTable.value.reportConfig.getData({ exec: null, id: asset[0].id, type: asset[0].type });
-                                // }
                             }
                         )
                     }
@@ -236,9 +226,6 @@ const obj = {
                             },
                             {
                                 title: "添加资产：", width: '60%', height: '80%', forceEnlarge: false, changeSize: false,
-                                // onAfterClose: async () => {
-                                //     assetsTable.value.reportConfig.getData({ exec: null, id: asset[0].id, type: asset[0].type });
-                                // }
                             }
                         )
                     }

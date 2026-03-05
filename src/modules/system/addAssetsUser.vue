@@ -31,7 +31,6 @@ const props = defineProps({
     dialog: { type: Object },
     getAttach: { type: Function,default: () => {} },
 })
-console.log(props.query.asset);
 //过滤数据，获取设备信息
 const getAsset = computed(() => {
     const result = [];
@@ -85,7 +84,6 @@ const obj = {
 }
 onMounted(async () => {
     await api.get(apiUrl.sys.asset.userConfig).then(res => {
-        console.log(res);
         obj.usersConfig.tableConfig = { ...obj.usersConfig.tableConfig, ...res.table };
         obj.usersConfig.tableConfig.columns = tableFn.createColumns(res.columns);
         refObj.value.usersShow = true;
