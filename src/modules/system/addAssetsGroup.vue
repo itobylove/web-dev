@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div ref="body" class="body">
         <div class="base-info">
             <div class="base-info-content">
                 <template v-for="(v, index) in getAsset" :key="index">
@@ -11,7 +11,7 @@
             </div>
         </div>
         <div class="users-lists">
-            <TableComponent class="table" ref="users" v-if="refObj.usersShow" v-bind="obj.usersConfig" />
+            <TableComponent class="table" ref="assets" v-if="refObj.assetsShow" v-bind="obj.assetsTableConfig" />
         </div>
     </div>
 </template>
@@ -31,7 +31,7 @@ const props = defineProps({
     dialog: { type: Object },
     getAttach: { type: Function,default: () => {} },
 })
-console.log(props.query.asset);
+const assets = ref(null);
 //过滤数据，获取设备信息
 const getAsset = computed(() => {
     const result = [];
@@ -43,33 +43,32 @@ const getAsset = computed(() => {
     });
     return result;
 });
-const users = ref(null);
 const refObj = ref({
-    usersShow: false,
+    assetsShow: false,
 });
 const obj = {
-    usersConfig: {
+    assetsTableConfig: {
         searchConfig: {},
         menuConfig: {
             defaultMenuShowList: ['search', 'clearWhere'],
             menu: {
                 create: {
                     click: () => {
-                        let uids = tableFn.getCheckedRecords(users.value.reportConfig).map(i => i.id), assetId = props.query.asset.id,type = props.query.asset.type;
+                        let uids = tableFn.getCheckedRecords(assets.value.reportConfig).map(i => i.id), assetId = props.query.asset.id,type = props.query.asset.type;
                         if (uids.length === 0) {
-                            dialog.info('请先选择要添加的员工');
+                            dialog.info('请先选择要添加的资产');
                             return;
                         }
-                        dialog.confirm(`确定要添加${uids.length}位员工到设备《${props.query.asset['name']}》吗？`, async () => {
-                            await api.post(apiUrl.sys.asset.addAssetsUser, { assetId, uids,type }).then(res => {
+                        dialog.confirm(`确定要添加${uids.length}个资产到《${props.query.asset['name']}》吗？`, async () => {
+                            await api.post(apiUrl.sys.asset.addAssetsGroupLink, { assetId, uids,type }).then(res => {
                                 if (res.ret === true) {
-                                    dialog.success(`成功添加${uids.length}位员工到设备《${props.query.asset['name']}》`);
+                                    props.getAttach(true);
+                                    dialog.success(`成功添加${uids.length}个资产到《${props.query.asset['name']}》`);
                                 }else if(res.ret < 0){
                                     dialog.error('资产组赞时不支持添加人员');
                                 }else {
                                     dialog.error(res.msg || '添加失败');
                                 }
-                                props.getAttach(true)
                                 props.dialog.close();
                             })
                         });
@@ -80,21 +79,20 @@ const obj = {
         query: {
             id: props.query.asset.id, type: props.query.asset.type, flag: true
         },
-        tableConfig: { url: apiUrl.sys.asset.getUsers, showCheck: 'multiple' }
+        tableConfig: { url: apiUrl.sys.asset.getNoExistsAssets, showCheck: 'multiple' }
     }
 }
 onMounted(async () => {
-    await api.get(apiUrl.sys.asset.userConfig).then(res => {
-        console.log(res);
-        obj.usersConfig.tableConfig = { ...obj.usersConfig.tableConfig, ...res.table };
-        obj.usersConfig.tableConfig.columns = tableFn.createColumns(res.columns);
-        refObj.value.usersShow = true;
+    await api.get(apiUrl.sys.asset.assetsConfig).then(res => {
+        obj.assetsTableConfig.tableConfig = { ...obj.assetsTableConfig.tableConfig, ...res.table };
+        obj.assetsTableConfig.tableConfig.columns = tableFn.createColumns(res.columns);
+        refObj.value.assetsShow = true;
     });
 });
 </script>
 
 <style scoped>
-.container {
+.body{
     padding: 20px;
     display: flex;
     flex-direction: column;
@@ -129,6 +127,5 @@ onMounted(async () => {
             flex-shrink: 0;
         }
     }
-
 }
 </style>

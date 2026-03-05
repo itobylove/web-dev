@@ -162,6 +162,9 @@ const apiUrl = new Proxy(
                 list: '/base/process/list',
                 assetsConfig: '/base/process/assetsConfig',
                 assetsList: '/base/process/assetsList',
+                mainList:'/base/process/mainList',
+                addAssets: '/base/process/addAssets', // 添加资产
+                delAssets: '/base/process/delAssets', // 删除资产
                 attach:'/base/process/getAttrToId',   //  指定ID获取工艺属性、参数等信息
                 add: '/base/process/save',
                 edit: '/base/process/save',
@@ -287,13 +290,24 @@ const apiUrl = new Proxy(
                 del: '/base/category/delete',
             },
             asset:{
-                config:'/asset/assets/config',
-                index:'/asset/assets/index',
+                // config:'/asset/assets/config',
+                // index:'/asset/assets/index',
                 getUsers:'/asset/assets/getUsers',
-                getuserConfig:'/asset/assets/userConfig',
+                // getuserConfig:'/asset/assets/userConfig',
                 deleteUser:'/asset/assets/deleteUser',
                 addAssetsUser:'/asset/assets/addAssetsUser',
                 addAssetGroup:'/asset/assets/addAssetGroup',
+                mainConfig:'/asset/assets/mainConfig',
+                mainList:'/asset/assets/mainList',
+                userConfig:'/asset/assets/userConfig',
+                userList:'/asset/assets/userList',
+                assetsConfig:'/asset/assets/assetsConfig',
+                assetsList:'/asset/assets/assetsList',
+                getNoExistsAssets:'/asset/assets/getNoExistsAssets',
+                addAssetsGroupLink:'/asset/assets/addAssetsGroupLink',
+                deleteAssetsGroup:'/asset/assets/deleteAssetsGroup',
+                addAsset:'/asset/assets/addAsset',
+                delAssets:'/asset/assets/delAssetsOrGroup',
             },
             asset1:{
                 mainConfig:'/base/assets/mainConfig',
@@ -308,7 +322,8 @@ const apiUrl = new Proxy(
             plantList: '/common/getPlantsLists',
             assetCategoryList: '/common/getAssetsCategoryLists',
             assetGroupList: '/common/getAssetsGroupLists',
-            getGroupTypeLists: '/common/getGroupTypeLists',
+            getGroupLabelLists: '/common/getGroupLabelLists',
+            workshopsLists:'/common/getWorkshopsLists',
         }
     },
     {

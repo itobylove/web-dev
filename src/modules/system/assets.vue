@@ -1,167 +1,298 @@
 <template>
-    <div class="assets">
-        <TableComponent class="table" ref="assets" v-if="refObj.assetsShow" v-bind="obj.assetsConfig" />
+    <div ref="body" class="body">
+        <resize-box mode='vertical' :size="500" :storage-key="siyi.nav?.id">
+            <TableComponent class="mainTable" ref="mainTable" v-if="refObj.mainTableShow"
+                v-bind="obj.mainTableConfig" />
+        </resize-box>
         <t-tabs class="t-tabs" v-model="refObj.tab" v-bind="obj.tabsConfig">
-            <t-tab-panel value="user" v-bind="obj.panelConfig" label="人员">
-                <TableComponent ref="user" v-if="refObj.userShow" v-bind="obj.userConfig" />
+            <t-tab-panel value="userTable" v-bind="obj.panelConfig" label="用户">
+                <TableComponent ref="userTable" v-if="refObj.userTableShow" v-bind="obj.userTableConfig" />
             </t-tab-panel>
-            <t-tab-panel value="a" v-bind="obj.panelConfig" label="资产">未来扩展，待开发</t-tab-panel>
-            <!-- <t-tab-panel value="b" v-bind="obj.panelConfig" label="资产">未来扩展，待开发</t-tab-panel> -->
+            <t-tab-panel value="assetsTable" v-bind="obj.panelConfig" label="资产">
+                <TableComponent ref="assetsTable" v-if="refObj.assetsTableShow" v-bind="obj.assetsTableConfig" />
+            </t-tab-panel>
+            <t-tab-panel value="propertyTable" v-bind="obj.panelConfig" label="属性">后续开发中</t-tab-panel>
         </t-tabs>
     </div>
 </template>
-
 <script setup>
 import { onMounted, reactive, ref } from 'vue';
 import TableComponent from '@/core/component/table_v2.vue';
 import apiUrl from '@/core/config/url2';
-import * as api from "@/core/script/api.js";
+import * as api from '@/core/script/api';
 import * as tableFn from '@/core/script/tableFn';
 import siyi from '@/core/script/siyi';
 import dialog from "@/core/script/dialog.js";
+import addAsset from "@/modules/system/addAsset.vue";
 import addAssetsUser from '@/modules/system/addAssetsUser.vue';
-import addAsset from '@/modules/system/addAsset.vue';
-const assets = ref(null);
-const user = ref(null);
-const assetId = ref(null);
+import addAssetsGroup from '@/modules/system/addAssetsGroup.vue';
+import ResizeBox from "@/core/component/ResizeBox.vue";
+
+const mainTable = ref();
+const userTable = ref();
+const assetsTable = ref();
+
 const refObj = reactive({
-    assetsShow: false,
-    userShow: false,
-    tab: 'user',
+    mainTableShow: false,
+    userTableShow: false,
+    assetsTableShow: false,
+    tab: 'userTable',
 });
-const tableEvent = {
-    //添加资产
-    assetsCreate: () => {
-        console.log('添加资产');
-        dialog.window(
-            addAsset,
-            {},
-            {
-                title: "添加资产：", width: '60%', height: '80%',
-                onAfterClose: async () => {
-                    // assets.value.reportConfig.getData();
-                }
-            }
-        );
-    },
-    //删除资产
-    assetsDelete: () => {
-        console.log('删除资产');
-    },
-    //添加人员
-    userCreate: () => {
-        let asset = tableFn.getCheckedRecords(assets.value.reportConfig);
-        if (asset.length === 0) {
-            dialog.info('请先选择资产');
-            return;
-        }
-        dialog.window(
-            addAssetsUser,
-            {
-                query: {
-                    asset: asset[0],
-                },
-                scene: 'auth'
-            },
-            {
-                title: "添加资产人员：", width: '60%', height: '80%',
-                onAfterClose: async () => {
-                    user.value.reportConfig.getData({ where: { id: assetId.value } });
-                }
-            }
-        )
-    },
-    //删除人员
-    userDelete: () => {
-        dialog.confirm('确定要删除吗？', async () => {
-            let aid = tableFn.getCheckedRecords(assets.value.reportConfig).map(i => i.id);
-            let uids = tableFn.getCheckedRecords(user.value.reportConfig).map(i => i.id);
-            const res = await api.post(apiUrl.sys.asset.deleteUser, { aid, uids });
-            if (res !== null && res !== undefined) {
-                if (res.ret > 0) {
-                    dialog.success(`成功删除${res.ret}条记录`);
-                    user.value.reportConfig.getData();
-                    user.value.reportConfig.getData({ where: { id: aid[0] } });
-                } else {
-                    dialog.info('网络错误，请稍后再试');
-                }
-            }
-        });
-    }
-}
+
 const obj = {
     tabsConfig: {
         theme: 'card',
-        defaultValue: 'user',
+        defaultValue: 'userTable',
         onChange: val => refObj.tab = val,
     },
     panelConfig: {
         destroyOnHide: false,
     },
-    assetsConfig: {
-        // footer: false,//是否显示表尾合计，默认为false
+    mainTableConfig: {
         menuConfig: {
             defaultMenuShowList: ['search', 'pageExport', 'clearWhere', 'moreSettings'],
             menu: {
-                create: { sort: 152, title: '添加', icon: 'ri-add-line', click: () => tableEvent.assetsCreate() },
-                delete: { sort: 153, title: '删除', icon: 'ri-add-line', listAction: tableEvent.assetsDelete }
+                create: {
+                    click: () => {
+                        dialog.window(
+                            addAsset,
+                            {
+                                getAttach: (e) => {
+                                    if (e) {
+                                        mainTable.value.reportConfig.getData();
+                                    }
+                                }
+                            },
+                            {
+                                title: "添加资产：", width: '60%', height: '80%', forceEnlarge: false, changeSize: false,
+                                // onAfterClose: async () => {
+                                //     mainTable.value.reportConfig.getData();
+                                // }
+                            }
+                        );
+                    }
+                },
+                delete: {
+                    click: () => {
+                        let asset = tableFn.getCheckedRecords(mainTable.value.reportConfig);
+                        if (asset.length === 0) {
+                            dialog.info('请先选择要删除的资产或资产组');
+                            return;
+                        }
+                        const data = asset.map(i => ({ id: i.id, type: i.type }));
+                        dialog.confirm(`确定要删除吗？`, async () => {
+                            await api.post(apiUrl.sys.asset.delAssets, { data }).then(res => {
+                                if (res.ret > 0) {
+                                    dialog.success(`成功删除${data.length}个资产或资产组`);
+                                    mainTable.value.reportConfig.getData();
+                                } else {
+                                    dialog.error(res.msg || '删除失败');
+                                }
+                            })
+                        });
+                    }
+                },
+                update: {
+                    click: () => {
+                        let asset = tableFn.getCheckedRecords(mainTable.value.reportConfig);
+                        if (asset.length === 0) {
+                            dialog.info('请先选择要修改的资产或资产组');
+                            return;
+                        }
+                        const data = asset.map(i => ({ id: i.id, type: i.type }));
+                        let title = asset[0].type === 'group' ? '修改资产组' : '修改资产';
+                        dialog.window(
+                            addAsset,
+                            {
+                                query: {
+                                    asset: asset[0],
+                                    edit: true,
+                                },
+                                scene: 'auth',
+                                getAttach: (e) => {
+                                    if (e) {
+                                        mainTable.value.reportConfig.getData();
+                                    }
+                                }
+                            },
+                            {
+                                title: title, width: '60%', height: '80%',
+                                // onAfterClose: async () => {
+                                //     mainTable.value.reportConfig.getData();
+                                // }
+                            }
+                        );
+                    }
+                },
             },
         },
         searchConfig: {
             search: [{
                 type: 'select', field: 'plant_id', style: { width: '100px' }, value: siyi.user.plantId, load: 'factory',
                 options: { multiple: false, clearable: false },
-                onChange: val => assets.value.reportConfig.getData({ where: { plant_id: val } }),
+                onChange: val => mainTable.value.reportConfig.getData({ where: { plant_id: val } }),
             }],
         },
         tableConfig: {
-            url: apiUrl.sys.asset.index, showCheck: 'radio', disablePage: true,
+            url: apiUrl.sys.asset.mainList, showCheck: 'radio', disablePage: true,
             events: {
                 click_cell: args => {
-                    if (args.originData?.index > 0 && args.originData.index !== assets.value.reportConfig.prveSelectRow.index) {
-                        console.log(args);
-                        assetId.value = args.originData.id;
-                        user.value.reportConfig.getData({ where: { id: args.originData.id } });
+                    if (args.originData?.index > 0 && args.originData.index !== mainTable.value.reportConfig.prveSelectRow.index) {
+                        userTable.value.reportConfig.getData({ exec: null, id: args.originData.id, type: args.originData.type });
+                        assetsTable.value.reportConfig.getData({ exec: null, id: args.originData.id, type: args.originData.type });
                     }
                 }
             },
         },
     },
-    userConfig: {
+    userTableConfig: {
         searchConfig: false,
         menuConfig: {
-            defaultMenuShowList: ['search', 'pageExport', 'clearWhere', 'moreSettings'],
+            defaultMenuShowList: ['pageExport', 'clearWhere', 'moreSettings'],
             menu: {
-                create: { sort: 152, title: '添加', icon: 'ri-add-line', click: () => tableEvent.userCreate() },
-                delete: { sort: 153, title: '删除', icon: 'ri-add-line', listAction: tableEvent.userDelete }
+                create: {
+                    //添加人员
+                    click: () => {
+                        let asset = tableFn.getCheckedRecords(mainTable.value.reportConfig);
+                        if (asset.length === 0) {
+                            dialog.info('请先选择资产');
+                            return;
+                        }
+                        dialog.window(
+                            addAssetsUser,
+                            {
+                                query: {
+                                    asset: asset[0],
+                                },
+                                scene: 'auth',
+                                getAttach: (e) => {
+                                    if (e) {
+                                        userTable.value.reportConfig.getData({ exec: null, id: asset[0].id, type: asset[0].type });
+                                    }
+                                }
+                            },
+                            {
+                                title: "添加资产人员：", width: '60%', height: '80%', forceEnlarge: false, changeSize: false,
+                                // onAfterClose: async () => {
+                                //     userTable.value.reportConfig.getData({ exec: null, id: asset[0].id, type: asset[0].type });
+                                // }
+                            }
+                        )
+                    }
+                },
+                delete: {
+                    click: () => {
+                        let uids = tableFn.getCheckedRecords(userTable.value.reportConfig).map(i => i.user_link_id);
+                        if (uids.length === 0) {
+                            dialog.info('请先选择要删除的员工');
+                            return;
+                        }
+                        dialog.confirm('确定要删除吗？', async () => {
+                            let asset = tableFn.getCheckedRecords(mainTable.value.reportConfig);
+                            const res = await api.post(apiUrl.sys.asset.deleteUser, { aid: asset[0].id, type: asset[0].type, uids });
+                            if (res !== null && res !== undefined) {
+                                if (res.ret > 0) {
+                                    dialog.success(`成功删除${res.ret}条记录`);
+                                    userTable.value.reportConfig.getData({ exec: null, id: asset[0].id, type: asset[0].type });
+                                } else {
+                                    dialog.info('网络错误，请稍后再试');
+                                }
+                            }
+                        });
+                    }
+                }
             },
         },
-        query: {
-            where: { id: 0 }
+        tableConfig: { url: apiUrl.sys.asset.userList, showCheck: 'multiple', disablePage: true },
+    },
+    assetsTableConfig: {
+        searchConfig: false,
+        menuConfig: {
+            defaultMenuShowList: ['pageExport', 'clearWhere', 'moreSettings'],
+            menu: {
+                create: {
+                    click: () => {
+                        let asset = tableFn.getCheckedRecords(mainTable.value.reportConfig);
+                        if (asset.length === 0) {
+                            dialog.info('请先选择资产组');
+                            return;
+                        }
+                        if (asset[0]?.type !== 'group') {
+                            dialog.info('资产暂不支持添加资产，请选择资产组');
+                            return;
+                        }
+                        dialog.window(
+                            addAssetsGroup,
+                            {
+                                query: {
+                                    asset: asset[0],
+                                },
+                                scene: 'auth',
+                                getAttach: (e) => {
+                                    if (e) {
+                                        userTable.value.reportConfig.getData({ exec: null, id: asset[0].id, type: asset[0].type });
+                                    }
+                                }
+                            },
+                            {
+                                title: "添加资产：", width: '60%', height: '80%', forceEnlarge: false, changeSize: false,
+                                // onAfterClose: async () => {
+                                //     assetsTable.value.reportConfig.getData({ exec: null, id: asset[0].id, type: asset[0].type });
+                                // }
+                            }
+                        )
+                    }
+                },
+                delete: {
+                    click: () => {
+                        let uids = tableFn.getCheckedRecords(assetsTable.value.reportConfig).map(i => i.group_link_id);
+                        if (uids.length === 0) {
+                            dialog.info('请先选择要删除的员工');
+                            return;
+                        }
+                        dialog.confirm('确定要删除吗？', async () => {
+                            let asset = tableFn.getCheckedRecords(mainTable.value.reportConfig);
+                            const res = await api.post(apiUrl.sys.asset.deleteAssetsGroup, { aid: asset[0].id, type: asset[0].type, uids });
+                            if (res !== null && res !== undefined) {
+                                if (res.ret > 0) {
+                                    dialog.success(`成功删除${res.ret}条记录`);
+                                    assetsTable.value.reportConfig.getData({ exec: null, id: asset[0].id, type: asset[0].type });
+                                } else {
+                                    dialog.info('网络错误，请稍后再试');
+                                }
+                            }
+                        });
+                    }
+                }
+            },
         },
-        tableConfig: { url: apiUrl.sys.asset.getUsers, showCheck: 'multiple', disablePage: true },
-    }
+        tableConfig: { url: apiUrl.sys.asset.assetsList, showCheck: 'multiple', disablePage: true },
+    },
 }
 onMounted(() => {
-    api.get(apiUrl.sys.asset.config).then(res => {
-        obj.assetsConfig.tableConfig = { ...obj.assetsConfig.tableConfig, ...res.table };
-        obj.assetsConfig.tableConfig.columns = tableFn.createColumns(res.columns);
-        refObj.assetsShow = true;
+    api.get(apiUrl.sys.asset.mainConfig).then(res => {
+        obj.mainTableConfig.tableConfig = { ...obj.mainTableConfig.tableConfig, ...res.table };
+        obj.mainTableConfig.tableConfig.columns = tableFn.createColumns(res.columns);
+        refObj.mainTableShow = true;
     });
-    api.get(apiUrl.sys.asset.getuserConfig).then(res => {
-        obj.userConfig.tableConfig = { ...obj.userConfig.tableConfig, ...res.table };
-        obj.userConfig.tableConfig.columns = tableFn.createColumns(res.columns);
-        refObj.userShow = true;
+    api.get(apiUrl.sys.asset.userConfig).then(res => {
+        obj.userTableConfig.tableConfig = { ...obj.userTableConfig.tableConfig, ...res.table };
+        obj.userTableConfig.tableConfig.columns = tableFn.createColumns(res.columns);
+        refObj.userTableShow = true;
+    });
+    api.get(apiUrl.sys.asset.assetsConfig).then(res => {
+        obj.assetsTableConfig.tableConfig = { ...obj.assetsTableConfig.tableConfig, ...res.table };
+        obj.assetsTableConfig.tableConfig.columns = tableFn.createColumns(res.columns);
+        refObj.assetsTableShow = true;
     });
 });
 </script>
-
 <style scoped>
-.assets {
+.body {
     display: flex;
     flex-direction: column;
 
-    .table {
+    >.mainTable {
         height: 40%;
         flex-shrink: 0;
     }

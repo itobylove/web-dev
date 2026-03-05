@@ -147,7 +147,7 @@ const defaults = {
 
 //列表选择事件回调
 const listActionFn = callback => {
-  const checkedRows = tableFn.getCheckedRecords(props.table) // 获取已选中数据
+  const checkedRows = props.table.showCheck ? tableFn.getCheckedRecords(props.table) : tableFn.getSelectedRecords(props.table) // 获取已选中数据
   if (checkedRows?.length < 1) return dialog.warning('请勾选数据')
   callback(checkedRows, props.table)
 }

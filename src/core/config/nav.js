@@ -99,20 +99,20 @@ export const components = {
     steps: reg({loader: () => import('@/modules/system/steps.vue'), loadingComponent, errorComponent}),
     process: reg({loader: () => import('@/modules/system/process.vue'), loadingComponent, errorComponent}),
     assets: reg({loader: () => import('@/modules/system/assets.vue'), loadingComponent, errorComponent}),
-    assets1: reg({loader: () => import('@/modules/system/assets1.vue'), loadingComponent, errorComponent}),
-    sys_step_equipment: reg({loader: () => import('@/modules/system/step_equipment/index.vue'), loadingComponent, errorComponent}),
+    // assets1: reg({loader: () => import('@/modules/system/assets1.vue'), loadingComponent, errorComponent}),
+    // sys_step_equipment: reg({loader: () => import('@/modules/system/step_equipment/index.vue'), loadingComponent, errorComponent}),
     sys_step_report: reg({loader: () => import('@/modules/system/step_equipment/report.vue'), loadingComponent, errorComponent}),
     sys_step_mobile: reg({loader: () => import('@/modules/system/step_equipment/step.vue'), loadingComponent, errorComponent}),
-    sys_process: reg({loader: () => import('@/modules/system/step_equipment/process.vue'), loadingComponent, errorComponent}),
-    sys_process_mobile: reg({loader: () => import('@/modules/system/step_equipment/process.vue'), loadingComponent, errorComponent}),
-    sys_station: reg({loader: () => import('@/modules/system/step_equipment/station.vue'), loadingComponent, errorComponent}),
+    // sys_process: reg({loader: () => import('@/modules/system/step_equipment/process.vue'), loadingComponent, errorComponent}),
+    // sys_process_mobile: reg({loader: () => import('@/modules/system/step_equipment/process.vue'), loadingComponent, errorComponent}),
+    // sys_station: reg({loader: () => import('@/modules/system/step_equipment/station.vue'), loadingComponent, errorComponent}),
 
     sys_employee: reg({loader: () => import('@/modules/system/employee.vue'), loadingComponent, errorComponent}),
     sys_employee_mobile: reg({loader: () => import('@/modules/system/employee.vue'), loadingComponent, errorComponent}),
     sys_supplier: reg({loader: () => import('@/modules/system/supplier.vue'), loadingComponent, errorComponent}),
     sys_supplier_mobile: reg({loader: () => import('@/modules/system/supplier.vue'), loadingComponent, errorComponent}),
-    sys_equipment: reg({loader: () => import('@/modules/system/step_equipment/equipment.vue'), loadingComponent, errorComponent}),
-    sys_equipment_mobile: reg({loader: () => import('@/modules/system/step_equipment/equipment.vue'), loadingComponent, errorComponent}),
+    // sys_equipment: reg({loader: () => import('@/modules/system/step_equipment/equipment.vue'), loadingComponent, errorComponent}),
+    // sys_equipment_mobile: reg({loader: () => import('@/modules/system/step_equipment/equipment.vue'), loadingComponent, errorComponent}),
     sys_parameter: reg({loader: () => import('@/modules/system/parameter.vue'), loadingComponent, errorComponent}),
     sys_parameter_rules: reg({loader: () => import('@/modules/system/parameter_rules.vue'), loadingComponent, errorComponent}),
     sys_parameter_mobile: reg({loader: () => import('@/modules/system/parameter.vue'), loadingComponent, errorComponent}),
@@ -2114,7 +2114,24 @@ export const nav = ref([
                     ],
                     menu: {approve: {hide: true}, resetApprove: {hide: true}, submitApprove: {hide: true},}
                 }
-            },
+            }, {
+                id: 'lt_report_zhyhcc',
+                cid: 'publicReport',
+                title: '1103-珠海压合PP耗量查询',
+                icon: 'ri-play-list-add-line',
+                query: {
+                    search: [
+                        {type: 'select', load: 'factory', value: [6], field: 'factory', options: {placeholder: '工厂'}},
+                        {
+                            type: 'rangeTime', field: 'date',
+                            value: [core.date.list().startMonth['7天内'], core.date.list().endMonth['7天内']],
+                            options: {placeholder: '时间'}
+                        },
+
+                    ],
+                    menu: {approve: {hide: true}, resetApprove: {hide: true}, submitApprove: {hide: true},}
+                }
+            }
         ]
     },
     {
@@ -2979,12 +2996,12 @@ export const nav = ref([
                 query: {},
                 title: '包管理',
             },
-            {
+            /*{
                 id: 'sys_step_equipment',
                 icon: 'ri-community-line',
                 query: {},
                 title: '工序设置',
-            },
+            },*/
             {
                 id: 'sys_step_report',
                 icon: 'ri-community-line',
@@ -3088,17 +3105,17 @@ export const nav = ref([
                 query: {},
                 title: '工艺管理',
             },
-            {
-                id:'assets1',
-                icon: 'ri-device-line',
-                query: {},
-                title: '资产管理',
-            },
+            // {
+            //     id:'assets1',
+            //     icon: 'ri-device-line',
+            //     query: {},
+            //     title: '资产管理',
+            // },
             {
                 id:'assets',
                 icon: 'ri-device-line',
                 query: {},
-                title: '设备管理',
+                title: '资产管理',
             },
             /*
              {

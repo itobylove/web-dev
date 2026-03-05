@@ -275,25 +275,33 @@ export const listToTree = (list, options = {}) => {
         rootId = 0
     } = options;
 
-    const nodeMap = new Map();   // 存储 id => 节点
+    const nodeMap = new Map();
     const tree = [];
 
-    // 先拷贝每个节点，初始化 children，避免修改原数据
+    // 第一轮：初始化节点，默认 level = 0
     for (const item of list) {
-        const node = { ...item, [childKey]: [], label: item[labelKey], value: item[valueKey] };
+        const node = {
+            ...item,
+            [childKey]: [],
+            label: item[labelKey],
+            value: item[valueKey],
+            __level: 0
+        };
         nodeMap.set(node[idKey], node);
     }
 
-    // 第二轮挂载
+    // 第二轮：挂载 + 计算 level
     for (const node of nodeMap.values()) {
         const parentId = node[pidKey];
         if (parentId === rootId || !nodeMap.has(parentId)) {
-            tree.push(node); // 根节点或孤儿
+            node.__level = 0;
+            tree.push(node);
         } else {
-            nodeMap.get(parentId)[childKey].push(node); // 挂到父节点
+            const parent = nodeMap.get(parentId);
+            node.__level = parent.__level + 1;
+            parent[childKey].push(node);
         }
     }
-
     return tree;
 };
 

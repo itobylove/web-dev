@@ -1,6 +1,8 @@
 <template>
   <div ref="box" class="steps">
-    <TableComponent class="table" ref="steps" v-if="refObj.stepsShow" v-bind="obj.stepsConfig"/>
+    <resize-box mode='vertical' :size="500" :storage-key="siyi.nav?.id">
+      <TableComponent class="table" ref="steps" v-if="refObj.stepsShow" v-bind="obj.stepsConfig"/>
+    </resize-box>
     <t-tabs class="t-tabs" v-model="refObj.tab" v-bind="obj.tabsConfig">
       <t-tab-panel value="process" v-bind="obj.panelConfig" label="工艺">
         <TableComponent ref="process" v-if="refObj.processShow" v-bind="obj.processConfig"/>
@@ -48,18 +50,8 @@
     </dialogComponent>
     <dialogComponent v-if="dialogConfig.process.isShow" v-bind="dialogConfig.process.bind"
                      v-on="dialogConfig.process.on">
-      <div class="container">
-        <div class="base-info">
-          <div class="base-info-content">
-            <div>工序名称：<span>{{ checkRowsData.name }}</span></div>
-            <div>工厂名称：<span>{{ checkRowsData.plant_id_text }}</span></div>
-            <div>ERP_ID：<span>{{ checkRowsData.erp_step_id }}</span></div>
-            <div>工序_ID：<span>{{ checkRowsData.id }}</span></div>
-          </div>
-        </div>
-        <div class="users-lists" style="height:60vh;">
-          <TableComponent ref="processBindView" v-bind="obj.processBindConfig"></TableComponent>
-        </div>
+      <div style="height:60vh;">
+        <TableComponent ref="processBindView" v-bind="obj.processBindConfig"></TableComponent>
       </div>
     </dialogComponent>
   </div>
@@ -76,6 +68,7 @@ import DialogComponent from "@/core/component/dialog.vue";
 import dialog from "@/core/script/dialog.js";
 import {getOptionsLabel} from "@/utils/vars.js";
 import {post} from "@/core/script/api";
+import ResizeBox from "@/core/component/ResizeBox.vue";
 
 const box = ref();
 const steps = ref();
@@ -86,7 +79,9 @@ const processBindView = ref();
 const refObj = reactive({
   stepsShow: false,
   processShow: false,
-  tab: 'process'
+  tab: 'process',
+  plant_id: 0,
+  step_id: 0
 });
 
 const obj = {
@@ -100,7 +95,7 @@ const obj = {
   },
   stepsConfig: {
     menuConfig: {
-      defaultMenuShowList: ['pageExport', 'clearWhere', 'moreSettings'],
+      defaultMenuShowList: ['search', 'pageExport', 'clearWhere', 'moreSettings'],
       menu: {
         create: {
           sort: 152, title: '添加', icon: 'ri-add-circle-line', click: () => {
@@ -152,6 +147,8 @@ const obj = {
         },
         click_cell: ({originData, field}) => {
           if (originData?.index > 0 && originData.index !== steps.value.reportConfig.prveSelectRow.index) {
+            refObj.plant_id = originData.plant_id;
+            refObj.step_id = originData.id;
             process.value.reportConfig.getData({exec: null, step_id: originData.id});
           }
         }
@@ -161,7 +158,7 @@ const obj = {
   processConfig: {
     searchConfig: false,
     menuConfig: {
-      defaultMenuShowList: ['pageExport', 'clearWhere', 'moreSettings'],
+      defaultMenuShowList: ['search', 'pageExport', 'moreSettings'],
       menu: {
         create: {
           sort: 152, title: '添加', icon: 'ri-add-circle-line', click: () => {
@@ -182,22 +179,24 @@ const obj = {
         },
         delete: {
           sort: 153, title: '删除', icon: 'ri-indeterminate-circle-line', click: async () => {
-            let ids = tableFn.getCheckedRecords(process.value.reportConfig, 'sp_id').map(item => item.sp_id);
+            let rowData = tableFn.getCheckedRecords(process.value.reportConfig, 'sp_id');
+            let ids = rowData.map(item => item.sp_id);
             if (ids.length < 1) return dialog.warning('请勾选需要删除的工艺！');
             const result = await dialog.confirmAsync('确定要删除' + ids.length + '条数据吗？');
+            console.log(process.value.reportConfig.data);
             if (!result) return;
             await api.post(
                 apiUrl.sys.steps.unbindProcess,
                 {
-                  plant_id: checkRowsData.value.plant_id,
-                  step_id: checkRowsData.value.id,
+                  plant_id: refObj.plant_id,
+                  step_id: refObj.step_id,
                   ids: ids
                 }
             ).then(
                 res => {
                   if (res) {
                     dialog.success('删除成功');
-                    process.value.reportConfig.getData({exec: null, step_id: checkRowsData.value.id});
+                    process.value.reportConfig.getData({exec: null, step_id: refObj.plant_id});
                   }
                 }
             );
@@ -263,7 +262,7 @@ const obj = {
       showCheck: true,
       disablePage: true,
       options: {rowSeriesNumber: false},
-      columns: tableFn.createColumns(["check#复选框#H", "name#工艺名称", "id#工艺ID#F", "erp_process_id#ERP_ID", "status_text#状态#F"]),
+      columns: tableFn.createColumns(["name#工艺名称", "id#工艺ID#F", "erp_process_id#ERP_ID", "status_text#状态#F"]),
       events: {
         dblclick_cell: ({originData, field}) => {
 
@@ -292,6 +291,8 @@ const dialogConfig = reactive({
     bind: {
       width: '450px',
       height: 'auto',
+      changeSize: false,
+      forceEnlarge: false
     },
     form: {
       style: {
@@ -335,21 +336,12 @@ const dialogConfig = reactive({
   },
   process: {
     isShow: false,
-    submit: async ({validateResult, firstError}) => {
-      // if (validateResult !== true) return dialog.warning(firstError);
-      // const loading = dialog.loading(undefined, '保存中...');
-      // const res = await api.post(apiUrl.sys.step[dialogConfig.steps.type], dialogConfig.steps.data);
-      // loading && loading.close();
-      // if (res) {
-      //   dialog.success('保存成功');
-      //   dialogConfig.steps.close();
-      //   await steps.value.reportConfig.getData();
-      // }
-    },
     bind: {
       title: '添加工艺',
       width: '700px',
       height: 'auto',
+      changeSize: false,
+      forceEnlarge: false
     },
     form: {
       style: {
@@ -397,39 +389,6 @@ onMounted(() => {
     border-radius: 5px;
     border: 1px solid #ccc;
     margin: 0 2px 2px 2px;
-  }
-
-  .container {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-
-    .base-info {
-      margin-bottom: 20px;
-
-      .base-info-title {
-        margin-bottom: 10px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid #eee;
-      }
-
-      .base-info-content {
-        display: flex;
-        flex-wrap: wrap;
-        border-bottom: 1px solid #eee;
-
-        > div {
-          width: 50%;
-          margin-bottom: 15px;
-        }
-
-        span {
-          font-weight: 500;
-          color: #606266;
-          margin-right: 5px;
-        }
-      }
-    }
   }
 }
 </style>

@@ -36,41 +36,6 @@ const tableEvent = {
   plantChange: async (value) => {
     vData.plant_id = value;
   },
-  editCell: async (rowData, field) => {
-    const config = {
-      step_name: {
-        title: '工艺',
-        id: 'step_id',
-        api: api.url2.sys.step.edit,
-      },
-      process_name: {
-        title: '工序',
-        id: 'process_id',
-        api: api.url2.sys.process.edit,
-      },
-      station_name: {
-        title: '工段',
-        id: 'station_id',
-        api: api.url2.sys.station.save,
-      },
-      equipment_name: {
-        title: '设备',
-        id: 'equipment_id',
-        api: api.url2.sys.equipment.edit,
-      },
-    };
-    const cfg = config[field];
-    if (!cfg || !rowData?.[field]) return;
-
-    const inputValue = await dialog.inputAsync(rowData[field], '修改' + cfg.title + `名称(ID:${rowData[cfg.id]})`, {width: '500px'});
-    if (typeof inputValue !== 'string') return;
-
-    const res = await api.post(cfg.api, {id: rowData[cfg.id], name: inputValue,plant_id: vData.plant_id});
-    if (!res) return;
-    rowData[field] = inputValue;
-    updateRow(tableRef.value.reportConfig, [rowData], 'row_num',false);
-  },
-
 };
 
 
@@ -102,10 +67,7 @@ const initTable = async () => {
       ...apiData.table,
       columns:listTableFn.createColumns(apiData.columns, apiData?.table?.columnSplit || '#'),
       events:{
-        dblclick_cell: async ({originData,field}) => {
-          if (!field) return ;
-          await tableEvent.editCell(originData, field)
-        },
+
       },
       ...props.tableConfig
     },

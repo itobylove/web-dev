@@ -1,6 +1,8 @@
 <template>
   <div ref="box" :class="['mainPage','page-'+table.tableConfig.id]">
-    <TableComponent class="page-list"  v-if="table.isInit"  ref="report" v-bind="getReportConfig()"/>
+    <ResizeBox :size="480" :storage-key="siyi.nav?.id">
+      <TableComponent class="page-list"  v-if="table.isInit"  ref="report" v-bind="getReportConfig()"/>
+    </ResizeBox>
     <div class="page-detail" v-if="table.isInit" >
       <packageItem :item="vData.item"  v-if="vData.item?.id"  />
     </div>
@@ -18,6 +20,9 @@
           </t-form-item>
           <t-form-item label="名称" name="name">
             <t-input v-model="editBox.data.name" />
+          </t-form-item>
+          <t-form-item label="利润点" name="profit" v-if="[dData.TYPE_SERVICE,dData.TYPE_EXTEND].includes(editBox.data.type)">
+            <t-input v-model="editBox.data.profit" type="number" min="0" suffix="%" />
           </t-form-item>
           <t-form-item label="排序" name="sort" >
             <t-input-number v-model="editBox.data.sort" theme="column" style="width: 100%" type="integer" min="0" step="1" max="9999"  placeholder="数字小靠前" />
@@ -49,6 +54,7 @@ import {getOptionsLabel, listToTree} from "@/utils/vars.js";
 import siyi from "@/core/script/siyi.js";
 import dialog from "@/core/script/dialog.js";
 import {plantList} from "@/utils/erp.js";
+import ResizeBox from "@/core/component/ResizeBox.vue";
 
 const report = ref()
 
@@ -78,8 +84,9 @@ const tableEvent = {
     vData.plant_id = value;
     table.isInit && await report.value.reportConfig.getData();
   },
-  showEdit: async (rows) => {
-    const row = rows?.[0] || {};
+  showEdit: async (isAdd) => {
+    const selectedCells = report.value.reportConfig.table.getSelectedCellInfos()?.[0];
+    const row = isAdd?{}:{...selectedCells[0].originData};
     editBox.isShow=true;
     editBox.data={
       plant_id:vData.plant_id,
@@ -122,9 +129,9 @@ const getReportConfig = () => {
     menuConfig: {
       menu:{
         search: {sort: 10},
-        add: {title: '添加', click: () => tableEvent.showEdit(), icon: 'ri-add-line', sort: 40},
-        edit: {title: '修改', listAction: tableEvent.showEdit, icon: 'ri-edit-line', sort: 50},
-        del: {title: '删除', listAction: tableEvent.delete, icon: 'ri-delete-bin-line', sort: 60},
+        add: {title: '添加', click: ()=>tableEvent.showEdit(true), icon: 'ri-add-line', sort: 40},
+        edit: {title: '修改', click: ()=>tableEvent.showEdit(), icon: 'ri-edit-line', sort: 50},
+        del: {title: '删除', click: ()=>tableEvent.delete(), icon: 'ri-delete-bin-line', sort: 60},
         moreSettings:{sort: 90,title:'表格设置'},
       },
       defaultMenuShowList:['search','moreSettings','pageExport'],
@@ -137,7 +144,7 @@ const getReportConfig = () => {
     },
     tableConfig: {
       url: api.url2.cost.package.list,
-      showCheck: 'radio',
+      showCheck: false,
       disablePage: true,
       useEncryptionFields: false,
       columnSplit: '',
@@ -155,12 +162,12 @@ const getReportConfig = () => {
         return listToTree(res?.list || [], {labelKey: 'name', valueKey: 'id'}); // 转换为树结构
       },
       afterLoaded:()=>{
-        report.value.reportConfig.table.selectRow(1);
-        const list = report.value.reportConfig.table.options.records;
-        vData.selectOptions.pid= list.filter(item=>item.type===dData.TYPE_BASE).map(item=>{
+        const vTable= report.value.reportConfig.table;
+        vTable.selectRow(1);
+        vData.selectOptions.pid= vTable.options.records.filter(item=>item.type===dData.TYPE_BASE).map(item=>{
           return {label:item.name,value:item.id};
         });
-        const firstRow = list?.[0] || {};
+        const firstRow = vTable.options.records?.[0] || {};
         vData.item = {...firstRow};
       },
       events:{
@@ -185,6 +192,21 @@ const getReportConfig = () => {
         if (col.field === 'name') {
           col.tree = true; // 开启树结构
           col.editor = 'inputEditor';
+        }
+        const typeColors = {
+          [dData.TYPE_BASE]: {bgColor:'#35a1fd',color:'#FFF'},
+          // [dData.TYPE_SERVICE]: {bgColor:'#50b17d',color:'#FFF'},
+          [dData.TYPE_EXTEND]: {bgColor:'#b58e68',color:'#FFF'},
+        };
+        col.style={
+          bgColor: (args) => {
+            const record = report.value.reportConfig.table.getCellOriginRecord(args.col,args.row);
+            return record?.id?typeColors?.[record?.type]?.bgColor:null;
+          },
+          color: (args) => {
+            const record = report.value.reportConfig.table.getCellOriginRecord(args.col,args.row);
+            return (record?.id?typeColors?.[record?.type]?.color:undefined) || '#000';
+          },
         }
         return col;
       },
@@ -258,9 +280,6 @@ onMounted(() => {
   height: 100%;
   display: flex;
   flex-direction: row;
-  .page-list{
-    width:550px;
-  }
   .page-detail{
     flex:1;
   }

@@ -141,10 +141,10 @@ const table = {
       edit: {title: '修改', listAction: tableEvent.edit, icon: 'ri-edit-line', sort: 40},
       enable: {title: '启用', listAction: (rows)=>tableEvent.status(rows,1), icon: 'ri-play-line', sort: 60},
       disable: {title: '停用', listAction: (rows)=>tableEvent.status(rows,0), icon: 'ri-stop-large-line', sort: 60},
-      setWorkshop: {title: '选择车间', listAction: tableEvent.setWorkshop, icon: 'ri-delete-bin-line', sort: 60},
+      setWorkshop: {title: '选择车间', listAction: tableEvent.setWorkshop, icon: 'ri-home-gear-line', sort: 60},
       del: {title: '删除', listAction: tableEvent.delete, icon: 'ri-delete-bin-line', sort: 80},
     },
-    defaultMenuShowList:['search','moreSettings'],
+    defaultMenuShowList:['search','moreSettings','pageExport'],
   },
 
   tableConfig:{
