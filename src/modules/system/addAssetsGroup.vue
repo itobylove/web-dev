@@ -29,7 +29,7 @@ const props = defineProps({
         default: {}
     },
     dialog: { type: Object },
-    getAttach: { type: Function,default: () => {} },
+    getAttach: { type: Function, default: () => { } },
 })
 const assets = ref(null);
 //过滤数据，获取设备信息
@@ -54,20 +54,33 @@ const obj = {
             menu: {
                 create: {
                     click: () => {
-                        let uids = tableFn.getCheckedRecords(assets.value.reportConfig).map(i => i.id), assetId = props.query.asset.id,type = props.query.asset.type;
+                        const records = assets.value.reportConfig.data;
+                        let uids = tableFn.getCheckedRecords(assets.value.reportConfig).map(i => i.id), assetId = props.query.asset.id, type = props.query.asset.type, label = props.query.asset.label;
                         if (uids.length === 0) {
                             dialog.info('请先选择要添加的资产');
                             return;
                         }
                         dialog.confirm(`确定要添加${uids.length}个资产到《${props.query.asset['name']}》吗？`, async () => {
-                            await api.post(apiUrl.sys.asset.addAssetsGroupLink, { assetId, uids,type }).then(res => {
-                                if (res.ret === true) {
-                                    props.getAttach(true);
-                                    dialog.success(`成功添加${uids.length}个资产到《${props.query.asset['name']}》`);
-                                }else if(res.ret < 0){
-                                    dialog.error('资产组赞时不支持添加人员');
-                                }else {
-                                    dialog.error(res.msg || '添加失败');
+                            await api.post(apiUrl.sys.asset.addAssetsGroupLink, { assetId, uids, type, label }).then(res => {
+                                if (typeof (res.ret) === 'boolean') {
+                                    if (res.ret === true) {
+                                        props.getAttach(true);
+                                        dialog.success(`成功添加${uids.length}个资产到《${props.query.asset['name']}》`);
+                                    } else {
+                                        dialog.error('添加失败');
+                                    }
+                                } else if (typeof (res.ret) === 'object') {
+                                    let msg = `已存在，请勿重复添加`,data = '';
+                                    res.ret.forEach(i =>{
+                                        data += records[i - 1].name + '</br>';
+                                    })
+                                    dialog.error(data + msg);
+                                } else if (typeof (res.ret) === 'number') {
+                                    if (res.ret < 0) {
+                                        dialog.error('资产组赞时不支持添加人员');
+                                    }
+                                } else {
+                                    dialog.error('网络错误，请稍后再试');
                                 }
                                 props.dialog.close();
                             })
@@ -92,7 +105,7 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.body{
+.body {
     padding: 20px;
     display: flex;
     flex-direction: column;

@@ -4,7 +4,7 @@ import * as api from '@/core/script/api';
 import VtableOptions from '@/core/script/tableOptions';
 import dialog from '@/core/script/dialog';
 import siyi from '@/core/script/siyi';
-import {isNumber} from '@/utils/vars';
+import {isNumber, listToTree} from '@/utils/vars';
 import tableSetingComponent from '@/core/component/tableSeting.vue';
 import tableFilterComponent from '@/core/component/tableFilter.vue';
 import tableExportComponent from '@/core/component/tableExport.vue';
@@ -57,6 +57,7 @@ export const defaultConfig = (options = {}) => {
         getData: null,                  //获取数据方法
         rowBeforCallback: null,         //行数据处理方法
         colAfterCallback: null,         //列数据处理方法
+        listAfterCallback: null,        //列表数据处理方法
         afterLoaded: null,              //数据加载完成并渲染完成后回调
         onLoaded: null,                 //页面加载完成后回调
         updateCallback: null,           //更新后回调
@@ -391,7 +392,7 @@ export const on = tableConfig => {
             const columns = tableConfig.options.columns.filter(item => !item.hide);
             const field = columns[args.col - colNumber].field;
             dialog.window(tableFilterComponent, {table: tableConfig, field}, {
-                event:args.event,
+                event: args.event,
                 width: '250px',
                 left: 'mouse',
                 top: 'mouse',
@@ -472,7 +473,7 @@ export const createTable = (tableConfig, rowBeforCallback = undefined, colAfterC
     let newColumns = [];//列配置
     // 列格式化方法
     const columnFormater = (column, index) => {
-        const _colAfterCallback = colAfterCallback || (col => col);
+        const _colAfterCallback = colAfterCallback || tableConfig.colAfterCallback || (col => col);
         return _colAfterCallback({
             index: index + 1,
             width: 'auto',
@@ -491,7 +492,7 @@ export const createTable = (tableConfig, rowBeforCallback = undefined, colAfterC
     }
     //行格式化方法
     const rowFormater = (row, index) => {
-        const _rowBeforCallback = rowBeforCallback || (_row => _row);
+        const _rowBeforCallback = rowBeforCallback || tableConfig.rowBeforCallback || (_row => _row);
         const check = tableConfig.showCheck ? {check: {checked: false, disable: false}} : {};
         return _rowBeforCallback({...check, index: index + 1, ...row});
     };
@@ -523,7 +524,7 @@ export const createTable = (tableConfig, rowBeforCallback = undefined, colAfterC
     }, -1));
     // 回写格式化后的数据
     tableConfig.data = [...newData];
-    tableConfig.options.records = [...newData];
+    tableConfig.options.records = typeof tableConfig.listAfterCallback === 'function' ? tableConfig.listAfterCallback(newData) : [...newData];
     tableConfig.options.columns = [...newColumns];
     if (tableConfig.options.rowSeriesNumber) {
         tableConfig.options.rowSeriesNumber.format = (col, row) => (tableConfig.page - 1) * tableConfig.pageNum + row;//行号

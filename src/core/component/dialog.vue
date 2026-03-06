@@ -12,7 +12,7 @@
         </div>
         <i :class="['fullscreen',dialogReactive.isFullscreen?'ri-fullscreen-exit-fill':'ri-fullscreen-line']"
            @click="dialog.fullscreenSwitch()"
-           v-if="dialog.showFullscreen&&dialog.changeSize"/>
+           v-if="dialog.showFullscreen&&(dialog.changeSize||dialog.changeSizeLeft||dialog.changeSizeTop||dialog.changeSizeRight||dialog.changeSizeBottom||dialog.changeSizeLeftTop||dialog.changeSizeRightTop||dialog.changeSizeRightBottom||dialog.changeSizeLeftBottom)"/>
         <i class="close ri-close-line" @click="dialog.close()" v-if="dialog.showClose"/>
       </div>
       <div class="main">
@@ -38,14 +38,14 @@
           <button class="other" @click="dialog.other()" v-if="dialog.otherval">{{ dialog.otherval }}</button>
         </div>
       </div>
-      <i class="size left" v-if="dialog.changeSize" @mousedown.stop="dialog.mousedown('left',$event)" @mouseup.stop="dialog.mouseup()"></i>
-      <i class="size top" v-if="dialog.changeSize" @mousedown.stop="dialog.mousedown('top',$event)" @mouseup.stop="dialog.mouseup()"></i>
-      <i class="size right" v-if="dialog.changeSize" @mousedown.stop="dialog.mousedown('right',$event)" @mouseup.stop="dialog.mouseup()"></i>
-      <i class="size bottom" v-if="dialog.changeSize" @mousedown.stop="dialog.mousedown('bottom',$event)" @mouseup.stop="dialog.mouseup()"></i>
-      <i class="size lefttop" v-if="dialog.changeSize" @mousedown.stop="dialog.mousedown('lefttop',$event)" @mouseup.stop="dialog.mouseup()"></i>
-      <i class="size righttop" v-if="dialog.changeSize" @mousedown.stop="dialog.mousedown('righttop',$event)" @mouseup.stop="dialog.mouseup()"></i>
-      <i class="size rightbottom" v-if="dialog.changeSize" @mousedown.stop="dialog.mousedown('rightbottom',$event)" @mouseup.stop="dialog.mouseup()"></i>
-      <i class="size leftbottom" v-if="dialog.changeSize" @mousedown.stop="dialog.mousedown('leftbottom',$event)" @mouseup.stop="dialog.mouseup()"></i>
+      <i class="size left" v-if="dialog.changeSize||dialog.changeSizeLeft" @mousedown.stop="dialog.mousedown('left',$event)" @mouseup.stop="dialog.mouseup()"></i>
+      <i class="size top" v-if="dialog.changeSize||dialog.changeSizeTop" @mousedown.stop="dialog.mousedown('top',$event)" @mouseup.stop="dialog.mouseup()"></i>
+      <i class="size right" v-if="dialog.changeSize||dialog.changeSizeRight" @mousedown.stop="dialog.mousedown('right',$event)" @mouseup.stop="dialog.mouseup()"></i>
+      <i class="size bottom" v-if="dialog.changeSize||dialog.changeSizeBottom" @mousedown.stop="dialog.mousedown('bottom',$event)" @mouseup.stop="dialog.mouseup()"></i>
+      <i class="size lefttop" v-if="dialog.changeSize||dialog.changeSizeLeftTop" @mousedown.stop="dialog.mousedown('lefttop',$event)" @mouseup.stop="dialog.mouseup()"></i>
+      <i class="size righttop" v-if="dialog.changeSize||dialog.changeSizeRightTop" @mousedown.stop="dialog.mousedown('righttop',$event)" @mouseup.stop="dialog.mouseup()"></i>
+      <i class="size rightbottom" v-if="dialog.changeSize||dialog.changeSizeRightBottom" @mousedown.stop="dialog.mousedown('rightbottom',$event)" @mouseup.stop="dialog.mouseup()"></i>
+      <i class="size leftbottom" v-if="dialog.changeSize||dialog.changeSizeLeftBottom" @mousedown.stop="dialog.mousedown('leftbottom',$event)" @mouseup.stop="dialog.mouseup()"></i>
     </div>
     <div ref="maskDom" class="dialogMask" v-if="dialog.showMask" @click="dialog.clickMask()" :style="dialogReactive.maskStyle"></div>
   </teleport>
@@ -97,6 +97,14 @@ const props = defineProps({
   maskBg: {type: String, default: null},       //遮罩背景色
   bodyMove: {type: Boolean, default: null},    //点击body区移动
   changeSize: {type: Boolean, default: null},        //是否允许改变大小 八全方位
+  changeSizeLeft: {type: Boolean, default: false},//是否允许改变大小 左
+  changeSizeTop: {type: Boolean, default: false},//是否允许改变大小 上
+  changeSizeRight: {type: Boolean, default: false},//是否允许改变大小 右
+  changeSizeBottom: {type: Boolean, default: false},//是否允许改变大小 下
+  changeSizeLeftTop: {type: Boolean, default: false},//是否允许改变大小 左上
+  changeSizeRightTop: {type: Boolean, default: false},//是否允许改变大小 右上
+  changeSizeRightBottom: {type: Boolean, default: false},//是否允许改变大小 右下
+  changeSizeLeftBottom: {type: Boolean, default: false},//是否允许改变大小 左下
   forceEnlarge: {type: Boolean, default: null},      //打开时强制全屏
   showHeader: {type: Boolean, default: null},      //禁用header
   showTitle: {type: Boolean, default: null},          //标题
@@ -149,10 +157,6 @@ const emits = defineEmits([
   'afterOpen', //打开后
   'beforeClose',//关闭前
   'afterClose',//关闭后
-  'beforeEnlarge',//放大前
-  'afterEnlarge',//放大后
-  'beforeRestore',//还原前
-  'afterRestore',//还原后
   'clickMask', //点击遮罩关闭窗口
   'ok',//确定
   'no',//取消
@@ -189,6 +193,14 @@ const defaultConfig = {
     maskBg: 'rgba(0,0,0,.2)',
     bodyMove: false,
     changeSize: true,
+    changeSizeLeft: true,
+    changeSizeTop: true,
+    changeSizeRight: true,
+    changeSizeBottom: true,
+    changeSizeLeftTop: true,
+    changeSizeRightTop: true,
+    changeSizeRightBottom: true,
+    changeSizeLeftBottom: true,
     forceEnlarge: siyi.mobile,
     showHeader: true,
     showTitle: true,
@@ -253,6 +265,14 @@ const defaultConfig = {
     maskBg: '',
     bodyMove: false,
     changeSize: false,
+    changeSizeLeft: false,
+    changeSizeTop: false,
+    changeSizeRight: false,
+    changeSizeBottom: false,
+    changeSizeLeftTop: false,
+    changeSizeRightTop: false,
+    changeSizeRightBottom: false,
+    changeSizeLeftBottom: false,
     forceEnlarge: true,
     showHeader: false,
     showTitle: false,
@@ -317,6 +337,14 @@ const defaultConfig = {
     maskBg: 'rgba(0,0,0,.2)',
     bodyMove: false,
     changeSize: false,
+    changeSizeLeft: false,
+    changeSizeTop: false,
+    changeSizeRight: false,
+    changeSizeBottom: false,
+    changeSizeLeftTop: false,
+    changeSizeRightTop: false,
+    changeSizeRightBottom: false,
+    changeSizeLeftBottom: false,
     forceEnlarge: false,
     showHeader: true,
     showTitle: true,
@@ -381,6 +409,14 @@ const defaultConfig = {
     maskBg: 'rgba(0,0,0,.2)',
     bodyMove: false,
     changeSize: false,
+    changeSizeLeft: false,
+    changeSizeTop: false,
+    changeSizeRight: false,
+    changeSizeBottom: false,
+    changeSizeLeftTop: false,
+    changeSizeRightTop: false,
+    changeSizeRightBottom: false,
+    changeSizeLeftBottom: false,
     forceEnlarge: false,
     showHeader: true,
     showTitle: true,
@@ -445,6 +481,14 @@ const defaultConfig = {
     maskBg: 'rgba(0,0,0,.2)',
     bodyMove: false,
     changeSize: false,
+    changeSizeLeft: false,
+    changeSizeTop: false,
+    changeSizeRight: false,
+    changeSizeBottom: false,
+    changeSizeLeftTop: false,
+    changeSizeRightTop: false,
+    changeSizeRightBottom: false,
+    changeSizeLeftBottom: false,
     forceEnlarge: false,
     showHeader: true,
     showTitle: true,
@@ -509,6 +553,14 @@ const defaultConfig = {
     maskBg: 'rgba(0,0,0,.2)',
     bodyMove: true,
     changeSize: false,
+    changeSizeLeft: false,
+    changeSizeTop: false,
+    changeSizeRight: false,
+    changeSizeBottom: false,
+    changeSizeLeftTop: false,
+    changeSizeRightTop: false,
+    changeSizeRightBottom: false,
+    changeSizeLeftBottom: false,
     forceEnlarge: false,
     showHeader: false,
     showTitle: false,
@@ -766,34 +818,52 @@ Object.assign(dialog, {
   historyDialogStyle: {}, //历史位置与尺寸
   //全屏
   enlarge: async enlarge => {//强制全屏
-    if (dialog.changeSize || enlarge) {
+    if (dialog.changeSize ||
+        dialog.changeSizeLeft ||
+        dialog.changeSizeTop ||
+        dialog.changeSizeRight ||
+        dialog.changeSizeBottom ||
+        dialog.changeSizeLeftTop ||
+        dialog.changeSizeRightTop ||
+        dialog.changeSizeRightBottom ||
+        dialog.changeSizeLeftBottom ||
+        enlarge) {
       const obj = {status: true};
-      emits('beforeEnlarge', obj);
       await dialog.beforeEnlargeCallback();//为了同步等待
       if (obj.status === false) return;
       dialogReactive.isFullscreen = true;
       dialog.historyDialogStyle = {...dialogReactive.dialogStyle}; //记录原始位置与尺寸
-      dialogReactive.dialogStyle.width = '100%';
-      dialogReactive.dialogStyle.height = '100%';
-      dialogReactive.dialogStyle.left = 0;
-      dialogReactive.dialogStyle.top = 0;
-      dialogReactive.dialogStyle.borderRadius = 0;
-      emits('afterEnlarge');
+      if (dialog.changeSize || dialog.changeSizeLeft || dialog.changeSizeRight || dialog.changeSizeLeftTop || dialog.changeSizeRightTop || dialog.changeSizeRightBottom || dialog.changeSizeLeftBottom) {
+        dialogReactive.dialogStyle.width = '100%';
+        dialogReactive.dialogStyle.left = 0;
+      }
+      if (dialog.changeSize || dialog.changeSizeTop || dialog.changeSizeBottom || dialog.changeSizeLeftTop || dialog.changeSizeRightTop || dialog.changeSizeRightBottom || dialog.changeSizeLeftBottom) {
+        dialogReactive.dialogStyle.height = '100%';
+        dialogReactive.dialogStyle.top = 0;
+      }
+      if (dialog.changeSize || dialog.changeSizeLeftTop || dialog.changeSizeRightTop || dialog.changeSizeRightBottom || dialog.changeSizeLeftBottom) {
+        dialogReactive.dialogStyle.borderRadius = 0;
+      }
       await dialog.afterEnlargeCallback(obj);//为了同步等待
     }
   },
   //还原
   restore: async () => {
-    if (dialog.changeSize) {
+    if (dialog.changeSizeLeft ||
+        dialog.changeSizeTop ||
+        dialog.changeSizeRight ||
+        dialog.changeSizeBottom ||
+        dialog.changeSizeLeftTop ||
+        dialog.changeSizeRightTop ||
+        dialog.changeSizeRightBottom ||
+        dialog.changeSizeLeftBottom) {
       const obj = {status: true};
-      emits('beforeRestore', obj);
       await dialog.beforeRestoreCallback();
       if (obj.status === false) return;
       dialogReactive.isFullscreen = false;
       Object.assign(dialogReactive.dialogStyle, dialog.historyDialogStyle); //还原
       dialogReactive.dialogStyle.borderRadius = 'revert-layer';
       dialog.zIndex();
-      emits('afterRestore');
       await dialog.afterRestoreCallback(obj);//为了同步等待
     }
   },

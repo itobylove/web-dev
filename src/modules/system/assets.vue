@@ -1,22 +1,19 @@
 <template>
-    <div ref="body" class="body">
-        <resize-box mode='vertical' :size="500" :storage-key="siyi.nav?.id">
-            <TableComponent class="mainTable" ref="mainTable" v-if="refObj.mainTableShow"
-                v-bind="obj.mainTableConfig" />
-        </resize-box>
-        <t-tabs class="t-tabs" v-model="refObj.tab" v-bind="obj.tabsConfig">
-            <t-tab-panel value="userTable" v-bind="obj.panelConfig" label="用户">
-                <TableComponent ref="userTable" v-if="refObj.userTableShow" v-bind="obj.userTableConfig" />
-            </t-tab-panel>
-            <t-tab-panel value="assetsTable" v-bind="obj.panelConfig" label="资产">
-                <TableComponent ref="assetsTable" v-if="refObj.assetsTableShow" v-bind="obj.assetsTableConfig" />
-            </t-tab-panel>
-            <t-tab-panel value="propertyTable" v-bind="obj.panelConfig" label="属性">后续开发中</t-tab-panel>
-        </t-tabs>
-    </div>
+  <div ref="body" class="body">
+    <TableComponent class="mainTable" ref="mainTable" v-if="refObj.mainTableShow" v-bind="obj.mainTableConfig"/>
+    <t-tabs class="t-tabs" v-model="refObj.tab" v-bind="obj.tabsConfig">
+      <t-tab-panel class="t-tabs-panel" value="userTable" v-bind="obj.panelConfig" label="用户">
+        <TableComponent ref="userTable" v-if="refObj.userTableShow" v-bind="obj.userTableConfig"/>
+      </t-tab-panel>
+      <t-tab-panel class="t-tabs-panel" value="assetsTable" v-bind="obj.panelConfig" label="资产">
+        <TableComponent ref="assetsTable" v-if="refObj.assetsTableShow" v-bind="obj.assetsTableConfig"/>
+      </t-tab-panel>
+      <t-tab-panel class="t-tabs-panel" value="propertyTable" v-bind="obj.panelConfig" label="属性">后续开发中</t-tab-panel>
+    </t-tabs>
+  </div>
 </template>
 <script setup>
-import { onMounted, reactive, ref } from 'vue';
+import {onMounted, reactive, ref} from 'vue';
 import TableComponent from '@/core/component/table_v2.vue';
 import apiUrl from '@/core/config/url2';
 import * as api from '@/core/script/api';
@@ -26,20 +23,20 @@ import dialog from "@/core/script/dialog.js";
 import addAsset from "@/modules/system/addAsset.vue";
 import addAssetsUser from '@/modules/system/addAssetsUser.vue';
 import addAssetsGroup from '@/modules/system/addAssetsGroup.vue';
-import ResizeBox from "@/core/component/ResizeBox.vue";
 
 const mainTable = ref();
 const userTable = ref();
 const assetsTable = ref();
 
 const refObj = reactive({
-    mainTableShow: false,
-    userTableShow: false,
-    assetsTableShow: false,
-    tab: 'userTable',
+  mainTableShow: false,
+  userTableShow: false,
+  assetsTableShow: false,
+  tab: 'userTable',
 });
 
 const obj = {
+    options:[],
     tabsConfig: {
         theme: 'card',
         defaultValue: 'userTable',
@@ -57,6 +54,10 @@ const obj = {
                         dialog.window(
                             addAsset,
                             {
+                                query:{
+                                    options: obj.options,
+                                },
+                                scene: 'auth',
                                 getAttach: (e) => {
                                     if (e) {
                                         mainTable.value.reportConfig.getData();
@@ -102,6 +103,7 @@ const obj = {
                             {
                                 query: {
                                     asset: asset[0],
+                                    options: obj.options,
                                     edit: true,
                                 },
                                 scene: 'auth',
@@ -221,6 +223,7 @@ const obj = {
                                 getAttach: (e) => {
                                     if (e) {
                                         userTable.value.reportConfig.getData({ exec: null, id: asset[0].id, type: asset[0].type });
+                                        assetsTable.value.reportConfig.getData({ exec: null, id: asset[0].id, type: asset[0].type });
                                     }
                                 }
                             },
@@ -260,6 +263,7 @@ onMounted(() => {
     api.get(apiUrl.sys.asset.mainConfig).then(res => {
         obj.mainTableConfig.tableConfig = { ...obj.mainTableConfig.tableConfig, ...res.table };
         obj.mainTableConfig.tableConfig.columns = tableFn.createColumns(res.columns);
+        obj.options = res.option;
         refObj.mainTableShow = true;
     });
     api.get(apiUrl.sys.asset.userConfig).then(res => {
@@ -276,20 +280,25 @@ onMounted(() => {
 </script>
 <style scoped>
 .body {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 3px;
 
-    >.mainTable {
-        height: 40%;
-        flex-shrink: 0;
-    }
+  > .mainTable {
+    height: 40%;
+    flex-shrink: 0;
+  }
 
-    .t-tabs {
-        flex: 1;
-        flex-shrink: 0;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-        margin: 0 2px 2px 2px;
-    }
+  .t-tabs {
+    flex: 1;
+    flex-shrink: 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+
+  .t-tabs-panel {
+    padding: 3px;
+  }
 }
 </style>

@@ -1,8 +1,6 @@
 <template>
   <div ref="box" class="steps">
-    <resize-box mode='vertical' :size="500" :storage-key="siyi.nav?.id">
-      <TableComponent class="table" ref="steps" v-if="refObj.stepsShow" v-bind="obj.stepsConfig"/>
-    </resize-box>
+    <TableComponent class="table" ref="steps" v-if="refObj.stepsShow" v-bind="obj.stepsConfig"/>
     <t-tabs class="t-tabs" v-model="refObj.tab" v-bind="obj.tabsConfig">
       <t-tab-panel value="process" v-bind="obj.panelConfig" label="工艺">
         <TableComponent ref="process" v-if="refObj.processShow" v-bind="obj.processConfig"/>
@@ -94,6 +92,7 @@ const obj = {
     destroyOnHide: false,
   },
   stepsConfig: {
+    changeSizeBottom: true,
     menuConfig: {
       defaultMenuShowList: ['search', 'pageExport', 'clearWhere', 'moreSettings'],
       menu: {

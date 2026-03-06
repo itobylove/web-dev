@@ -669,6 +669,18 @@ export const data = {
             default:
                 return true;
         }
+    },
+    getAllChildren: data => {
+        const result = [];
+        function traverse(array) {
+            if (!Array.isArray(array)) return;
+            for (let item of array) {
+                result.push(item);
+                if (item.children && Array.isArray(item.children)) traverse(item.children);// 如果有 children，继续递归
+            }
+        }
+        traverse(data);
+        return result;
     }
 }
 
@@ -829,6 +841,7 @@ export const files = {
         opts.callback = opts.callback || function (opts) {
             opts.columns = opts.columns.filter(col => !col.disabledExport && !col.hide && col.cellType !== 'checkbox')
             const rows = [opts.columns.map(col => col.title)]// 添加表头
+            opts.data = data.getAllChildren(opts.data);
             //添加行数据
             opts.data.forEach(item => {
                 const row = []

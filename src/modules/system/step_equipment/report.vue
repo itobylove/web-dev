@@ -1,6 +1,6 @@
 <template>
   <div ref="box" v-if="vData.tableInit" :class="['mainPage','page-'+table.tableConfig.tableId]">
-    <TableComponent  ref="tableRef" v-bind="table" style="flex: 7;"/>
+    <TableComponent  ref="tableRef" v-bind="table" />
   </div>
 
 </template>
@@ -41,9 +41,9 @@ const tableEvent = {
 
 // 页面初始化
 const initTable = async () => {
-  const loading = dialog.loading(undefined, '页面加载中...');
+  // const loading = dialog.loading(undefined, '页面加载中...');
   const apiData = vData.apiData = await api.get(api.url2.sys.step.reportConfig);
-  loading && loading.close();
+  // loading && loading.close();
   vData.selectOptions = getOptionsLabel(apiData?.option);
   await tableEvent.plantChange(siyi.user.plantId);
   table.value = {

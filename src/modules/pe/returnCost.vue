@@ -134,7 +134,7 @@ const table = {
                     }
                 }
             },
-            { field: 'material_price', title: '材料价格', align: 'left' },
+            { field: 'material_price', title: '材料价格', align: 'left', editor: 'input-editor' },
             { field: 'utilization_save_money', title: '利用率节省金额', align: 'left' },
             { field: 'pnl_area_before', title: '修改前pnl面积', align: 'left', editor: 'input-editor' },
             { field: 'pnl_area_after', title: '修改后pnl面积', align: 'left', editor: 'input-editor' },
@@ -174,11 +174,11 @@ const table = {
                             const res = await fn.editData(updateData)
                             if (res.ret) {
                                 dialog.success('编辑成功');
-                                tableRef.value.reportConfig.getData({},false);
+                                tableRef.value.reportConfig.getData({}, false);
                             } else if (res.ret === -1) {
                                 dialog.warning('该型号不存在，请重新输入');
                                 tableRef.value.reportConfig.table.changeCellValue(e.col, e.row, e.currentValue);
-                            }else{
+                            } else {
                                 dialog.warning('编辑失败，请稍后再试');
                             }
                             loading.close();
@@ -213,7 +213,7 @@ const table = {
                             (record.drill_time_before != undefined && record.drill_time_before !== null && record.drill_time_before !== '') &&
                             (record.drill_time_after != undefined && record.drill_time_after !== null && record.drill_time_after !== '')) {
                             //计算钻孔效率提升率（修改后叠板数/修改前叠板数*修改前钻孔时间/修改后钻孔时间）-1
-                            const rate = (parseInt(record.stacked_boards_num_after) / parseInt(record.stacked_boards_num_before)) * (parseInt(record.drill_time_before) / parseInt(record.drill_time_after)) -1;
+                            const rate = (parseInt(record.stacked_boards_num_after) / parseInt(record.stacked_boards_num_before)) * (parseInt(record.drill_time_before) / parseInt(record.drill_time_after)) - 1;
                             const drillRate = (rate * 100).toFixed(2);
                             tableRef.value.reportConfig.table.changeCellValue(9, e.row, drillRate + '%');
                             const drillSaveMoney = (17 * rate * Number(record.area)).toFixed(4);
@@ -230,6 +230,22 @@ const table = {
                             fn.editData(updateData)
                         }
 
+                    }
+                    //修改材料价格
+                    if (fieldName === 'material_price') {
+                        if (e.rawValue <= 0) {
+                            //节省金额（修改后利用率-修改前利用率）* 材料价格
+                            const materialPrice = tableRef.value.reportConfig.table.getRecordByCell(13, e.row)?.material_price; //材料价格;
+                            const area = tableRef.value.reportConfig.table.getRecordByCell(3, e.row)?.area; //面积;
+                            const utilizationSaveMoney = (((Number(record.utilization_rate_after) / 100 - Number(record.utilization_rate_before) / 100)) * materialPrice * area).toFixed(4);
+                            tableRef.value.reportConfig.table.changeCellValue(15, e.row, utilizationSaveMoney);
+                            updateData = {
+                                id: record.id,
+                                material_price: record.material_price,
+                                utilization_save_money: utilizationSaveMoney,
+                            };
+                            fn.editData(updateData)
+                        }
                     }
                     //利用率模块
                     const useRateArr = Array.of('utilization_rate_before', 'utilization_rate_after');//钻孔模块需要手动输入参数的单元格
@@ -260,7 +276,6 @@ const table = {
                             };
                             fn.editData(updateData)
                         }
-
                     }
                     //加大拼版效率提升模块
                     const pnlArr = Array.of('pnl_area_before', 'pnl_area_after', 'pnl_efficiency_money');//钻孔模块需要手动输入参数的单元格

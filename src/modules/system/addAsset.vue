@@ -123,7 +123,7 @@ const props = defineProps({
         default: {}
     },
     dialog: { type: Object },
-    getAttach: { type: Function,default: () => {} },
+    getAttach: { type: Function, default: () => { } },
 })
 const options = reactive({
     plantOptions: [],
@@ -135,54 +135,12 @@ const options = reactive({
 const form = ref(null);
 const groupForm = ref(null);
 const rules = ref({
-    code: [
-        {
-            required: true,
-            message: '资产编号必填',
-            type: 'error',
-            trigger: 'blur',
-        },
-        { required: true, message: '资产编号必填', type: 'error' },
-        { whitespace: true, message: '资产编号不能包含空格不能为空' },
-        {
-            min: 2,
-            message: '至少需要两个字符，一个中文等于两个字符',
-            type: 'warning',
-            trigger: 'blur',
-        },
-        {
-            max: 10,
-            message: '资产编号字符长度超出',
-            type: 'warning',
-            trigger: 'blur',
-        },
-    ],
-    name: [
-        {
-            required: true,
-            message: '资产名称必填',
-            type: 'error',
-            trigger: 'blur',
-        },
-        { required: true, message: '资产名称必填', type: 'error' },
-        { whitespace: true, message: '资产名称不能包含空格不能为空' },
-        {
-            min: 2,
-            message: '至少需要两个字符，一个中文等于两个字符',
-            type: 'warning',
-            trigger: 'blur',
-        },
-        {
-            max: 120,
-            message: '资产名称字符长度超出',
-            type: 'warning',
-            trigger: 'blur',
-        },
-    ],
+    code: [{ required: true, message: '资产编号必填', type: 'error' }],
+    name: [{ required: true, message: '资产名称必填', type: 'error' }],
     plant_id: [{ required: true, message: '工厂名称必填', type: 'error' }],
     workshop_id: [{ required: true, message: '车间名称必填', type: 'error' }],
     category_id: [{ required: true, message: '设备类型必填', type: 'error' }],
-    label: [{ required: true, message: '资产编号必填', type: 'error', trigger: 'blur' }]
+    label: [{ required: true, message: 'label标签必填', type: 'error' }]
 });
 const groupType = ref('1');
 const formEvents = {
@@ -260,22 +218,21 @@ const formEvents = {
         groupForm.value.clearValidate();
     },
     handleChange: (e) => {
-        formData.value.groupId = '';
+        formData.value.workshop_id = '';
+        assetGroupFormData.value.workshop_id = '';
         formEvents.getWorkshopsLists(e);
     },
     getWorkshopsLists: async (plantId) => {
-        await api.get(apiUrl.common.workshopsLists, { where: { plant_id: plantId } }).then(res => {
-            if (res.list.length > 0) {
-                options.workshopOptions = res.list.map(i => ({ label: i.name, value: i.id }));
-            }
-        });
+        let workshopData = [];
+        props.query.options.workshopOptionsLists.forEach((i) => {
+            i.plant_id === plantId ? workshopData.push({ label: i.name, value: i.id }) : null;
+        })
+        options.workshopOptions = workshopData;
     },
 }
 const formData = ref({ ...formEvents.INITIAL_DATA });
 const assetGroupFormData = ref({ ...formEvents.GROUP_INITIAL_DATA });
 onMounted(async () => {
-    let status = [0, 0, 0];
-    let loading = dialog.loading();;
     if (props.query.edit) {
         formData.value = props.query.asset
         formData.value.edit = true;
@@ -284,40 +241,16 @@ onMounted(async () => {
             assetGroupFormData.value.edit = true;
         }
     }
-    // 获取工厂列表
-    await api.get(apiUrl.common.plantList).then(res => {
-        if (res.list.length > 0) {
-            options.plantOptions = res.list.map(i => ({ label: i.title, value: i.id }));
-            status[0] = 1;
-            if (status[0] && status[1] && status[2]) {
-                loading.close();
-            }
-        }
-    });
-    //获取资产分类
-    await api.get(apiUrl.common.assetCategoryList).then(res => {
-        if (res.list.length > 0) {
-            options.assetCategoryOptions = res.list.map(i => ({ label: i.name, value: i.id }));
-            status[1] = 1;
-            if (status[0] && status[1] && status[2]) {
-                loading.close();
-            }
-        }
-    });
-    //获取车间列表
+    let plantData = props.query.options.plantOptionsLists, categoryData = props.query.options.categoryOptionsLists, labelData = props.query.options.groupLabelOptionsLists;
+    options.plantOptions = plantData.map(i => ({ label: i.title, value: i.id }));// 获取工厂列表
+    options.assetCategoryOptions = categoryData.map(i => ({ label: i.name, value: i.id }));// 获取资产分类列表
     await formEvents.getWorkshopsLists(siyi.user.plantId);
-    //获取资产组类型
-    await api.get(apiUrl.common.getGroupLabelLists).then(res => {
-        const arr = [];
-        for (let key in res.list) {
-            arr.push({ label: res.list[key], value: key });
-        }
-        options.assetLabelOptions = arr;
-        status[2] = 1;
-        if (status[0] && status[1] && status[2]) {
-            loading.close();
-        }
-    })
+    // 获取资产组类型列表
+    const arr = [];
+    for (let key in labelData) {
+        arr.push({ label: labelData[key], value: key });
+    }
+    options.assetLabelOptions = arr;
 });
 </script>
 
