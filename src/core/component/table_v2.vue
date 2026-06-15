@@ -1,7 +1,7 @@
 <template>
   <div ref="box" class="box" :style="refObj.boxStyle">
     <div class="header" v-if="obj.menuConfig!==false||obj.searchConfig!==false">
-      <MenuComponent v-if="obj.menuConfig!==false" ref="menu" v-bind="obj.menuConfig"/>
+      <MenuComponent v-if="obj.menuConfig!==false" ref="menu" v-bind="obj.menuConfig" :search="search"/>
       <SearchComponent v-if="obj.searchConfig!==false" ref="search" v-bind="obj.searchConfig"/>
     </div>
     <div class="body">
@@ -19,9 +19,9 @@
     <i class="size rightbottom" v-if="props.changeSizeRightBottom" @mousedown.stop="obj.mousedown('rightbottom',$event)" @mouseup.stop="obj.mouseup()"></i>
     <i class="size leftbottom" v-if="props.changeSizeLeftBottom" @mousedown.stop="obj.mousedown('leftbottom',$event)" @mouseup.stop="obj.mouseup()"></i>
     <DialogComponent v-if="refObj.detailShow" v-bind="obj.detail.dialogConfig">
-      <div class="detail" :style="obj.detail.style">
+      <div :class="['detail',...obj.detail.class]" :style="`grid-template-columns:repeat(${obj.detail.colNum},1fr)`">
         <dl v-for="item in obj.detail.data">
-          <dt :style="obj.detail.width">{{ item.title }}</dt>
+          <dt :style="`width:${obj.detail.colWidth}`">{{ item.title }}</dt>
           <dd>{{ item.value }}</dd>
         </dl>
       </div>
@@ -48,6 +48,7 @@ const props = defineProps({
   searchConfig: {type: [Object, Boolean], default: undefined},//搜索配置
   tableConfig: {type: Object, default: {}},//报表配置
   vTableConfig: {type: Object, default: undefined},//字节表格配置
+  detailConfig: {type: Object, default: undefined},//详情弹窗配置
   hideDetailField: {type: Array, default: []},//隐藏详细为空的字段 :hideEmpty 隐藏空 hideZero 隐藏0
   detailBlacklistField: {type: Array, default: undefined},//详细黑名单字段
   detailWhitelistField: {type: Array, default: undefined},//详细白名单字段
@@ -65,16 +66,16 @@ const props = defineProps({
 });
 
 
-const menu = ref();
-const search = ref();
+const menu = ref();//菜单组件
+const search = ref();//搜索组件
 const box = ref();//容器
 const table = ref();//表格
-const footer = ref(props.footer);
+const footer = ref(props.footer);//表尾
 
 
 const refObj = reactive({
-  boxStyle: {},
-  detailShow: false,
+  boxStyle: {},//容器样式
+  detailShow: false,//详情弹窗显示状态
 });
 
 
@@ -83,6 +84,7 @@ const obj = {
   searchConfig: props.searchConfig === undefined ? siyi.nav?.query?.search ? {search: siyi.nav.query.search} : {} : props.searchConfig,
   reportConfig: _.merge({}, tableFn.defaultConfig(props.vTableConfig), {
     url: apiUrl.publicReport,//通用报表接口
+    method: 'GET',//api类型
     disablePage: true,//禁用分页
     getQuery: query => {
       return {
@@ -95,7 +97,7 @@ const obj = {
     events: {
       dblclick_cell: ({originData, field}) => {//双击单元格
         if (originData?.index === undefined) return;//索引为undefined的行不处理
-        obj.detail.show(originData, field);
+        obj.detail.show(originData, field,'dblclick');
       }
     },
     getData: async (query = {}, loading = true) => {
@@ -105,7 +107,7 @@ const obj = {
       //第二步合并用户的表格基本配置：如分页，冻结列
       const userConfig = obj.reportConfig.useUserTableConfig ? await tableFn.mergeConfig(obj.reportConfig) : {columns: []};
       //第三步获取数据
-      const get = typeof obj.reportConfig.get === 'function' ? obj.reportConfig.get : api.get;
+      const get = typeof obj.reportConfig.get === 'function' ? obj.reportConfig.get : (obj.reportConfig.method==='POST'?api.post:api.get);
       obj.reportConfig.data = await get(obj.reportConfig.url, obj.reportConfig.getQuery(query));
       //第四步创建表格
       tableFn.createTable(obj.reportConfig);
@@ -125,22 +127,34 @@ const obj = {
   }, siyi.nav.query?.tableConfig || {}, props.tableConfig),
   detail: {
     data: [],
-    width: `width:${siyi.pc ? '160px' : '120px'}`,
-    style: `grid-template-columns:${siyi.pc ? 'repeat(3,1fr)' : 'repeat(1,1fr)'}`,
+    class: [],
+    colNum: siyi.pc ? 3 : 1, // 列数
+    colWidth: siyi.pc ? '160px' : '120px', //列宽
     dialogConfig: {
       title: '详细数据', top: 'center', type: 'window', width: '80%', height: '90%',
       forceEnlarge: siyi.mobile,
       afterCloseCallback: () => refObj.detailShow = false
     },
     type: siyi.nav.query?.tableConfig?.hideDetailField || props.hideDetailField,
-    show: (originData, field = null) => {
+    show: (originData, field = null,trigger='dblclick') => {
       if (Array.isArray(props.detailWhitelistField) && !props.detailWhitelistField.includes(field)) return;
       if (Array.isArray(props.detailBlacklistField) && props.detailBlacklistField.includes(field)) return;
+
+      if (field) {
+        const editorFields = obj.reportConfig.table.options.columns.filter(v => v?.editor && v?.field).map(v => v.field); // 获取可编辑的字段
+        const editCellTrigger = obj.reportConfig.table.options.editCellTrigger; // 单元格触发编辑方式 双击：doubleclick
+        if (editCellTrigger === 'doubleclick' && trigger==='dblclick' && editorFields.includes(field)) {
+          // 双击单元格时： 当前列是编辑列且列编辑的触发方式是双击则不弹出
+          return;
+        }
+      }
+
       obj.detail.data = tableFn.detail(obj.reportConfig, originData);
       if (obj.detail.type.includes('hideEmpty')) obj.detail.data = obj.detail.data.filter(item => item.value.trim() !== '');
       if (obj.detail.type.includes('hideZero')) obj.detail.data = obj.detail.data.filter(item => item.value * 1 !== 0);
       refObj.detailShow = true;
-    }
+    },
+    ...props.detailConfig
   },
   resize: {
     changeSize: '',//方向
@@ -151,7 +165,6 @@ const obj = {
   init: () => {
     if (obj.menuConfig) {
       obj.menuConfig.table = obj.reportConfig;
-      obj.menuConfig.search = search;
     }
     if (obj.searchConfig) {
       obj.searchConfig.table = obj.reportConfig;
@@ -189,7 +202,7 @@ onMounted(() => {
   obj.reportConfig.dom = table.value;
   obj.reportConfig.box = box.value;
   obj.reportConfig.table = new ListTable(table.value, obj.reportConfig.options);
-  obj.searchConfig === false && obj.reportConfig.getData(); //如果使用了搜索组件，内部会自动触发加载数，这里先取消
+  obj.searchConfig === false && obj.reportConfig.autoLoad && obj.reportConfig.getData(); //如果使用了搜索组件，内部会自动触发加载数，这里先取消
   typeof obj.reportConfig.onLoaded === 'function' && obj.reportConfig.onLoaded(obj.reportConfig);//加载表格配置后回调
   document.addEventListener('mouseup', obj.mouseup); //鼠标抬起时
 });
@@ -354,7 +367,8 @@ defineExpose({reportConfig: obj.reportConfig, search, menu, detail: obj.detail})
       border-right: 1px solid #c9d0da;
       display: flex;
       align-items: center;
-      padding: 10px 5px;
+      padding: 10px;
+      white-space: pre-line;
     }
 
     > dt {

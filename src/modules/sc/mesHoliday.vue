@@ -28,10 +28,10 @@ const mainReport = ref();
 const mainReportShow = ref(false);
 const mainReportConfig = {
   menuConfig: {
-    defaultMenuHideList: ['clearCache','submitApprove', 'resetApprove', 'approve', 'advancedExport'],
+    defaultMenuHideList: ['create','update','delete','clearCache','submitApprove', 'resetApprove', 'approve', 'advancedExport'],
     menu: {
-      holidayAdd: {sort: 650, title: '新增节假日' , icon: 'ri-list-settings-fill', click: () => fn.holidayAdd()},
-      holidayDel: {sort: 651, title: '删除节假日', icon: 'ri-send-plane-fill', click: () => fn.holidayDel()},
+      create: {title: '新增节假日', click: () => fn.holidayAdd()},
+      delete: {title: '删除节假日', click: () => fn.holidayDel()},
     },
   },
   searchConfig: {

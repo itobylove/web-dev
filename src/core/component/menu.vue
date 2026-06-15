@@ -148,12 +148,12 @@ const defaults = {
 //列表选择事件回调
 const listActionFn = callback => {
   const checkedRows = props.table.showCheck ? tableFn.getCheckedRecords(props.table) : tableFn.getSelectedRecords(props.table) // 获取已选中数据
-  if (checkedRows?.length < 1) return dialog.warning('请勾选数据')
+  if (!checkedRows?.length) return dialog.warning('请勾选数据')
   callback(checkedRows, props.table)
 }
 
 // 判断菜单是否显示
-const menuFilter = (key) => {
+const menuFilter = key => {
   if (props.menu[key]?.['hide']) return false; // 禁用菜单
   if (props.menu[key]) return true// 如果传过来菜单，不进黑白名单限制
   if (Array.isArray(props.defaultMenuShowList) && !props.defaultMenuShowList.includes(key)) return false// 启用了白名单，且不包含该 key，则隐藏
@@ -171,7 +171,7 @@ const load = () => {
     data[key] = _.merge(
         {title: '', icon: '', sort: 9999, click: () => console.log('没有定义逻辑')},// 原始配置
         data?.[key] || {},  // 默认菜单
-        props.menu[key],    // 自定义菜单
+        typeof props.menu[key] === 'function' ? {click: props.menu[key]} : props.menu[key],    // 自定义菜单
     )
   }
   //  2. 事件处理和过滤

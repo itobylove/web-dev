@@ -713,7 +713,7 @@ export const date = {
         let month = {}
         let format = 'YYYY-MM-DD HH:mm:ss'
 
-        for (let i = 4; i >= 1; i--) {
+        for (let i = 3; i > 1; i--) {
             const monthName = dayjs().subtract(i, 'month').format('M月');
             startMonth[monthName] = date.datetimeFormat(dayjs().subtract(i, 'month').startOf('month').toDate(), format)
             endMonth[monthName] = date.datetimeFormat(dayjs().subtract(i, 'month').endOf('month').toDate(), format)
@@ -722,6 +722,7 @@ export const date = {
         startMonth = {
             '去年': date.datetimeFormat(dayjs().subtract(1, 'year').startOf('year').toDate(), format),
             ...startMonth,
+            '上个月': date.datetimeFormat(dayjs().subtract(1, 'month').startOf('month').toDate(), format),
             '本月': date.datetimeFormat(dayjs().startOf('month').toDate(), format),
             '7天内': date.datetimeFormat(dayjs().subtract(7, 'day').startOf('day').toDate(), format),
             '3天内': date.datetimeFormat(dayjs().subtract(3, 'day').startOf('day').toDate(), format),
@@ -732,6 +733,7 @@ export const date = {
         endMonth = {
             '去年': date.datetimeFormat(dayjs().subtract(1, 'year').endOf('year').toDate(), format),
             ...endMonth,
+            '上个月': date.datetimeFormat(dayjs().subtract(1, 'month').endOf('month').toDate(), format),
             '本月': dayjs().format('YYYY-MM-DD 23:59:59'),
             '7天内': date.datetimeFormat(dayjs().endOf('day').toDate(), format),
             '3天内': date.datetimeFormat(dayjs().endOf('day').toDate(), format),
@@ -742,8 +744,9 @@ export const date = {
         month = {
             '去年': [startMonth['去年'], endMonth['去年']],
             ...month,
+            '上个月': [startMonth['上个月'], endMonth['上个月']],
             '本月': [startMonth['本月'], endMonth['本月']],
-            '3月内': [date.datetimeFormat(dayjs().subtract(3, 'month').startOf('month').toDate(), format), startMonth['本月']],
+            '3个月内': [date.datetimeFormat(dayjs().subtract(3, 'month').startOf('month').toDate(), format), startMonth['本月']],
             '7天内': [startMonth['7天内'], endMonth['7天内']],
             '3天内': [startMonth['3天内'], endMonth['3天内']],
             '昨天': [startMonth['昨天'], endMonth['昨天']],
@@ -861,10 +864,10 @@ export const files = {
             FileSaver(blob, `${opts.fileName}.xlsx`)
         })
     },
-    downloadFile(url) {
+    downloadFile(url,title) {
         const link = document.createElement('a')
         link.href = url
-        link.setAttribute('download', '') // 设置下载属性
+        link.setAttribute('download', title || '') // 设置下载属性
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)

@@ -30,15 +30,15 @@
             <tr>
               <td>操作员</td>
               <td>设备</td>
-              <td>工段</td>
+              <td>设备组</td>
               <td>工艺</td>
               <td>工序</td>
               <td>状态</td>
             </tr>
             <tr>
               <td>{{ refobj.employee_name }}</td>
-              <td>{{ refobj.equipment_name }}</td>
-              <td>{{ refobj.station_name }}</td>
+              <td>{{ refobj.assets_name }}</td>
+              <td>{{ refobj.assets_group_name }}</td>
               <td>{{ refobj.process_name }}</td>
               <td>{{ refobj.step_name }}</td>
               <td>{{ refobj.status ? '等待下机' : '等待上机' }}</td>
@@ -52,11 +52,19 @@
               <td>当前生产</td>
             </tr>
             <tr class="wo">
-              <td @click="obj.wolistShow">{{ refobj.wonumber }} <span v-if="refobj.multiple&&refobj.status&&refobj.wolist.length>1">{{ refobj.wolist.length }}</span></td>
+              <td @click="obj.wolistShow">{{ refobj.wonumber }} <span
+                  v-if="refobj.multiple&&refobj.status&&refobj.wolist.length>1">{{ refobj.wolist.length }}</span></td>
               <td>{{ refobj.partnum }} {{ refobj.partrev }}<br>{{ refobj.mfgpartcode }}</td>
-              <td>{{ refobj.qty_pnl_backlog }} PNL<br>{{ refobj.qty_set_backlog }} SET<br>{{ refobj.qty_pcs_backlog }} PCS</td>
-              <td>{{ refobj.qty_pnl_complete }} PNL<br>{{ refobj.qty_set_complete }} SET<br>{{ refobj.qty_pcs_complete }} PCS</td>
-              <td>{{ refobj.qty_pnl_complete_rework }} PNL<br>{{ refobj.qty_set_complete_rework }} SET<br>{{ refobj.qty_pcs_complete_rework }} PCS</td>
+              <td>{{ refobj.qty_pnl_backlog }} PNL<br>{{ refobj.qty_set_backlog }} SET<br>{{ refobj.qty_pcs_backlog }}
+                PCS
+              </td>
+              <td>{{ refobj.qty_pnl_complete }} PNL<br>{{ refobj.qty_set_complete }} SET<br>{{
+                  refobj.qty_pcs_complete
+                }} PCS
+              </td>
+              <td>{{ refobj.qty_pnl_complete_rework }} PNL<br>{{ refobj.qty_set_complete_rework }}
+                SET<br>{{ refobj.qty_pcs_complete_rework }} PCS
+              </td>
               <td>{{ refobj.qty_pnl }} PNL<br>{{ refobj.qty_set }} SET<br>{{ refobj.qty_pcs }} PCS</td>
             </tr>
             <tr>
@@ -82,20 +90,27 @@
             <tbody>
             <tr v-if="refobj.parameters.length===0">
               <td colspan="6" class="empty">
-                <t-empty type="empty" size="large" description="请扫描工单" title="暂无数据"></t-empty>
+                <t-empty size="large" description="请扫描工单"/>
               </td>
             </tr>
             <tr v-for="(item,sort) in refobj.parameters">
               <td class="sort">{{ sort + 1 }}</td>
               <td class="name">{{ item.name }}</td>
               <td class="value">
-                <t-input-number class="number" v-if="item.input_type==='number'" v-model="item.value" v-bind="item.options" :disabled="!refobj.status"/>
-                <t-input class="string" v-else-if="item.input_type==='string'" v-model="item.value" v-bind="item.options" :disabled="!refobj.status"/>
-                <t-radio-group class="radio" v-else-if="item.input_type==='radio'" v-model="item.value" v-bind="item.options" :disabled="!refobj.status"/>
-                <t-select class="select" v-else-if="item.input_type==='select'" v-model="item.value" v-bind="item.options" :disabled="!refobj.status"/>
-                <t-switch class="switch" v-else-if="item.input_type==='switch'" v-model="item.value" v-bind="item.options" :disabled="!refobj.status"/>
-                <t-time-picker class="time" v-else-if="item.input_type==='time'" v-model="item.value" v-bind="item.options" :disabled="!refobj.status"/>
-                <t-date-picker class="date" v-else-if="item.input_type==='date'" v-model="item.value"  :presets="{'此刻': () => new Date()}"  v-bind="item.options" :disabled="!refobj.status" />
+                <t-input-number class="number" v-if="item.input_type==='number'" v-model="item.value"
+                                v-bind="item.options" :disabled="!refobj.status"/>
+                <t-input class="string" v-else-if="item.input_type==='string'" v-model="item.value"
+                         v-bind="item.options" :disabled="!refobj.status"/>
+                <t-radio-group class="radio" v-else-if="item.input_type==='radio'" v-model="item.value"
+                               v-bind="item.options" :disabled="!refobj.status"/>
+                <t-select class="select" v-else-if="item.input_type==='select'" v-model="item.value"
+                          v-bind="item.options" :disabled="!refobj.status"/>
+                <t-switch class="switch" v-else-if="item.input_type==='switch'" v-model="item.value"
+                          v-bind="item.options" :disabled="!refobj.status"/>
+                <t-time-picker class="time" v-else-if="item.input_type==='time'" v-model="item.value"
+                               v-bind="item.options" :disabled="!refobj.status"/>
+                <t-date-picker class="date" v-else-if="item.input_type==='date'" v-model="item.value"
+                               :presets="{'此刻': () => new Date()}" v-bind="item.options" :disabled="!refobj.status"/>
               </td>
               <td class="where">{{ item.where }}</td>
               <td class="qctype">{{ item.qc_type_text }}</td>
@@ -106,7 +121,7 @@
         </div>
       </div>
       <div class="reportDetails" v-else-if="refobj.tabType==='reportDetails'">
-        <report_history :where="{station_id:refobj.station_id,equipment_id:refobj.equipment_id}"></report_history>
+        <report_history :where="{assets_id:refobj.assets_id}"></report_history>
       </div>
       <div class="scrapDetails" v-else-if="refobj.tabType==='scrapDetails'">报废明细开发中</div>
       <div class="outputDetails" v-else-if="refobj.tabType==='outputDetails'">产出明细开发中</div>
@@ -120,21 +135,23 @@
     <dialogComponent ref="templateBox" v-if="refobj.templateBoxShow" v-bind="obj.templateBox">
       <div class="templateBox">
         <dl v-for="item in obj.templateList" @click="obj.selectTpl(item)">
-          <dt class="title">{{ item.equipment_name }}</dt>
+          <dt class="title">{{ item.assets_name }}</dt>
           <dd class="body">{{ item.template_name }}</dd>
-          <dd class="footer">{{ item.station_name }}</dd>
+          <dd class="footer">{{ item.assets_group_name }}</dd>
         </dl>
       </div>
     </dialogComponent>
     <dialogComponent ref="qtyBox" v-if="refobj.qtyBoxShow" v-bind="obj.qtyBox">
       <div class="quantityBox">
-        <t-alert class="warning_message" v-if="refobj.warning_message" theme="warning" :message="refobj.warning_message"/>
+        <t-alert class="warning_message" v-if="refobj.warning_message" theme="warning"
+                 :message="refobj.warning_message"/>
         <div class="siyi-table table">
           <table>
             <thead>
             <tr>
               <th rowspan="2">
-                <t-checkbox :disabled="!obj.qtyBox.showFooter" :checked="refobj.checkAll" :indeterminate="refobj.indeterminate" @change="obj.selectAll"/>
+                <t-checkbox :disabled="!obj.qtyBox.showFooter" :checked="refobj.checkAll"
+                            :indeterminate="refobj.indeterminate" @change="obj.selectAll"/>
               </th>
               <th rowspan="2">工单号</th>
               <th rowspan="2">工序</th>
@@ -237,14 +254,13 @@ const refobj = reactive({
   indeterminate: false,//部分选中
   employee_id: 0,//人员ID
   employee_name: '',//人员
-  equipment_id: 0,//设备ID
-  equipment_name: '',// 设备名称
-  station_id: 0,//工段ID
-  station_name: '',//工段名称
+  assets_id: '',//设备ID
+  assets_name: '',// 设备名称
+  assets_group_name: '',//资产组名称
   template_id: 0,//模板ID
   template_name: '',//模板名称
   multiple: false,//是否可多工单上机
-  isRequestPending : false,  // 是否有请求正在进行
+  isRequestPending: false,  // 是否有请求正在进行
 });
 
 
@@ -311,9 +327,10 @@ const obj = {
   selectTpl: config => {
     Object.assign(refobj, config, JSON.parse(sessionStorage.getItem(sessionStorage.getItem('x-api-key'))));
     templateBox.value?.close();
+    obj.wo(refobj.wonumber);
   },
   wolistShow: () => {
-    if(refobj.wolist.length>1 && Boolean(refobj.wonumber)){
+    if (refobj.wolist.length > 1 && Boolean(refobj.wonumber)) {
       obj.qtyBox.showFooter = false;
       obj.qtyBox.showClose = true;
       obj.qtyBox.title = '已上机工单列表';
@@ -324,8 +341,18 @@ const obj = {
    * 输入上机数量的窗口配置
    */
   qtyBox: {
-    okval: '上机', noval: '取消', showFooter: true, esc: false, forceEnlarge: false, showClose: false, changeSize: false,
-    onAfterClose: () => refobj.qtyBoxShow = false, okCallback: async o => o.close = await obj.create(),
+    okval: '上机',
+    noval: '取消',
+    showFooter: true,
+    esc: false,
+    forceEnlarge: false,
+    showClose: false,
+    changeSize: false,
+    okKeyCode: false,
+    noKeyCode: false,
+    otherKeyCode: false,
+    onAfterClose: () => refobj.qtyBoxShow = false,
+    okCallback: async o => o.close = await obj.create(),
   },
   selectAll: val => {
     refobj.wolist.forEach(item => item.checked = val);
@@ -349,13 +376,13 @@ const obj = {
    * @param wonumber 工单号
    */
   wo: async wonumber => {
-    if (refobj.isRequestPending)  return; // 有请求正在进行
+    if (refobj.isRequestPending) return; // 有请求正在进行
     refobj.isRequestPending = true;
-    try{
+    try {
       qtyBox.value?.close();
       const result = await api.post(apiUrl.mes.report_data.wo, {
-        wonumber, station_id: refobj.station_id,
-        equipment_id: refobj.equipment_id,
+        wonumber, process_id: refobj.process_id,
+        assets_id: refobj.assets_id,
         template_id: refobj.template_id,
         multiple: refobj.multiple,
       });
@@ -373,9 +400,9 @@ const obj = {
           refobj.qtyBoxShow = true;//输入上机数据
         }
       }
-    }catch (error){
+    } catch (error) {
       dialog.error(error.message);
-    }finally {
+    } finally {
       refobj.isRequestPending = false; // 请求结束
     }
   },
@@ -383,7 +410,7 @@ const obj = {
    * 输入上机数量联动效果
    * @param type 类型
    */
-  changeQuantity: (type,item) => {
+  changeQuantity: (type, item) => {
     if (type === 'pnl') {
       item.qty_set = item.qty_pnl * item.setofpnl;
       item.qty_pcs = item.qty_pnl * item.pcsofpnl;
@@ -398,7 +425,7 @@ const obj = {
    */
   create: async () => {
     //防止重复提交
-    if (refobj.isRequestPending)  return; // 有请求正在进行
+    if (refobj.isRequestPending) return; // 有请求正在进行
     refobj.isRequestPending = true;
     try {
       const wolist = refobj.wolist.filter(item => item.checked);
@@ -415,8 +442,8 @@ const obj = {
       }
 
       const ids = await api.post(apiUrl.mes.report_data.create, {
-        wolist, station_id: refobj.station_id,
-        equipment_id: refobj.equipment_id,
+        wolist, process_id: refobj.process_id,
+        assets_id: refobj.assets_id,
         template_id: refobj.template_id,
         employee_id: refobj.employee_id,
         multiple: refobj.multiple,
@@ -430,9 +457,9 @@ const obj = {
       } else {
         return false;
       }
-    }catch (error){
+    } catch (error) {
       dialog.error(error.message);
-    }finally {
+    } finally {
       refobj.isRequestPending = false;
     }
   },
@@ -452,9 +479,8 @@ const obj = {
       wolist: refobj.wolist,
       remark: refobj.remark,
       parameters: refobj.parameters,
-
-      station_id: refobj.station_id,
-      equipment_id: refobj.equipment_id,
+      process_id: refobj.process_id,
+      assets_id: refobj.assets_id,
       template_id: refobj.template_id,
       employee_id: refobj.employee_id,
       multiple: refobj.multiple,
@@ -560,8 +586,8 @@ const obj = {
         item.options.min = min !== null ? Number(min) : null;
         item.options.max = max !== null ? Number(max) : null;
       }
-      if(item.input_type === 'date' || item.input_type === 'time'){
-        if(item.options?.format){
+      if (item.input_type === 'date' || item.input_type === 'time') {
+        if (item.options?.format) {
           item.value = core.date.datetimeFormat(dateNow, item.options.format);
         } else {
           item.value = item.input_type === 'date' ? core.date.time() : core.date.date();
@@ -571,10 +597,10 @@ const obj = {
   },
   /**
    * 扫码人员
-   * @param employee_id
+   * @param employee
    */
-  employee: async employee_id => {
-    const result = await api.get(apiUrl.mes.report_data.employee, {employee_id});
+  employee: async employee => {
+    const result = await api.get(apiUrl.mes.report_data.employee, {employee});
     if (result?.id > 0) {
       const employee = {employee_id: result.id, employee_name: result.name};
       Object.assign(refobj, employee);
@@ -584,11 +610,21 @@ const obj = {
   /**
    * 扫码设备  该模板下必须有这个设备 否则不能转换
    */
-  equipment: equipment_id => {
-    const template = obj.templateList.find(t => t.equipment_id === +equipment_id && t.template_id === +refobj.template_id);
-    if (!template) {dialog.error('当前账号未配置该设备，请联系管理员添加！');return;}
-    Object.assign(refobj, {equipment_id: template.equipment_id, equipment_name: template.equipment_name});
+  assets: assets => {
+    api.get(apiUrl.mes.report_data.assets, {assets}).then(res => {
+      if (res?.id > 0) {
+        const assets = {assets_id: res.id, assets_name: res.name};
+        const template = obj.templateList.find(t => t.assets_id === +res.id && t.template_id === +refobj.template_id);
+        if (!template) {
+          dialog.error('当前账号未配置该设备，请联系管理员添加！');
+          return;
+        }
+        Object.assign(refobj, assets);
+        Object.assign(refobj, {assets_id: template.assets_id, assets_name: template.assets_name});
+      }
+    });
   },
+
 }
 
 
@@ -598,19 +634,16 @@ const obj = {
 onActivated(() => {
   siyi.navHide = true;//隐藏导航栏
   core.scan(char => {//注册一个扫码监听键盘事件
-    const [prefix, code] = char.split('#');
-    if (prefix === 'employee') {
-      obj.employee(code);
-    }else if (prefix === 'equipment') {
-      obj.equipment(code);
-    }else {
-      refobj.employee_id > 0 && refobj.template_id > 0  ? obj.wo(char) : dialog.error('没有选择操作员或者设备模板');
+    if (char.startsWith('ZH') || char.startsWith('H') || char.startsWith('LT') || char.startsWith('Z')) {
+      obj.employee(char);
+    } else if (char.startsWith('C-') || char.startsWith('D-')) {
+      obj.assets(char);
+    } else {
+      refobj.employee_id > 0 && refobj.template_id > 0 ? obj.wo(char) : dialog.error('没有选择操作员或者设备模板');
     }
   }, document.body, 50);
 });
-
 Object.assign(refobj, obj.default); //合并配置
-
 /**
  * 打开页面
  */
@@ -806,6 +839,7 @@ onMounted(async () => {
               > .time {
                 width: 100%;
               }
+
               > .date {
                 width: 100%;
               }

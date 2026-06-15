@@ -1,10 +1,8 @@
 <template>
   <div ref="box" :class="['mainPage','page-'+table.tableConfig.id]">
-    <ResizeBox :size="480" :storage-key="siyi.nav?.id">
-      <TableComponent class="page-list"  v-if="table.isInit"  ref="report" v-bind="getReportConfig()"/>
-    </ResizeBox>
+    <TableComponent class="page-list"  v-if="table.isInit"  ref="report" v-bind="getReportConfig()"/>
     <div class="page-detail" v-if="table.isInit" >
-      <packageItem :item="vData.item"  v-if="vData.item?.id"  />
+      <packageItem :item="vData.item"  :plant_id="vData.plant_id"/>
     </div>
     <dialogComponent v-if="editBox.isShow" v-bind="editBox.bind"  v-on="editBoxFn.on"  >
       <t-form :data="editBox.data" :rules="editBox.rules" @submit="editBoxFn.submit" v-bind="editBox.form">
@@ -21,8 +19,12 @@
           <t-form-item label="名称" name="name">
             <t-input v-model="editBox.data.name" />
           </t-form-item>
-          <t-form-item label="利润点" name="profit" v-if="[dData.TYPE_SERVICE,dData.TYPE_EXTEND].includes(editBox.data.type)">
-            <t-input v-model="editBox.data.profit" type="number" min="0" suffix="%" />
+          <t-form-item label="利润点" name="profit_rate" v-if="[dData.TYPE_SERVICE,dData.TYPE_EXTEND].includes(editBox.data.type)">
+            <t-input v-model="editBox.data.profit_rate" type="number" min="0" suffix="%" />
+          </t-form-item>
+          <t-form-item label="层数" name="layer_min" v-if="[dData.TYPE_SERVICE].includes(editBox.data.type)">
+            <t-input v-model="editBox.data.config.layer_min" type="number" min="1" step="2" max="16" placeholder="最小层数"  suffix="层"/>
+            <t-input v-model="editBox.data.config.layer_max" type="number" min="1" step="2" max="16" placeholder="最大层数" suffix="层"/>
           </t-form-item>
           <t-form-item label="排序" name="sort" >
             <t-input-number v-model="editBox.data.sort" theme="column" style="width: 100%" type="integer" min="0" step="1" max="9999"  placeholder="数字小靠前" />
@@ -54,7 +56,6 @@ import {getOptionsLabel, listToTree} from "@/utils/vars.js";
 import siyi from "@/core/script/siyi.js";
 import dialog from "@/core/script/dialog.js";
 import {plantList} from "@/utils/erp.js";
-import ResizeBox from "@/core/component/ResizeBox.vue";
 
 const report = ref()
 
@@ -62,13 +63,17 @@ const dData = {
   TYPE_BASE: 0, //基础必选包
   TYPE_SERVICE: 1, //业务必选包
   TYPE_EXTEND: 2, // 附加可选包
+  config_default:{
+    layer_min:1,
+    layer_max:16,
+  },
 };
 
 //页面数据
 const vData=reactive({
   plant_id:siyi.user.plantId,
   item:null,
-  selectOptions: {status:[],pid:[],type:[]},
+  selectOptions: {status:[],pid:[],type:[],area_scope:[]},
 })
 
 
@@ -91,8 +96,10 @@ const tableEvent = {
     editBox.data={
       plant_id:vData.plant_id,
       status:1,
+      config:{},
       ...row
     }
+    editBox.data.config= {...dData.config_default,...row.config};
     if (vData.item?.id && vData.item?.type===dData.TYPE_BASE){
       editBox.data.pid= vData.item.id;
     }
@@ -142,6 +149,7 @@ const getReportConfig = () => {
           options: {multiple:false,clearable:false,placeholder: '工厂'},onChange:tableEvent.plantChange,value: vData.plant_id,load:'factory'},
       ],
     },
+    changeSizeRight:true,
     tableConfig: {
       url: api.url2.cost.package.list,
       showCheck: false,
@@ -153,7 +161,6 @@ const getReportConfig = () => {
         select: {
           outsideClickDeselect: false,//点击外部区域是否取消选中。
         },
-        heightMode:'autoHeight',
         hierarchyExpandLevel: 3, // 树默认展开3层
       },
       ...table.tableConfig,
@@ -163,12 +170,12 @@ const getReportConfig = () => {
       },
       afterLoaded:()=>{
         const vTable= report.value.reportConfig.table;
-        vTable.selectRow(1);
         vData.selectOptions.pid= vTable.options.records.filter(item=>item.type===dData.TYPE_BASE).map(item=>{
           return {label:item.name,value:item.id};
         });
-        const firstRow = vTable.options.records?.[0] || {};
-        vData.item = {...firstRow};
+        // vTable.selectRow(1);
+        // const firstRow = vTable.options.records?.[0] || {};
+        // vData.item = {...firstRow};
       },
       events:{
         click_cell:  ({originData,field}) => {
@@ -182,8 +189,8 @@ const getReportConfig = () => {
           const vTable = report.value.reportConfig.table; // 表格实例
           const field = vTable.getHeaderField(col, row); //获取列名
           const record = vTable.getRecordByCell(col, row); //根据单元格获取行数据
-          if (field === 'name' && record?.id) {
-            const res = await api.post(api.url2.cost.package.save, {id: record.id, name: changedValue});
+          if (['name','profit_rate'].includes(field) && record?.id) {
+            const res = await api.post(api.url2.cost.package.save, {id: record.id, [field]: changedValue});
             res && dialog.success('保存成功');
           }
         },
@@ -191,6 +198,9 @@ const getReportConfig = () => {
       colAfterCallback: (col) => {
         if (col.field === 'name') {
           col.tree = true; // 开启树结构
+          col.editor = 'inputEditor';
+        }
+        if (col.field === 'profit_rate') {
           col.editor = 'inputEditor';
         }
         const typeColors = {
@@ -227,7 +237,7 @@ const editBox=reactive({
   },
   bind:{
     width: '600px',
-    height: '500px',
+    height: '600px',
     title: "添加"
   },
   form:{
@@ -268,7 +278,6 @@ const editBoxFn={
   }
 }
 
-
 onMounted(() => {
   initTable();
 });
@@ -280,6 +289,9 @@ onMounted(() => {
   height: 100%;
   display: flex;
   flex-direction: row;
+  .page-list{
+    width: 500px;
+  }
   .page-detail{
     flex:1;
   }

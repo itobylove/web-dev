@@ -154,17 +154,21 @@ const logStyle = {
     "type": 'PHP',
     "color": '#4F5B93'
   },
+  "siyi_backend": {
+    "type": 'PHP',
+    "color": '#4095db'
+  },
   "frontend": {
     "type": 'VUE',
     "color": '#42b883'
   },
   "proc": {
     "type": 'SQL',
-    "color": '#0052d9'
+    "color": '#8d6945'
   },
   "doc": {
     "type": 'DOC',
-    "color": 'green'
+    "color": '#72b290'
   },
   "other": {
     "type": 'O',
@@ -174,11 +178,16 @@ const logStyle = {
 
 const getGitLog = async () => {
   const url = '/data/gitlog.json?t=' + date.dateFormat(new Date(), 'YYYYMMDD');
-  const gitLog = await (await fetch(url)).json();
+  const gitLog = await fetch(url)
+  .then(r => r.text())
+  .then(t => {
+    try { return JSON.parse(t); }
+    catch { return null; }
+  });
   if (!Array.isArray(gitLog)) return
   const tongji = {}
   gitLog.forEach(row => {
-    if (/^(Merge|vault)/.test(row.content)) return
+    if (/^(Merge|vault|release|merge)/.test(row.content)) return
 
     const rowFormated = logStyle?.[row.type] || logStyle?.['other'];
     rowFormated.day = dayjs(row.date).format('YYYY-MM-DD');
@@ -193,7 +202,6 @@ const getGitLog = async () => {
     if (tongji[ym] === undefined) tongji[ym] = []
     tongji[ym].push(_row)
   })
-  console.log(tongji)
   // 对 logData.value 中的每个日期对应的数组按时间降序排序
   Object.entries(logData.value).forEach(([date, logs]) => {
     logs.sort((a, b) => b.time.localeCompare(a.time));

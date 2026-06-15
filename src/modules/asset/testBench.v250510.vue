@@ -14,8 +14,8 @@
         <t-radio-group v-model="listFilter.status" variant="primary-filled" @change="showList()">
           <t-radio-button value="">状态：</t-radio-button>
           <t-radio-button value="正常">正常(>80%)</t-radio-button>
-          <t-radio-button value="注意">注意(>60%)</t-radio-button>
-          <t-radio-button value="警告">警告(<60%)</t-radio-button>
+          <t-radio-button value="注意">注意(20%~80%)</t-radio-button>
+          <t-radio-button value="警告">警告(<20%)</t-radio-button>
         </t-radio-group>
         <t-input   v-model="listFilter.jobInput" @change="showList()"  :placeholder=" '请输入型号'" />
       </div>
@@ -47,7 +47,8 @@
             <th>型号</th>
             <th>版本</th>
             <th >工单号</th>
-            <th @click="sortList('pcsNum')">PCS数量</th>
+<!--            <th @click="sortList('pcsNum')">PCS数量</th>-->
+            <th @click="sortList('setNum')">SET数量</th>
             <th @click="sortList('processName')">当前工序</th>
             <th @click="sortList('leftProcessNum')">剩余步数</th>
             <th @click="sortList('status')">工单状态</th>
@@ -85,7 +86,8 @@
               <td > {{item.partNum}}</td>
               <td > {{item.partRev}}</td>
               <td > {{item.woNumber}}</td>
-              <td > {{item.pcs}}</td>
+<!--              <td > {{item.pcs}}</td>-->
+              <td > {{item.setNum}}</td>
               <td > {{item.processName}}</td>
               <td > {{item.leftProcessNum}}</td>
               <td > {{item.status_text}}</td>
@@ -160,7 +162,7 @@ const getList=async()=>{
     item.color=getRangeColor(item.percent,'#56c08d','#d54941');
     item.job_test_bench_status='';
     if(typeof item.percent==='number'){
-      item.job_test_bench_status=item.percent>80?'正常':(item.percent>60?'注意':'警告');
+      item.job_test_bench_status=item.percent>80?'正常':(item.percent<20?'警告':'注意');
     }
   })
   isLoading.value=false;
@@ -192,6 +194,9 @@ const showList=()=>{
   }
   msg.value=`共${list.length}条数据；已登记:${tongji['已登记']} ；正常：${tongji['正常']}; 注意：${tongji['注意']}；警告：${tongji['警告']}`;
   tableListShow.value=Object.assign([],list);
+  if (isAsset==='0' && siyi.user.administrator){
+    initAll();
+  }
   // console.log('Object.assign([],list)',Object.assign([],list));
 }
 
@@ -232,6 +237,13 @@ const editRow = async (item) => {
       {query, dataOption: {}, afterSave: () => _window.close()},
       {title:'测试架管理', width: '70%', maxWidth: 1440, height: '80%',maxHeight:960, onAfterClose: async () => await getList()}
   )
+}
+
+// 初始化
+const initAll = async () => {
+  const list = tableListShow.value.filter(v => !v?.asset_id);
+  const res = await api.post(api.url.erp.job.testBenchInit, list);
+  if (res?.ok) await getList();
 }
 
 

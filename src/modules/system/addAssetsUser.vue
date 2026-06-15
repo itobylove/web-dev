@@ -1,15 +1,5 @@
 <template>
-    <div class="container">
-        <div class="base-info">
-            <div class="base-info-content">
-                <template v-for="(v, index) in getAsset" :key="index">
-                    <div>工厂名称：<span>{{ v['plant_id_text'] }}</span></div>
-                    <div>资产编号：<span>{{ v['code'] }}</span></div>
-                    <div>资产名称：<span>{{ v['name'] }}</span></div>
-                    <div>资产类型：<span>{{ v['type_text'] }}</span></div>
-                </template>
-            </div>
-        </div>
+    <div ref="body" class="body">
         <div class="users-lists">
             <TableComponent class="table" ref="users" v-if="refObj.usersShow" v-bind="obj.usersConfig" />
         </div>
@@ -17,7 +7,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, nextTick } from 'vue';
+import { ref, onMounted } from 'vue';
 import TableComponent from '@/core/component/table_v2.vue';
 import apiUrl from '@/core/config/url2';
 import * as api from "@/core/script/api.js";
@@ -29,19 +19,8 @@ const props = defineProps({
         default: {}
     },
     dialog: { type: Object },
-    getAttach: { type: Function,default: () => {} },
+    getAttach: { type: Function, default: () => { } },
 })
-//过滤数据，获取设备信息
-const getAsset = computed(() => {
-    const result = [];
-    result.push({
-        'plant_id_text': props.query.asset['plant_id_text'],
-        'code': props.query.asset['code'],
-        'name': props.query.asset['name'],
-        'type_text': props.query.asset['type_text'],
-    });
-    return result;
-});
 const users = ref(null);
 const refObj = ref({
     usersShow: false,
@@ -54,21 +33,38 @@ const obj = {
             menu: {
                 create: {
                     click: () => {
-                        let uids = tableFn.getCheckedRecords(users.value.reportConfig).map(i => i.id), assetId = props.query.asset.id,type = props.query.asset.type;
+                        let checkedRecords = tableFn.getCheckedRecords(users.value.reportConfig);
+                        let uids = checkedRecords.map(i => i.id), assetId = props.query.asset.id, type = props.query.asset.type, str = props.query.asset.type === 'group' ? '资产组' : '资产';
                         if (uids.length === 0) {
-                            dialog.info('请先选择要添加的员工');
+                            dialog.info('请先选择要添加的用户');
                             return;
                         }
-                        dialog.confirm(`确定要添加${uids.length}位员工到设备《${props.query.asset['name']}》吗？`, async () => {
-                            await api.post(apiUrl.sys.asset.addAssetsUser, { assetId, uids,type }).then(res => {
-                                if (res.ret === true) {
-                                    dialog.success(`成功添加${uids.length}位员工到设备《${props.query.asset['name']}》`);
-                                }else if(res.ret < 0){
-                                    dialog.error('资产组赞时不支持添加人员');
-                                }else {
-                                    dialog.error(res.msg || '添加失败');
+                        dialog.confirm(`确定要添加${uids.length}位用户到${str}《${props.query.asset['name']}》吗？`, async () => {
+                            const arr = [];
+                            checkedRecords.forEach((item) => {
+                                arr[item.id] = item.nickname;
+                            });
+                            await api.post(apiUrl.sys.asset.addAssetsUser, { assetId, uids, type }).then(res => {
+                                if (typeof (res.ret) === 'boolean') {
+                                    if (res.ret === true) {
+                                        props.getAttach(true);
+                                        dialog.success(`成功添加${uids.length}位用户到${str}《${props.query.asset['name']}》`);
+                                    } else {
+                                        dialog.error('添加失败');
+                                    }
+                                } else if (typeof (res.ret) === 'object') {
+                                    let msg = `已存在，请勿重复添加`, data = '';
+                                    res.ret.forEach(i => {
+                                        data += arr[i] + '</br>';
+                                    })
+                                    dialog.error(data + msg);
+                                } else if (typeof (res.ret) === 'number') {
+                                    if (res.ret < 0) {
+                                        dialog.error('资产组赞时不支持添加人员');
+                                    }
+                                } else {
+                                    dialog.error('网络错误，请稍后再试');
                                 }
-                                props.getAttach(true)
                                 props.dialog.close();
                             })
                         });
@@ -92,41 +88,16 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.container {
-    padding: 20px;
+.body {
     display: flex;
     flex-direction: column;
+    gap: 3px;
+    padding: 3px;
 
-    .base-info {
-        margin-bottom: 20px;
-
-        .base-info-content {
-            display: flex;
-            flex-wrap: wrap;
-            border-bottom: 1px solid #eee;
-
-            >div {
-                width: 50%;
-                margin-bottom: 15px;
-            }
-
-            span {
-                font-weight: 500;
-                color: #606266;
-                margin-right: 5px;
-            }
-        }
-    }
-
-    .users-lists {
+    >.users-lists {
+        height: 758px;
         overflow: auto;
-
-        .table {
-            height: 61vh;
-            overflow: auto;
-            flex-shrink: 0;
-        }
+        flex-shrink: 0;
     }
-
 }
 </style>

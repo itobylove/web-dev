@@ -64,9 +64,7 @@ import * as api from "@/core/script/api.js"
 import dialog from "@/core/script/dialog.js";
 import dayjs from "dayjs";
 import {list2Group} from "@/utils/vars.js";
-import {getPlant} from "@/utils/erp.js";
 import * as core from "@/core/script/core.js";
-import apiUrl2 from "@/core/config/url2.js";
 
 const props = defineProps({
   item:{type:Object,default:{}},
@@ -129,17 +127,34 @@ const tableEvent = {
     }
   },
   getAvgTitle: (item) => {
-    const option=vData.selectOptions?.[AVG_FIELDS[item.avg_level]]?.find(v=>v.value===item[AVG_FIELDS[item.avg_level]]);
-    let title =option?.label;
-    if (item.avg_level===dData.AVG_LEVEL_ASSET_GROUP){
-      title = "【" + vData.selectOptions.process_id.find(v => v.value === item.process_id && v.data.step_id=== item.step_id)?.label + "】" + title;
-    }else if (item.avg_level===dData.AVG_LEVEL_PROCESS){
-      title = option.data.name;
-    }else if (item.avg_level===dData.AVG_LEVEL_PLANT){
+    let title;
+    if (item.avg_level === dData.AVG_LEVEL_PLANT) {
       title = item.plant_id_text;
+    } else {
+      const option = vData.selectOptions?.[AVG_FIELDS[item.avg_level]]?.find(v => v.value === item[AVG_FIELDS[item.avg_level]]);
+      if (!option && item.status) {
+        dialog.warning('数据异常： ID：' + item.id + '，请联系管理员！');
+        console.error('未找到对应名称', item);
+      }
+      title = option?.label || item[AVG_FIELDS[item.avg_level]];
+      if (item.avg_level === dData.AVG_LEVEL_ASSET_GROUP) {
+        title = "【" + vData.selectOptions.process_id.find(v => v.value === item.process_id && v.data.step_id === item.step_id)?.label + "】" + title;
+      } else if (item.avg_level === dData.AVG_LEVEL_PROCESS) {
+        title = option.data.name;
+      }
     }
     return title;
   },
+  export:async ()=>{
+    if (!await dialog.confirmAsync('确定要导出全部费率数据吗?')) {
+      return;
+    }
+    const loading = dialog.loading(report.value, '下载中...');
+    const res= await api.post(api.url2.cost.config.export, {type:'avg_price'});
+    loading && loading.close();
+    if (!res?.url) return;
+    core.files.downloadFile(res.url,res.title || res.name);
+  }
 };
 
 
@@ -151,8 +166,9 @@ const table = {
       enable: {title: '启用', listAction: (rows)=>tableEvent.status(rows,1), icon: 'ri-play-line', sort: 60},
       disable: {title: '停用', listAction: (rows)=>tableEvent.status(rows,0), icon: 'ri-stop-large-line', sort: 60},
       del: {title: '删除', listAction: tableEvent.delete, icon: 'ri-delete-bin-line', sort: 60},
+      export: {title: '导出全部', click: tableEvent.export, icon: 'ri-file-excel-2-line', sort: 70},
     },
-    defaultMenuShowList:['search','moreSettings'],
+    defaultMenuShowList:['search','moreSettings','pageExport'],
   },
   tableConfig:{
     id:'cost_config_avg_price',
@@ -180,7 +196,6 @@ const table = {
       select: {
         outsideClickDeselect: false,//点击外部区域是否取消选中。
       },
-      heightMode:'autoHeight',
       excelOptions: {
         fillHandle: true // 启用填充炳功能
       },
@@ -293,18 +308,16 @@ const editBoxFn={
       })
     }else if(field==='asset_group_id'){
       editBox.step_process_list=[];
-      editBox.data.step_process_id=[];
-      const asset_group = vData.selectOptions.asset_group_id.find(v=>v.value===value);
-      console.log('asset_group',asset_group);
+      const asset_group = vData.selectOptions.asset_group_id.find(v=>v.value===value); // 当前设备组绑定的工艺、工序
       asset_group.data.step_ids.forEach(step_id=>{
         asset_group.data.step_process[step_id].forEach(process_id=>{
           const processLabel = vData.selectOptions.process_id.find(v=>v.value===process_id && v.data.step_id===step_id)
-          console.log('processLabel',processLabel);
-          const step_process_id = step_id+'_'+process_id;
-          editBox.step_process_list.push({...processLabel,value:step_process_id});
-          editBox.data.step_process_id.push(step_process_id)
+          editBox.step_process_list.push({...processLabel,value:step_id+'_'+process_id});
         })
       })
+      if (!editBox.data?.id){
+        editBox.data.step_process_id=editBox.step_process_list.map(v=>v.value); // 新增时，选中所有的；
+      }
       editBox.rules.process_id.find(rule=>typeof rule?.required==='boolean').required=true;
     }
    },

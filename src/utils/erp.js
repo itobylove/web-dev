@@ -5,6 +5,7 @@ export const plantList = [
     {value: 1, label: '湖北龙腾', company_id: 1, en: 'hb'},
     {value: 4, label: '深圳龙腾', company_id: 4, en: 'sz'},
     {value: 6, label: '珠海龙昌', company_id: 5, en: 'zh'},
+    {value: 7, label: '珠海HDI', company_id: 5, en: 'hdi'},
 ];
 
 //公司列表

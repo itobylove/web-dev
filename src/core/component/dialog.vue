@@ -124,6 +124,9 @@ const props = defineProps({
   okval: {type: String, default: null},                   //确定
   noval: {type: String, default: null},                   //取消
   otherval: {type: String, default: null},                   //其他
+  okKeyCode: {type: String, default: null},                   //确定键
+  noKeyCode: {type: String, default: null},                   //取消键
+  otherKeyCode: {type: String, default: null},                   //其他键
   select: {type: Object, default: null},                     //选择框配置
   input: {type: Object, default: null},                      //输入框配置
   value: {type: String, default: null},//输入框值
@@ -189,7 +192,8 @@ const defaultConfig = {
     offset: 38,
     headerBg: '#f3f4f7',
     bodyBg: '#fff',
-    footerBg: '#fff',
+    footerBg: '#f7f7f7',
+    footerTopBorder: '1px solid #e5e5e5',
     maskBg: 'rgba(0,0,0,.2)',
     bodyMove: false,
     changeSize: true,
@@ -220,6 +224,9 @@ const defaultConfig = {
     okval: '',
     noval: '',
     otherval: '',
+    okKeyCode: '',
+    noKeyCode: '',
+    otherKeyCode: '',
     select: {},
     input: {},
     value: '',
@@ -261,7 +268,8 @@ const defaultConfig = {
     offset: 38,
     headerBg: '#f3f4f7',
     bodyBg: 'rgba(255,255,255,.4)',
-    footerBg: '#fff',
+    footerBg: '#f7f7f7',
+    footerTopBorder: '1px solid #e5e5e5',
     maskBg: '',
     bodyMove: false,
     changeSize: false,
@@ -292,6 +300,9 @@ const defaultConfig = {
     okval: '',
     noval: '',
     otherval: '',
+    okKeyCode: '',
+    noKeyCode: '',
+    otherKeyCode: '',
     select: {},
     input: {},
     value: '',
@@ -333,7 +344,8 @@ const defaultConfig = {
     offset: 38,
     headerBg: '#f3f4f7',
     bodyBg: '#fff',
-    footerBg: '#fff',
+    footerBg: '#f7f7f7',
+    footerTopBorder: '1px solid #e5e5e5',
     maskBg: 'rgba(0,0,0,.2)',
     bodyMove: false,
     changeSize: false,
@@ -364,6 +376,9 @@ const defaultConfig = {
     okval: '确定',
     noval: '取消',
     otherval: '',
+    okKeyCode: '',
+    noKeyCode: '',
+    otherKeyCode: '',
     select: {},
     input: {},
     value: '',
@@ -405,7 +420,8 @@ const defaultConfig = {
     offset: 38,
     headerBg: '#f3f4f7',
     bodyBg: '#fff',
-    footerBg: '#fff',
+    footerBg: '#f7f7f7',
+    footerTopBorder: '1px solid #e5e5e5',
     maskBg: 'rgba(0,0,0,.2)',
     bodyMove: false,
     changeSize: false,
@@ -436,6 +452,9 @@ const defaultConfig = {
     okval: '确定',
     noval: '取消',
     otherval: '',
+    okKeyCode: '',
+    noKeyCode: '',
+    otherKeyCode: '',
     select: {},
     input: {},
     value: '',
@@ -477,7 +496,8 @@ const defaultConfig = {
     offset: 38,
     headerBg: '#f3f4f7',
     bodyBg: '#fff',
-    footerBg: '#fff',
+    footerBg: '#f7f7f7',
+    footerTopBorder: '1px solid #e5e5e5',
     maskBg: 'rgba(0,0,0,.2)',
     bodyMove: false,
     changeSize: false,
@@ -508,6 +528,9 @@ const defaultConfig = {
     okval: '确定',
     noval: '取消',
     otherval: '',
+    okKeyCode: '',
+    noKeyCode: '',
+    otherKeyCode: '',
     select: {},
     input: {},
     value: [],
@@ -549,7 +572,8 @@ const defaultConfig = {
     offset: 38,
     headerBg: '#f3f4f7',
     bodyBg: '#fff',
-    footerBg: '#fff',
+    footerBg: '#f7f7f7',
+    footerTopBorder: '1px solid #e5e5e5',
     maskBg: 'rgba(0,0,0,.2)',
     bodyMove: true,
     changeSize: false,
@@ -580,6 +604,9 @@ const defaultConfig = {
     okval: '',
     noval: '',
     otherval: '',
+    okKeyCode: '',
+    noKeyCode: '',
+    otherKeyCode: '',
     select: {},
     input: {},
     value: '',
@@ -807,14 +834,8 @@ Object.assign(dialog, {
     await dialog.clickMaskCallback(obj);//为了同步等待
     if (obj.close === true) dialog.close();
   },
-  //按ESC关闭
-  escClose: e => {
-    dialog.esc === true && e.key === 'Escape' && dialog.close();
-  },
   //全屏切换
-  fullscreenSwitch: () => {
-    dialogReactive.isFullscreen ? dialog.restore() : dialog.enlarge();
-  },
+  fullscreenSwitch: () => dialogReactive.isFullscreen ? dialog.restore() : dialog.enlarge(),
   historyDialogStyle: {}, //历史位置与尺寸
   //全屏
   enlarge: async enlarge => {//强制全屏
@@ -930,6 +951,21 @@ Object.assign(dialog, {
   mouseleave: () => {
     dialog.duration > 0 && dialog.close(dialog.duration);//延迟关闭
   },
+  keydown: e => {
+    switch (e.code) {
+      case dialog.okKeyCode:
+        dialog.ok();
+        break;
+      case dialog.noKeyCode:
+        dialog.esc === true ? dialog.close() : dialog.no();//esc打开后是关闭窗口，否则为取消窗口
+        break;
+      case dialog.otherKeyCode:
+        dialog.other();
+        break;
+      default:
+        break;
+    }
+  },
   // 创建 ResizeObserver 实例
   resizeObserverOne: false,
   resizeObserver: new ResizeObserver(() => {
@@ -948,17 +984,21 @@ Object.assign(dialog, {
 onMounted(async () => {
   await dialog.init(); //初始化
   await dialog.open(); //打开窗口
-  document.addEventListener('mouseup', dialog.mouseup); //鼠标抬起时
-  document.addEventListener('keydown', dialog.escClose); //esc退出
+  document.addEventListener('mouseup', dialog.mouseup); //监听鼠标抬起事件
+  // document.addEventListener('keydown', dialog.keydown); //监听键盘按下事件 todo 需要后面完善
   dialog.resizeObserver.observe(dialogDom.value.parentNode); //容器大小改变时触发事件
-  if (['info', 'success', 'warning', 'error', 'question'].includes(dialog.type)) dialog.close(dialog.duration);  //延迟关闭
-  if (['window', 'loading'].includes(dialog.type) && dialog.forceEnlarge) dialog.enlarge(true); //强制窗口全屏
+  if (['info', 'success', 'warning', 'error', 'question'].includes(dialog.type)) {
+    dialog.close(dialog.duration);  //延迟关闭
+  }
+  if (['window', 'loading'].includes(dialog.type) && dialog.forceEnlarge) {
+    await dialog.enlarge(true); //强制窗口全屏
+  }
 })
 
 
 onBeforeUnmount(() => {
-  document.removeEventListener('mouseup', dialog.mouseup);//鼠标抬起时
-  document.removeEventListener('keydown', dialog.escClose);//esc退出
+  document.removeEventListener('mouseup', dialog.mouseup);//释放鼠标抬起事件
+  // document.removeEventListener('keydown', dialog.keydown);//释放键盘按下事件 todo 需要后面完善
   dialog.resizeObserver.unobserve(dialogDom.value.parentNode);//卸载容器大小改变时触发事件
 })
 

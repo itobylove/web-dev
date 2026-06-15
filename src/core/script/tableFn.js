@@ -41,6 +41,7 @@ export const defaultConfig = (options = {}) => {
         pageNum: 100,                   //每页条数
         columnSplit: '_',               //列分割符
         url: '',                        //获取数据的API接口
+        method: 'GET',                  //获取数据的API接口类型: GET/POST
         query: {},                      //获取数据的API参数
         selectRow: {},                  //当前选择的行
         prveSelectRow: {},              //上一次选择的行
@@ -221,7 +222,8 @@ export const update = (tableConfig, emptyRow = true, scrollTo = 0) => {
     const records = [];
     const columns = [];
     const check = tableConfig.showCheck ? {check: {checked: false, disable: true}} : {};
-    for (let i = 0; i < 100; i++) {
+    const count = Math.min(tableConfig.pageNum, 100);
+    for (let i = 0; i < count; i++) {
         columns.push({});
         records.push(check);
     }
@@ -461,6 +463,27 @@ export const on = tableConfig => {
 }
 
 /**
+ *  移除原始数据的标签
+ * @param data 数据（数组/对象）
+ * @param separator 分隔符
+ * @returns {{}|*}
+ */
+export const removeDataLabel = (data, separator = '_') => {
+    if (Array.isArray(data)) {
+        return data.map(item => removeDataLabel(item, separator));
+    }
+    if (data && typeof data === 'object') {
+        const result = {};
+        for (const key in data) {
+            const newKey = key.split(separator)[0];
+            result[newKey] = data[key];
+        }
+        return result;
+    }
+    return data;
+};
+
+/**
  * 生成表格列与行数据，创建表格
  * @param tableConfig 表格配置
  * @param rowBeforCallback 行数据生成前回调
@@ -561,6 +584,7 @@ export const createColumns = (baseColumns, separator = '#') => {
             encryption: column.label.includes('M') ? false : undefined, // false:默认无权限需要申请;undefined:不启用加密 , M → false
             headerIcon: column.label.includes('F') ? '' : 'filter',     //过滤功能 filter/filtering F: 禁用列过滤
             showSort: !column.label.includes('P'),                      //排序功能
+            aggregationType: column.label.includes('A') ? 'SUM' : (column.label.includes('V') ? 'AVG' : 'NONE'), // A求和 V平均
         });
     });
     return columns;

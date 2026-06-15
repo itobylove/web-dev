@@ -36,4 +36,5 @@ export default reactive({
     nav: {}, //当前活动导航
     navHide: false, //隐藏左侧导航
     from: {}, //上一次的导航
+    requestsList: new Map(),
 });

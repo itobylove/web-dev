@@ -58,9 +58,9 @@ const mainReportConfig = {
     defaultMenuHideList: ['clearCache','submitApprove', 'resetApprove', 'approve', 'advancedExport'],
     menu: {
       import: {sort: 500, title: '从ERP导入', icon: 'ri-import-line', click: () => fn.importFromErp()},
-      add: {sort: 650, title: '新增单位' , icon: 'ri-add-line', click: () => fn.addUnit()},
-      edit: {sort: 651, title: '修改单位', icon: 'ri-edit-line', click: () => fn.editUnit()},
-      del: {sort: 652, title: '删除单位', icon: 'ri-delete-bin-2-line', click: () => fn.delUnit()},
+      create: { click: () => fn.addUnit()},
+      update: { click: () => fn.editUnit()},
+      delete: { click: () => fn.delUnit()},
     },
   },
   searchConfig: {

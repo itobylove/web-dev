@@ -12,7 +12,8 @@ const loadData = async (obj, searchObj) => {
     for (const key in res) {
         searchObj.searchList.forEach(item => {
             if (item.load === key) {
-                const options = [{label: '全部', checkAll: true},...res[key]];
+                const all = item.options?.multiple ? [{label: '全部', checkAll: true}] : [];
+                const options = [...all, ...res[key]];
                 if (item.type === 'tree') {
                     item.options.data = options
                 } else {
@@ -99,7 +100,7 @@ export const loadSearch = async (props, searchObj) => {
                 multiple: true,//多选
                 minCollapsedNum: 1,//显示数量
                 options: [],//选项
-                reserveKeyword:true,//保留关键字
+                reserveKeyword: true,//保留关键字
             },
             load: '', //后端加载来源
             remote: false, //输入时后向后端获取列表值
@@ -260,9 +261,9 @@ export const loadSearch = async (props, searchObj) => {
         }
         _item.options?.presets === false && delete _item.options.presets
         _item.enter = () => _item.onEnter() && _item.filter === false && props.table?.getData() //回车搜索
-        _item.change = value => _item.onChange(value) && _item.filter === true && dataFilter(props, searchObj)  //改变值后过滤
+        _item.change = value => _item.onChange(value) && _item.filter && dataFilter(props, searchObj)  //改变值后过滤
         //如果是远程加载下拉框架时
-        if (['select', 'tree'].includes(_item.type) && _item.load && _item.remote === true) {
+        if (['select', 'tree'].includes(_item.type) && _item.load && _item.remote) {
             _item.search = value => {
                 if (_item.onSearch(value)) {
                     loadData({[_item.load]: {keyword: value}}, searchObj);
@@ -273,8 +274,10 @@ export const loadSearch = async (props, searchObj) => {
     })
     searchObj.searchList = searchData //写入搜索项目
     //2.获取用户保存的默认值
-    let res = {}
-    if (typeof props.table === 'object') res = props.table?.userConfig?.table || await api.getUserConfig(props.table.id, 2)
+    let res = {search: {}};
+    if (typeof props.table === 'object' && props.table.useUserTableConfig) {
+        res = props.table?.userConfig?.table || await api.getUserConfig(props.table.id, 2)
+    }
     let load = false
     searchObj.searchList.forEach(item => {
         //3.加载4种类型的默认值
@@ -285,11 +288,11 @@ export const loadSearch = async (props, searchObj) => {
         if (['select', 'switch', 'radio', 'tree'].includes(item.type) && item.load) {
             if (load === false) load = {}
             if (item.remote === false) load[item.load] = {}//一次加载下拉列表，然后本地用
-            if (item.remote === true && (Array.isArray(item.value) ? item.value.length > 0 : item.value !== '')) load[item.load] = {value: item.value}//加载远端列表
+            if (item.remote && (Array.isArray(item.value) ? item.value.length > 0 : item.value !== '')) load[item.load] = {value: item.value}//加载远端列表
         }
     })
     //5.加载数据
-    props.table?.autoLoad === true && props.table.getData()
+    props.table?.autoLoad && props.table.getData()
     //6.加载默认列表
     load !== false && await loadData(load, searchObj)
     searchObj.searchList.forEach(item => {
@@ -350,7 +353,7 @@ export const dataFilter = (props, searchObj) => {
             if (item.type === 'radio') {
                 for (const list of item.options.options) {
                     if (list.value === keyword) {
-                        keyword = item.filterValueType === 'label'?list.label:list.value
+                        keyword = item.filterValueType === 'label' ? list.label : list.value
                         break
                     }
                 }
@@ -464,7 +467,7 @@ export const updateSearchItem = (field, value, key = 'options', searchObj) => {
     for (const item of searchObj.searchList) {
         if (item.field === field) {
             // value ===null 时，删除属性
-            if (value===null){
+            if (value === null) {
                 delete item[key];
                 break;
             }

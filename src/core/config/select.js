@@ -14,6 +14,7 @@ const lists = {
         {label: '湖北龙腾', value: 1},
         {label: '深圳龙腾', value: 4},
         {label: '珠海龙昌', value: 6},
+        {label: '珠海HDI', value: 7},
     ],
     //外协类型
     poType: [

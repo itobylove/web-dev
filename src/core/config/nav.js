@@ -2,6 +2,7 @@ import {defineAsyncComponent as reg, ref} from 'vue'
 import loadingComponent from '@/core/component/loadingComponent.vue'
 import errorComponent from '@/core/component/errorComponent.vue'
 import apiUrl from '@/core/config/url.js'
+import apiUrl2 from '@/core/config/url2.js'
 import ApiRequest from '@/event/ApiRequest.js'
 import * as core from '@/core/script/core.js'
 import {ASSET_CATE_ID_ELECTRONIC, ASSET_CATE_ID_TEST_BENCH, jobApproveStatus, jobStatusOptions, moTypeOptions, woStatusOptions} from "@/core/config/const.js";
@@ -74,7 +75,10 @@ export const components = {
     job_weight: reg({loader: () => import('@/modules/sc/jobWeight.v250425.vue'), loadingComponent, errorComponent}),
     job_test_bench: reg({loader: () => import('@/modules/asset/testBench.v250510.vue'), loadingComponent, errorComponent}),
     cost_item: reg({loader: () => import('@/modules/cost/item.v251125.vue'), loadingComponent, errorComponent}),
+    cost_overage: reg({loader: () => import('@/modules/cost/overage.vue'), loadingComponent, errorComponent}),
     cost_quote: reg({loader: () => import('@/modules/cost/quote_list.vue'), loadingComponent, errorComponent}),
+    cost_zxd: reg({loader: () => import('@/modules/cost/zxd.vue'), loadingComponent, errorComponent}),
+    cost_quote_edit: reg({loader: () => import('@/modules/cost/quote_edit.vue'), loadingComponent, errorComponent}),
     cost_index: reg({loader: () => import('@/modules/cost/index.v251125.vue'), loadingComponent, errorComponent}),
     cost_package: reg({loader: () => import('@/modules/cost/package.vue'), loadingComponent, errorComponent}),
     siyi_job: reg({loader: () => import('@/modules/cost/job.v260109.vue'), loadingComponent, errorComponent}),
@@ -99,7 +103,6 @@ export const components = {
     steps: reg({loader: () => import('@/modules/system/steps.vue'), loadingComponent, errorComponent}),
     process: reg({loader: () => import('@/modules/system/process.vue'), loadingComponent, errorComponent}),
     assets: reg({loader: () => import('@/modules/system/assets.vue'), loadingComponent, errorComponent}),
-    // assets1: reg({loader: () => import('@/modules/system/assets1.vue'), loadingComponent, errorComponent}),
     // sys_step_equipment: reg({loader: () => import('@/modules/system/step_equipment/index.vue'), loadingComponent, errorComponent}),
     sys_step_report: reg({loader: () => import('@/modules/system/step_equipment/report.vue'), loadingComponent, errorComponent}),
     sys_step_mobile: reg({loader: () => import('@/modules/system/step_equipment/step.vue'), loadingComponent, errorComponent}),
@@ -111,8 +114,6 @@ export const components = {
     sys_employee_mobile: reg({loader: () => import('@/modules/system/employee.vue'), loadingComponent, errorComponent}),
     sys_supplier: reg({loader: () => import('@/modules/system/supplier.vue'), loadingComponent, errorComponent}),
     sys_supplier_mobile: reg({loader: () => import('@/modules/system/supplier.vue'), loadingComponent, errorComponent}),
-    // sys_equipment: reg({loader: () => import('@/modules/system/step_equipment/equipment.vue'), loadingComponent, errorComponent}),
-    // sys_equipment_mobile: reg({loader: () => import('@/modules/system/step_equipment/equipment.vue'), loadingComponent, errorComponent}),
     sys_parameter: reg({loader: () => import('@/modules/system/parameter.vue'), loadingComponent, errorComponent}),
     sys_parameter_rules: reg({loader: () => import('@/modules/system/parameter_rules.vue'), loadingComponent, errorComponent}),
     sys_parameter_mobile: reg({loader: () => import('@/modules/system/parameter.vue'), loadingComponent, errorComponent}),
@@ -122,8 +123,38 @@ export const components = {
     mes_report_template_parameter_mobile: reg({loader: () => import('@/modules/mes/report_template_parameter.vue'), loadingComponent, errorComponent}),
     mes_production_report_data: reg({loader: () => import('@/modules/mes/report_history.vue'), loadingComponent, errorComponent}),
     mes_production_report_data_mobile: reg({loader: () => import('@/modules/mes/report_history.vue'), loadingComponent, errorComponent}),
+    mes_eap_send_mobile: reg({loader: () => import('@/modules/mes/eap_send.vue'), loadingComponent, errorComponent}),
+    mes_eap_send: reg({loader: () => import('@/modules/mes/eap_send.vue'), loadingComponent, errorComponent}),
+    mes_stacked_structure: reg({loader: () => import('@/modules/mes/stacked_structure1.vue'), loadingComponent, errorComponent}),
     sys_category: reg({loader: () => import('@/modules/system/category.vue'), loadingComponent, errorComponent}),
     sys_category_mobile: reg({loader: () => import('@/modules/system/category.vue'), loadingComponent, errorComponent}),
+    academy: reg({loader: () => import('@/modules/home/academy.vue'), loadingComponent, errorComponent}),
+    // academy: reg({loader: () => import('@/modules/home/academy_ceshi.vue'), loadingComponent, errorComponent}),
+
+    academy_mobile: reg({loader: () => import('@/modules/home/academy.vue'), loadingComponent, errorComponent}),
+    user_log: reg({loader: () => import('@/modules/home/user_log.vue'), loadingComponent, errorComponent}),
+    excel_text: reg({loader: () => import('@/modules/home/excel_log.vue'), loadingComponent, errorComponent}),
+    noble_metal: reg({loader: () => import('@/modules/home/noble_metal.vue'), loadingComponent, errorComponent}),
+    todo_matter: reg({loader: () => import('@/modules/home/todo_matter.vue'), loadingComponent, errorComponent}),
+    tags_625: reg({loader: () => import('@/modules/home/625_tags.vue'), loadingComponent, errorComponent}),
+    raise: reg({loader: () => import('@/modules/home/raise.vue'), loadingComponent, errorComponent}),
+    quotation_price: reg({loader: () => import('@/modules/home/quotation_price.vue'), loadingComponent, errorComponent}),
+    // 举手文化
+    raise_index: reg({loader: () => import('@/modules/home/raiseYourHand.vue'), loadingComponent, errorComponent}),
+    raise_index_mobile: reg({loader: () => import('@/modules/home/raiseYourHand_mobile.vue'), loadingComponent, errorComponent}),
+    raise_detail: reg({loader: () => import('@/modules/home/raise.vue'), loadingComponent, errorComponent}),
+    raise_detail_mobile: reg({loader: () => import('@/modules/home/raise_detail.vue'), loadingComponent, errorComponent}),
+
+    organizational: reg({loader: () => import('@/modules/home/organizational.vue'), loadingComponent, errorComponent}),
+    // 分析数据
+    analysis: reg({loader: () => import('@/modules/home/analysis_kpi.vue'), loadingComponent, errorComponent}),
+    analysis_kpi: reg({loader: () => import('@/modules/home/analysis_kpi.vue'), loadingComponent, errorComponent}),
+
+    // 绩效数据
+    performance_kpi: reg({loader: () => import('@/modules/home/performance_kpi.vue'), loadingComponent, errorComponent}),
+    cost_control: reg({loader: () => import('@/modules/home/cost_control.vue'), loadingComponent, errorComponent}),
+    process_output: reg({loader: () => import('@/modules/home/process_output.vue'), loadingComponent, errorComponent}),
+
 }
 
 //模块与导航，可以从后端获取
@@ -139,12 +170,27 @@ export const nav = ref([
                 icon: 'ri-gallery-view',
                 auth: true,
             },
+
             {
                 id: 'profile',
                 title: '个人中心',
                 icon: 'ri-gallery-view',
                 show: false,
                 auth: true,
+                filter: false,
+            },
+            {
+                id: 'raise_detail',
+                title: '举手文化',
+                auth: true,
+                show: false,
+                filter: false,
+            },
+            {
+                id: 'raise_index',
+                title: '举手文化',
+                auth: true,
+                show: false,
                 filter: false,
             },
         ],
@@ -506,7 +552,7 @@ export const nav = ref([
                 title: '1009-装箱单明细',
                 query: {
                     search: [
-                        {type: 'select', load: 'factory', field: 'factory', options: {placeholder: '生产工厂'}},
+                        {type: 'select', load: 'factory', field: 'factory', options: {placeholder: '下单工厂'}},
                         {
                             type: 'rangeTime', field: 'shippedDate',
                             value: [core.date.time('YYYY-MM-DD 00:00:00'), core.date.time('YYYY-MM-DD 23:59:59')],
@@ -529,12 +575,14 @@ export const nav = ref([
                 title: '1009-装箱单明细(财务)',
                 query: {
                     search: [
-                        {type: 'select', load: 'factory', field: 'factory', options: {placeholder: '生产工厂'}},
+                        {type: 'select', load: 'factory', field: 'factory', options: {placeholder: '下单工厂'}},
                         {
                             type: 'rangeTime', field: 'shippedDate',
                             value: [core.date.time('YYYY-MM-DD 00:00:00'), core.date.time('YYYY-MM-DD 23:59:59')],
                             options: {placeholder: '出货日期'}
                         },
+                        {type: 'input', field: 'partnum', options: {placeholder: '本厂型号'}},
+                        {type: 'input', field: 'sonumber', options: {placeholder: '销售订单号'}},
                     ],
                 }
             },
@@ -2131,6 +2179,23 @@ export const nav = ref([
                     ],
                     menu: {approve: {hide: true}, resetApprove: {hide: true}, submitApprove: {hide: true},}
                 }
+            },{
+                id: 'lt_report_wlccayhz',
+                cid: 'publicReport',
+                title: '1104-物料出仓按月汇总',
+                icon: 'ri-play-list-add-line',
+                query: {
+                    search: [
+                        {type: 'select', load: 'factory', value: [6], field: 'factory', options: {placeholder: '工厂'}},
+                        {
+                            type: 'rangeTime', field: 'createDate',
+                            value: [core.date.list().startMonth['本月'], core.date.list().endMonth['本月']],
+                            options: {placeholder: '时间'}
+                        },
+
+                    ],
+                    menu: {approve: {hide: true}, resetApprove: {hide: true}, submitApprove: {hide: true},}
+                }
             }
         ]
     },
@@ -2573,6 +2638,11 @@ export const nav = ref([
                     apiUrl.sc.mesHoliday.holiday_del,
                 ],
             },
+            {
+                'id': 'tags_625',
+                'title': '625标签',
+                'icon':  'ri-file-list-3-line',
+            }
 
         ]
     },
@@ -2774,7 +2844,7 @@ export const nav = ref([
                     menu: {
                         approve: {hide: true}, resetApprove: {hide: true}, submitApprove: {hide: true},
                         savePrice: {title: '保存价格', sort: 105, icon: 'ri-save-line', listAction: ApiRequest.lt_report_os_po_price.savePrice},
-                        showMi: {title: '查看MI', sort: 105, icon: 'ri-file-pdf-2-line', listAction: (list, reportTable) => ApiRequest.showMi(list, reportTable, 'jobid')}
+                        showMi: {title: '查看MI', sort: 105, icon: 'ri-file-pdf-2-line', listAction: (list, reportTable) => ApiRequest.showMi(list, reportTable, 'JOBID')}
                     },
                     tableConfig: {
                         showCheck: true,
@@ -2825,6 +2895,7 @@ export const nav = ref([
                     apiUrl.visitor.apply.detail,
                 ],
             }
+
         ],
     },
     {
@@ -2847,6 +2918,12 @@ export const nav = ref([
                 query: {
                     menuHide: ['import', 'export'],
                 }
+            },
+            {
+                id:'assets',
+                icon: 'ri-device-line',
+                query: {},
+                title: '资产管理(新)',
             },
             {
                 id: 'asset_list_1',
@@ -2943,6 +3020,9 @@ export const nav = ref([
 
                 }
             },
+
+
+
         ]
     },
     {
@@ -2965,6 +3045,16 @@ export const nav = ref([
                 icon: 'ri-community-line',
                 title: '生产报表数据',
             },
+            {
+                id: 'mes_eap_send',
+                icon: 'ri-community-line',
+                title: '配方下发',
+            },
+            {
+                id: 'mes_stacked_structure',
+                title: '叠构生产记录',
+                icon: 'ri-play-list-add-line',
+            }
         ]
     },
     {
@@ -2973,28 +3063,46 @@ export const nav = ref([
         icon: 'ri-calculator-line',
         items: [
             {
-                id: 'cost_quote',
+                id: 'cost_quote_edit',
                 title: '成本报价',
                 icon: 'ri-computer-line',
                 query: {},
             },
             {
-                id: 'cost_item',
-                title: '标准成本-设置',
+                id: 'cost_quote',
+                title: '报价记录',
                 icon: 'ri-computer-line',
                 query: {},
             },
             {
+                id: 'cost_zxd',
+                title: '装箱单',
+                icon: 'ri-computer-line',
+                query: {},
+            },
+            /*{
                 id: 'cost_index',
                 title: '标准成本-数据',
                 icon: 'ri-computer-line',
                 query: {},
-            },
+            },*/
             {
                 id: 'cost_package',
                 icon: 'ri-community-line',
                 query: {},
-                title: '包管理',
+                title: '加工路线',
+            },
+            {
+                id: 'cost_overage',
+                title: '预投率管理',
+                icon: 'ri-computer-line',
+                query: {},
+            },
+            {
+                id: 'cost_item',
+                title: '费率管理',
+                icon: 'ri-computer-line',
+                query: {},
             },
             /*{
                 id: 'sys_step_equipment',
@@ -3008,24 +3116,141 @@ export const nav = ref([
                 query: {},
                 title: '工序数据',
             },
-            {
-                id: 'sys_parameter',
-                icon: 'ri-community-line',
-                query: {},
-                title: '参数库',
-            },
-            {
+           /* {
                 id: 'sys_parameter_rules',
                 icon: 'ri-community-line',
                 query: {},
                 title: '参数取值规则',
-            },
-            {
+            },*/
+            /*{
                 id: 'siyi_job',
                 icon: 'ri-community-line',
                 query: {},
                 title: '虚拟MI',
+            },*/
+            {
+                id: "cost_control",
+                title: '成本控制统计',
+                icon: 'ri-increase-decrease-line',
+                api: []
             },
+            {
+                id: 'noble_metal',
+                icon: 'ri-community-line',
+                query: {},
+                title: '贵金属数据对比'
+            },
+            {
+                id: 'todo_matter',
+                title: '待办事项表单',
+                icon: 'ri-todo-line',
+                query: {
+                    depart_id: 244,
+                },
+                api: []
+            },
+            {
+                id: 'excel_text',
+                title: '指标统计表单',
+                icon: 'ri-file-excel-line',
+                api: [
+                    // apiUrl2.home.excel.
+                    // apiUrl.ac.pandian.step_material_list,
+                ],
+            },
+            {
+                id: 'academy',
+                title: '降本总框架',
+                icon: 'ri-school-line',
+                // scope: 'admin',
+                // auth: true,
+                api:[],
+            },
+            {
+                id: 'raise',
+                title: '举手文化',
+                icon: 'ri-hand',
+                api:[],
+            },
+            {
+                id: 'quotation_price',
+                title: '报价涨价表单',
+                icon: 'ri-increase-decrease-line',
+                api: [],
+            },{
+                id: "analysis",
+                title: '原因分析',
+                icon: 'ri-increase-decrease-line',
+                query: {
+                    type: 'reason',
+                },
+                api: [
+                    // apiUrl2.home.analysis.init,
+                    // apiUrl2.home.analysis.list,
+                    // apiUrl2.home.analysis.export,
+                    // apiUrl2.home.analysis.month_list,
+                    // apiUrl2.home.analysis.details,
+                    // apiUrl2.home.analysis.userList,
+                    // apiUrl2.home.analysis.uploadUrl,
+                    // apiUrl2.home.analysis.editValue,
+                    // apiUrl2.home.analysis.editIndicator,
+                    // apiUrl2.home.analysis.month_save,
+                    // apiUrl2.home.analysis.batch_modify,
+                    // apiUrl2.home.analysis.field_config
+                ],
+            },{
+                id: 'analysis_kpi',
+                title: '数据填充',
+                icon: 'ri-increase-decrease-line',
+                query: {
+                    type: 'result',
+                },
+                api: [
+                    // apiUrl2.home.analysis.init,
+                    // apiUrl2.home.analysis.list,
+                    // apiUrl2.home.analysis.export,
+                    // apiUrl2.home.analysis.month_list,
+                    // apiUrl2.home.analysis.details,
+                    // apiUrl2.home.analysis.userList,
+                    // apiUrl2.home.analysis.uploadUrl,
+                    // apiUrl2.home.analysis.editValue,
+                    // apiUrl2.home.analysis.editIndicator,
+                    // apiUrl2.home.analysis.month_save,
+                    // apiUrl2.home.analysis.batch_modify,
+                    // apiUrl2.home.analysis.field_config
+                ],
+            },{
+                id: 'performance_kpi',
+                title: '绩效考评',
+                icon: 'ri-increase-decrease-line',
+                api: [
+                    // apiUrl2.home.performance.init,
+                    // apiUrl2.home.performance.list,
+                    // apiUrl2.home.performance.editIndicator,
+                    // apiUrl2.home.performance.assessee_init,
+                    // apiUrl2.home.performance.assessee_list,
+                    // apiUrl2.home.performance.user_list,
+                    // apiUrl2.home.performance.batch_modify,
+                    // apiUrl2.home.performance.assessee_user_list
+                ],
+            },
+            {
+                id: 'todo_matter_20260523',
+                cid: 'todo_matter',
+                title: '经管待办事项',
+                icon: 'ri-todo-line',
+                query: {
+                    depart_id: 14,
+                },
+                api: []
+            },
+            {
+                id: 'process_output',
+                title: '工序小时产出监控',
+                icon: 'ri-dashboard-fill',
+                api: []
+            }
+
         ]
     },
     {
@@ -3111,12 +3336,6 @@ export const nav = ref([
             //     query: {},
             //     title: '资产管理',
             // },
-            {
-                id:'assets',
-                icon: 'ri-device-line',
-                query: {},
-                title: '资产管理',
-            },
             /*
              {
                  id: 'sys_process',
@@ -3130,12 +3349,13 @@ export const nav = ref([
                  query: {},
                  title: '工段',
              },
-             {
-                 id: 'sys_equipment',
-                 icon:'ri-community-line',
-                 query: {},
-                 title: '设备',
-             },*/
+             */
+            {
+                id: 'sys_parameter',
+                icon: 'ri-community-line',
+                query: {},
+                title: '参数库',
+            },
             {
                 id: 'sys_unit',
                 icon: 'ri-community-line',
@@ -3159,6 +3379,11 @@ export const nav = ref([
                 icon: 'ri-book-shelf-line',
                 query: {},
                 title: '分类',
+            },
+            {
+                id: 'organizational',
+                icon: 'ri-building-line',
+                title: '新部门管理',
             },
         ]
     },

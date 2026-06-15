@@ -33,7 +33,7 @@
         <parameterPage :template="vData.template"  />
       </t-tab-panel>
       <t-tab-panel :value="2" label="设备" >
-        <equipmentPage :template="vData.template" />
+        <assetsPage :template="vData.template" />
       </t-tab-panel>
     </t-tabs>
   </div>
@@ -49,7 +49,7 @@ import dialog from "@/core/script/dialog.js";
 import {getOptionsLabel} from "@/utils/vars.js";
 import siyi from "@/core/script/siyi.js";
 import parameterPage from "@/modules/mes/report_template_parameter.vue";
-import equipmentPage from "@/modules/mes/report_template_equipment.vue";
+import assetsPage from "@/modules/mes/report_template_assets.vue";
 
 const props = defineProps({
   query:{type:Object,default:{}}
@@ -68,9 +68,9 @@ const mainReportConfig = {
   menuConfig: {
     defaultMenuHideList: ['clearCache', 'submitApprove', 'resetApprove', 'approve', 'advancedExport'],
     menu: {
-      add: {sort: 650, title: '新增模板' , icon: 'ri-add-line', click: () => fn.addTemplate()},
-      edit: {sort: 651, title: '修改模板', icon: 'ri-edit-line', click: () => fn.editTemplate()},
-      del: {sort: 652, title: '删除模板', icon: 'ri-delete-bin-2-line', click: () => fn.delTemplate()},
+      create: { click: () => fn.addTemplate()},
+      delete: { click: () => fn.delTemplate()},
+      update: { click: () => fn.editTemplate()},
     },
   },
   searchConfig: {
@@ -191,12 +191,14 @@ onMounted( () => {
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
+  gap: 3px;
 }
 
 .page-tabs{
   flex: 0 1 100%;
   display: flex;
   flex-direction: column;
+  gap: 3px;
 }
 
 .page-tabs :deep(.t-tabs__content) {

@@ -93,9 +93,9 @@ const mainReportConfig = {
   menuConfig: {
     defaultMenuHideList: ['search','clearCache','prevPage','nextPage', 'submitApprove', 'resetApprove', 'approve', 'advancedExport'],
     menu: {
-      add: {sort: 650, title: '新增模板参数' , icon: 'ri-add-line', click: () => fn.addTemplateParameter()},
-      edit: {sort: 651, title: '修改模板参数', icon: 'ri-edit-line', click: () => fn.editTemplateParameter()},
-      del: {sort: 652, title: '删除模板参数', icon: 'ri-delete-bin-2-line', click: () => fn.delTemplateParameter()},
+      create: { click: () => fn.addTemplateParameter()},
+      update: { click: () => fn.editTemplateParameter()},
+      delete: { click: () => fn.delTemplateParameter()},
     },
   },
   searchConfig:[],
@@ -151,8 +151,6 @@ const fn = {
     dialogConfigP.data[field] = null;
   }
 }
-
-
 
 const dialogConfigP = reactive({
   isShow:false,

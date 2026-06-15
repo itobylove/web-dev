@@ -123,7 +123,6 @@ const getReportConfig = () => {
         select: {
           outsideClickDeselect: false,//点击外部区域是否取消选中。
         },
-        heightMode:'autoHeight',
       },
       ...table.tableConfig
     },

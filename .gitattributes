@@ -1,0 +1,35 @@
+# 自动识别文本
+* text=auto
+
+# 前端核心文件（强制 LF）
+*.vue  text eol=lf
+*.js   text eol=lf
+*.ts   text eol=lf
+*.jsx  text eol=lf
+*.tsx  text eol=lf
+*.css  text eol=lf
+*.scss text eol=lf
+*.less text eol=lf
+*.html text eol=lf
+*.json text eol=lf
+*.md   text eol=lf
+*.yml  text eol=lf
+
+# 后端（你项目有 PHP）
+*.php text eol=lf
+
+# shell（必须 LF）
+*.sh text eol=lf
+
+# Windows 脚本
+*.bat text eol=crlf
+
+# 二进制
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.svg  binary
+*.ico  binary
+*.zip  binary
+*.pdf  binary

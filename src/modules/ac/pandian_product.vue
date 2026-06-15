@@ -37,7 +37,12 @@ const fn = {
     dialogConfig.config.title = '推送盘点表';
     dialogConfig.type = 'product_send';
     dialogConfig.show = true;
-  }
+  },
+  tempSendPandian:() => {
+    dialogConfig.config.title = '临时推送盘点表';
+    dialogConfig.type = 'product_temp_send';
+    dialogConfig.show = true;
+  },
 }
 
 const dialogConfig = reactive({
@@ -79,10 +84,11 @@ const mainReport = ref();
 const mainReportShow = ref(false);
 const mainReportConfig = {
   menuConfig: {
-    defaultMenuHideList: ['clearCache','submitApprove', 'resetApprove', 'approve', 'advancedExport'],
+    defaultMenuHideList: ['update','delete','prevPage','nextPage','clearCache','submitApprove', 'resetApprove', 'approve', 'advancedExport'],
     menu: {
-      createPandian: {sort: 650, title: '创建盘点表', icon: 'ri-list-settings-fill', click: () => fn.createPandian()},
-      sendPandian: {sort: 651, title: '推送盘点表', icon: 'ri-send-plane-fill', click: () => fn.sendPandian()},
+      create: {title: '创建盘点表', click: () => fn.createPandian()},
+      send: {sort: 651, title: '推送盘点表', icon: 'ri-send-plane-fill', click: () => fn.sendPandian()},
+      tempSend: {sort: 652, title: '只做EXCEL盘点表推送', icon: 'ri-file-transfer-fill', click: () => fn.tempSendPandian()},
     },
   },
   searchConfig: {

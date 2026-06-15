@@ -1,5 +1,5 @@
 <template>
-    <div class="container">
+    <div class="body">
         <div class="add-cate" v-if="!props.query.edit">
             <t-form>
                 <t-form-item label="分类" name="groupType" :label-width="80">
@@ -34,7 +34,7 @@
                         </t-option>
                     </t-select>
                 </t-form-item>
-                <t-form-item label="资产类型" name="category_id">
+                <t-form-item label="资产分类" name="category_id">
                     <t-select v-model="formData.category_id" class="demo-select-base" clearable filterable
                         placeholder="请选择资产类型">
                         <t-option v-for="(item, index) in options.assetCategoryOptions" :value="item.value"
@@ -43,17 +43,20 @@
                         </t-option>
                     </t-select>
                 </t-form-item>
-                <t-form-item label="label标签" name="label">
-                    <t-select v-model="formData.label" class="demo-select-base" clearable filterable
-                        placeholder="请选择所属label标签">
-                        <t-option v-for="(item, index) in options.assetLabelOptions" :value="item.value"
-                            :label="item.label" :key="index">
-                            {{ item.label }}
-                        </t-option>
-                    </t-select>
+                <t-form-item label="特征值" name="label" help="系统管理员方可添加修改">
+                    <t-select v-model="formData.label" creatable :options="options.assetLabelOptions"
+                        :disabled="siyi.user.administrator === false ? true : false" filterable
+                        @create="formEvents.createAssetOptions" />
                 </t-form-item>
                 <t-form-item label="资产编号" help="若不填写，则系统自动生成">
                     <t-input v-model="formData.code" placeholder="请输入资产编号"></t-input>
+                </t-form-item>
+                <t-form-item label="资产状态">
+                    <t-switch size="large" v-model="formData.status" :label="['有效', '禁用']"></t-switch>
+                </t-form-item>
+                <t-form-item label="资产备注">
+                    <t-textarea v-model="formData.remark" placeholder="请输入资产备注"
+                        :autosize="{ minRows: 3, maxRows: 5 }"></t-textarea>
                 </t-form-item>
                 <t-form-item>
                     <t-space size="10px">
@@ -88,17 +91,20 @@
                         </t-option>
                     </t-select>
                 </t-form-item>
-                <t-form-item label="label标签" name="label">
-                    <t-select v-model="assetGroupFormData.label" class="demo-select-base" clearable filterable
-                        placeholder="请选择所属label标签">
-                        <t-option v-for="(item, index) in options.assetLabelOptions" :value="item.value"
-                            :label="item.label" :key="index">
-                            {{ item.label }}
-                        </t-option>
-                    </t-select>
+                <t-form-item label="特征值" name="group_label" help="系统管理员方可添加修改">
+                    <t-select v-model="assetGroupFormData.group_label" creatable :options="options.groupLabelOptions"
+                        :disabled="siyi.user.administrator === false ? true : false" filterable
+                        @create="formEvents.createGroupOptions" />
                 </t-form-item>
                 <t-form-item label="资产组编号" help="若不填写，则系统自动生成">
                     <t-input v-model="assetGroupFormData.code" placeholder="请输入资产组编号"></t-input>
+                </t-form-item>
+                <t-form-item label="资产状态">
+                    <t-switch size="large" v-model="assetGroupFormData.status" :label="['有效', '禁用']"></t-switch>
+                </t-form-item>
+                <t-form-item label="资产备注">
+                    <t-textarea v-model="assetGroupFormData.remark" placeholder="请输入资产备注"
+                        :autosize="{ minRows: 3, maxRows: 5 }"></t-textarea>
                 </t-form-item>
                 <t-form-item>
                     <t-space size="10px">
@@ -112,7 +118,7 @@
     </div>
 </template>
 <script setup>
-import { ref, onMounted, reactive, computed, nextTick } from 'vue'
+import { ref, onMounted, reactive } from 'vue'
 import apiUrl from '@/core/config/url2';
 import * as api from "@/core/script/api.js";
 import dialog from "@/core/script/dialog.js";
@@ -129,6 +135,7 @@ const options = reactive({
     plantOptions: [],
     assetCategoryOptions: [],
     assetGroupOptions: [],
+    groupLabelOptions: [],
     assetLabelOptions: [],
     workshopOptions: [],
 });
@@ -139,27 +146,31 @@ const rules = ref({
     name: [{ required: true, message: '资产名称必填', type: 'error' }],
     plant_id: [{ required: true, message: '工厂名称必填', type: 'error' }],
     workshop_id: [{ required: true, message: '车间名称必填', type: 'error' }],
-    category_id: [{ required: true, message: '设备类型必填', type: 'error' }],
-    label: [{ required: true, message: 'label标签必填', type: 'error' }]
+    category_id: [{ required: true, message: '资产类型必填', type: 'error' }],
+    group_label: [{ required: true, message: '特征值必填', type: 'error' }],
 });
 const groupType = ref('1');
 const formEvents = {
     INITIAL_DATA: {
         code: '',
         name: '',
-        plant_id: siyi.user.plantId,
+        plant_id: props.query.plantId,
         workshop_id: '',
         category_id: '',
         type: 'assets',
-        label: ''
+        label: '',
+        status: true,
+        remark: ''
     },
     GROUP_INITIAL_DATA: {
         code: '',
         name: '',
-        plant_id: siyi.user.plantId,
+        plant_id: props.query.plantId,
         type: '',
         workshop_id: '',
-        label: '',
+        group_label: '',
+        status: true,
+        remark: ''
     },
     onChange: (val) => {
         if (val === '1') {
@@ -170,21 +181,25 @@ const formEvents = {
         }
     },
     onReset: () => {
-        formData.value = { ...INITIAL_DATA };
+        formData.value = { ...formEvents.INITIAL_DATA };
     },
     onSubmit: async (result) => {
         if (result.validateResult === true) {
-            let msg = assetGroupFormData.value.edit ? '编辑' : '添加';
+            let msg = formData.value.edit ? '修改' : '添加';
             await api.post(apiUrl.sys.asset.addAsset, formData.value).then(res => {
-                if (res.ret) {
-                    dialog.success(`资产${msg}成功`);
-                    props.getAttach(true);
-                } else if (res.ret === -1) {
-                    dialog.warning(res.msg || '资产已存在');
-                } else {
-                    dialog.error(res.msg || `资产${msg}失败,请稍后再试`);
+                if (res !== null) {
+                    if (res.ret) {
+                        dialog.success(`资产${msg}成功`);
+                        props.getAttach(true);
+                    } else if (res.ret === -1) {
+                        dialog.warning(res.msg || '资产已存在');
+                    } else {
+                        dialog.error(res.msg || `资产${msg}失败,请稍后再试`);
+                    }
+                    props.dialog.close();
+                }else{
+                    props.getAttach(false);
                 }
-                props.dialog.close();
             })
         } else {
             dialog.warning(result.firstError);
@@ -194,18 +209,22 @@ const formEvents = {
         form.value.clearValidate();
     },
     groupSubmit: async (result) => {
-        let msg = assetGroupFormData.value.edit ? '编辑' : '添加';
+        let msg = assetGroupFormData.value.edit ? '修改' : '添加';
         if (result.validateResult === true) {
             await api.post(apiUrl.sys.asset.addAssetGroup, assetGroupFormData.value).then(res => {
-                if (res.ret) {
-                    props.getAttach(true);
-                    dialog.success(`资产组${msg}成功`);
-                } else if (res.ret === -1) {
-                    dialog.warning(res.msg || '资产组已存在');
-                } else {
-                    dialog.error(res.msg || `资产组${msg}失败,请稍后再试`);
+                if (res !== null) {
+                    if (res.ret) {
+                        props.getAttach(true);
+                        dialog.success(`资产组${msg}成功`);
+                    } else if (res.ret === -1) {
+                        dialog.warning(res.msg || '资产组已存在');
+                    } else {
+                        dialog.error(res.msg || `资产组${msg}失败,请稍后再试`);
+                    }
+                    props.dialog.close();
+                }else{
+                    props.getAttach(false);
                 }
-                props.dialog.close();
             })
         } else {
             dialog.warning(result.firstError);
@@ -229,33 +248,54 @@ const formEvents = {
         })
         options.workshopOptions = workshopData;
     },
+    createGroupOptions: (value) => {
+        options.groupLabelOptions.push({
+            value,
+            label: value,
+        });
+    },
+    createAssetOptions: (value) => {
+        options.assetLabelOptions.push({
+            value,
+            label: value,
+        });
+    }
 }
 const formData = ref({ ...formEvents.INITIAL_DATA });
 const assetGroupFormData = ref({ ...formEvents.GROUP_INITIAL_DATA });
+
 onMounted(async () => {
+    let plantId = props.query.plantId;
     if (props.query.edit) {
         formData.value = props.query.asset
         formData.value.edit = true;
+        plantId = props.query.asset.plant_id;
         if (props.query.asset.type === 'group') {
             assetGroupFormData.value = props.query.asset
+            assetGroupFormData.value.group_label = props.query.asset.label
             assetGroupFormData.value.edit = true;
         }
     }
-    let plantData = props.query.options.plantOptionsLists, categoryData = props.query.options.categoryOptionsLists, labelData = props.query.options.groupLabelOptionsLists;
+    let plantData = props.query.options.plantOptionsLists, categoryData = props.query.options.categoryOptionsLists, groupLabelData = props.query.options.groupLabelOptionsLists, assetsLabelData = props.query.options.labelOptionsLists;
     options.plantOptions = plantData.map(i => ({ label: i.title, value: i.id }));// 获取工厂列表
     options.assetCategoryOptions = categoryData.map(i => ({ label: i.name, value: i.id }));// 获取资产分类列表
-    await formEvents.getWorkshopsLists(siyi.user.plantId);
+    await formEvents.getWorkshopsLists(plantId);
     // 获取资产组类型列表
-    const arr = [];
-    for (let key in labelData) {
-        arr.push({ label: labelData[key], value: key });
+    const groupArr = [];
+    for (let key in groupLabelData) {
+        groupArr.push({ label: groupLabelData[key], value: groupLabelData[key] });
     }
-    options.assetLabelOptions = arr;
+    options.groupLabelOptions = groupArr;
+    const assetsArr = [];
+    for (let key in assetsLabelData) {
+        assetsArr.push({ label: assetsLabelData[key], value: assetsLabelData[key] });
+    }
+    options.assetLabelOptions = assetsArr;
 });
 </script>
 
 <style scoped>
-.container {
+.body {
     .add-cate {
         padding: 0 0 20px 0;
     }

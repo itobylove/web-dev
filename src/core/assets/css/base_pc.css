@@ -13,8 +13,8 @@
     --module-background-color: #30364d;
     --user-background-color: #30364d;
 
-    --logo-border-right: 1px solid #282c3c;
-    --logo-border-bottom: 1px solid #282c3c;
+    --logo-border-right: 0px none;
+    --logo-border-bottom: 0px none;
     --module-border-bottom: 0 none;
     --user-border-bottom: 0 none;
     --search-border-bottom: 1px solid #282c3c;
@@ -111,6 +111,14 @@
     --time-font-color: #201e1b;
 
     --right-background-color: #fff;
+}
+
+.scrollbar-hidden{
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE 10+ */
+}
+.scrollbar-hidden::-webkit-scrollbar {
+    display: none; /* Chrome、Safari、Edge */
 }
 
 

@@ -33,12 +33,15 @@ export const getHttpDefaultHeaders = () => {
 
 // const CancelToken = axios.CancelToken
 // const source = CancelToken.source()
+/*function getRequestKey(config) {
+    return `${config?.method}-${config?.url}-${JSON.stringify(config?.params)}`;
+}*/
 
 //http请求方法
 export const http = axios.create({
     baseURL: '',
     timeout: 60000 * 10,
-})
+});
 
 // 添加请求拦截器
 http.interceptors.request.use(async config => {
@@ -48,7 +51,19 @@ http.interceptors.request.use(async config => {
     if (!config.url.startsWith(apiUrl2.base) && !config.url.startsWith(apiUrl.base) && !config.url.startsWith('http')) {
         config.baseURL = apiUrl.base; // 临时兼容旧接口
     }
-    config.headers = {...config.headers,  ...getHttpDefaultHeaders()}
+    config.headers = {...config.headers, ...getHttpDefaultHeaders()}
+
+    /*   const key = getRequestKey(config);
+       // 取消之前的请求
+       if (siyi.requestsList.has(key)) {
+           siyi.requestsList.get(key).abort();
+           siyi.requestsList.delete(key);
+       }
+       // 创建新控制器并存入
+       const controller = new AbortController();
+       siyi.requestsList.set(key, controller);
+       config.signal = controller.signal;*/
+
     return config
 }, function (error) {
     return Promise.reject(error)
@@ -57,42 +72,63 @@ http.interceptors.request.use(async config => {
 
 // 添加响应拦截器
 http.interceptors.response.use(res => {
-    const token = res.headers['x-api-key']
-    const time = res.headers['x-api-time']
+    /*const key = getRequestKey(response.config);
+    siyi.requestsList.delete(key);*/
+
+    const token = res.headers['x-api-key'];
+    const time = res.headers['x-api-time'];
     if (token?.length === 32 && time?.length === 10) {
-        sessionStorage.setItem('x-api-key', token)
-        sessionStorage.setItem('x-api-time', time)
-    } else if(siyi.env==='prod'){
-        sessionStorage.removeItem('x-api-key')
-        sessionStorage.removeItem('x-api-time')
+        sessionStorage.setItem('x-api-key', token);
+        sessionStorage.setItem('x-api-time', time);
+    } else if (siyi.env === 'prod') {
+        sessionStorage.removeItem('x-api-key');
+        sessionStorage.removeItem('x-api-time');
     }
     if ((res.data?.action ?? res.data?.data?.action) === 'to_login') {
         user.logout().then(() => null);// 重新登录
     }
     if ([301, 302].includes(res.data.status)) {
-        res.data.message && dialog.info(res.data.message)// 这句没啥作用，都跳转了提示也看不到了
         window.location.href = res.data.url;
         return;
     }
     if (res.data.code === 20002) {
         dialog.confirm(res.data.message + '，是否申请?', () => {
-            const path = (new URL(res.request.responseURL)).pathname
+            const path = (new URL(res.request.responseURL)).pathname;
             authApply({type: 2, data: [{name: path}]}).then((applyIds) => {
-                applyIds?.length > 0 && dialog.success('申请成功,请等待审核!', 9999999)
+                applyIds?.length > 0 && dialog.success('申请成功,请等待审核!', 9999999);
             })
         })
     }
-    return res
+    return res;
 }, error => {
+    if (error.config) {
+        // const key = getRequestKey(error.config);
+        // siyi.requestsList.delete(key);
+    }
     dialog.error(error.message)
     return Promise.reject(error)
 })
 
-const response = (res, fields, getRaw) => {
+/**
+ * 请求响应处理
+ * @param res 请求响应
+ * @param fields 返回字段
+ * @param getRaw 是否返回原始数据
+ * @param isNewSystem 是否是新系统 todo旧系统下线后这个方法要优化改造成标准用法
+ * @returns {*|null|{}}
+ */
+const response = (res, fields, getRaw, isNewSystem = false) => {
+    if (isNewSystem) {
+        if (getRaw) return res;
+        const data = res.data.data;
+        const status = res.data.status;
+        dialog[status](res.data.message);
+        return fields ? core.pick(data, fields) : data;
+    }
     const code = res?.data?.code;
     const message = res?.data?.message || '出错了';
     const data = res?.data?.data || null;
-    if (![0,200,20000].includes(code)) {
+    if (![0, 200, 20000].includes(code)) {
         if (code === 20002) return; // 无权限，在响应拦截器已经提示过了，不在提示
         const dialogMap = {
             21000: dialog.info, //提示
@@ -113,32 +149,33 @@ const response = (res, fields, getRaw) => {
  * @param params
  * @param fields
  * @param getRaw
+ * @param isNewSystem 是否是新系统 todo旧系统下线后这个方法要优化改造成标准用法
  * @returns {Promise<{}|*>}
  */
-export const get = async (_url, params = {}, fields = null, getRaw = false) => {
-    if (typeof _url!=='string'){
+export const get = async (_url, params = {}, fields = null, getRaw = false, isNewSystem = false) => {
+    if (typeof _url !== 'string') {
         const lastCall = (new Error().stack.split('\n').pop() || '').trim();
-        dialog.error('url不存在：'+lastCall,30000);
+        dialog.error('url不存在：' + lastCall, 30000);
         return;
     }
-    return response(await http.get(_url, { params }),fields, getRaw);
+    return response(await http.get(_url, {params}), fields, getRaw, isNewSystem);
 };
 
 /**
  * 通用的post请求
- * @param _url
+ * @param url
  * @param params
  * @param fields
  * @param getRaw
+ * @param isNewSystem 是否是新系统 todo旧系统下线后这个方法要优化改造成标准用法
  * @returns {Promise<{}|*>}
  */
-export const post = async (_url, params = {}, fields = null, getRaw = false) => {
-    if (typeof _url!=='string'){
-        const lastCall = (new Error().stack.split('\n').pop() || '').trim();
-        dialog.error('url不存在：'+lastCall,30000);
+export const post = async (url, params = {}, fields = null, getRaw = false, isNewSystem = false) => {
+    if (typeof url !== 'string' || url === '') {
+        dialog.error('请示地址错误');
         return;
     }
-    return response(await http.post(_url, params),fields, getRaw);
+    return response(await http.post(url, params), fields, getRaw, isNewSystem);
 }
 
 // utils/jsonp.js
@@ -149,8 +186,8 @@ export function jsonp(url, params = {}, callbackName = "callback") {
         // 拼接参数
         params[callbackName] = cbName;
         const query = Object.keys(params)
-        .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(params[k]))
-        .join("&");
+            .map(k => encodeURIComponent(k) + "=" + encodeURIComponent(params[k]))
+            .join("&");
 
         const script = document.createElement("script");
         script.src = url + (url.includes("?") ? "&" : "?") + query;
@@ -171,7 +208,6 @@ export function jsonp(url, params = {}, callbackName = "callback") {
         document.body.appendChild(script);
     });
 }
-
 
 
 /**
@@ -200,8 +236,8 @@ export const apiFetch = async (url, params = {}, options = {}, toJson = true) =>
 export async function fetchWithTimeout(url, options = {}, timeout = 3000) {
     const controller = new AbortController();
     const id = setTimeout(() => controller.abort(), timeout);
-    return fetch(url, { ...options, signal: controller.signal })
-    .finally(() => clearTimeout(id));
+    return fetch(url, {...options, signal: controller.signal})
+        .finally(() => clearTimeout(id));
 }
 
 /**
@@ -277,7 +313,7 @@ export const employeeSelector = async (keyword = '', params = {}) => {
  * @returns {Promise<*|{}|{}>}
  */
 export const departmentSelector = async (keyword = '', params = {}) => {
-    return await get(url.common.selector, {type:'department',showMore:1,keyword, ...params});
+    return await get(url.common.selector, {type: 'department', showMore: 1, keyword, ...params});
 };
 /**
  * 部门树选择器(MSSQL中的)
@@ -286,7 +322,7 @@ export const departmentSelector = async (keyword = '', params = {}) => {
  * @returns
  */
 export const departmentTreeSelector = async (keyword = '', params = {}) => {
-    return await get(apiUrl2.dept.list, {type:'department',showMore:1,keyword, ...params});
+    return await get(apiUrl2.dept.list, {type: 'department', showMore: 1, keyword, ...params});
 }
 
 
@@ -297,7 +333,7 @@ export const departmentTreeSelector = async (keyword = '', params = {}) => {
  * @returns {Promise<*|{}|{}>}
  */
 export const positionSelector = async (keyword = '', params = {}) => {
-    return await get(url.common.selector, {type:'position',showMore:1,keyword, ...params});
+    return await get(url.common.selector, {type: 'position', showMore: 1, keyword, ...params});
 };
 
 /**
@@ -333,6 +369,17 @@ export const supplierSelector = async (keyword = '', params = {}) => {
 
 
 /**
+ * 物料选择器
+ * @param keyword
+ * @param params
+ * @returns {Promise<*|{}|{}>}
+ */
+export const materialCategorySelector = async (keyword = '', params = {}) => {
+    return await get(url.common.selector, {type: 'material_category', keyword, ...params});
+};
+
+
+/**
  * 上传文件
  * @param file 文件
  * @param server_url 上传地址
@@ -363,7 +410,11 @@ export async function getWxConfig(_url, isAgent = 0) {
 export const getErpPdf = async (type, params, open = 'view') => {
     const _url = url.erpReport?.[type];
     const data = _url ? await get(_url, {...params}) : null;
-    open === 'view' && data?.url && dialog.window(`<iframe class='iframe_full' src='${data.url}'>`, {}, {title: data.name, width: 800, height: 800})
+    if (open === 'view' && data?.url) {
+        dialog.window(`<iframe class='iframe_full' src='${data.url}'>`, {}, {title: data.name, width: 800, height: 800})
+    } else {
+        window.open(data?.url);
+    }
     return data;
 }
 
@@ -396,7 +447,7 @@ export const getClientIP3 = async (field = null) => {
         let ipInfo = storage.get('clientIp');
         if (typeof ipInfo?.ip === "undefined" || ipInfo?.ip?.length < 1) {
             const apiResult = await (await fetchWithTimeout('https://api.vore.top/api/IPdata?ip=', {referrerPolicy: 'no-referrer'})).json();
-            if (apiResult?.ipinfo?.text){
+            if (apiResult?.ipinfo?.text) {
                 ipInfo = {
                     ip: apiResult.ipinfo.text,
                     isp: apiResult?.ipdata?.isp,
@@ -417,7 +468,7 @@ export const getClientIP = async (field = null) => {
         const storage = useStorage();
         let ipInfo = storage.get('clientIp');
         if (!ipInfo?.ip) {
-            const res = await (await fetchWithTimeout('https://myip.ipip.net/json', { referrerPolicy: 'no-referrer' })).json();
+            const res = await (await fetchWithTimeout('https://myip.ipip.net/json', {referrerPolicy: 'no-referrer'})).json();
             if (res?.data?.ip) {
                 const loc = (res.data?.location || []).filter(Boolean);
                 ipInfo = {
@@ -425,7 +476,7 @@ export const getClientIP = async (field = null) => {
                     isp: loc.pop(),
                     location: loc.join(' '),
                 };
-                storage.set('clientIp', ipInfo, { expire: 86400 });
+                storage.set('clientIp', ipInfo, {expire: 86400});
             }
         }
         return field ? ipInfo?.[field] : ipInfo;
@@ -559,6 +610,6 @@ export function getPageUrl(path, query, hash = '') {
     return createUrl(host + path + (hash.length > 0 ? '#' + hash : ''), query);
 }
 
-export function getUrl(query, hash = ''){
+export function getUrl(query, hash = '') {
     return createUrl(window.location.href, query) + (hash.length > 0 ? '#' + hash : '');
 }

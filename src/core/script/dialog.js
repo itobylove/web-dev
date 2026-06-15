@@ -21,9 +21,9 @@ const dialog = (opts = {}) => {
 const confirmAsync = async (content, title = '请确认', opts = {}) => {
     return new Promise(resolve => dialog({
         title, content,
-        onOk: () => resolve(true),
-        onNo: () => resolve(false),
-        onOther: () => resolve(null),
+        okCallback: () => resolve(true),
+        noCallback: () => resolve(false),
+        otherCallback: () => resolve(null),
         ...opts, type: 'confirm',
     }));
 };
@@ -31,36 +31,36 @@ const confirmAsync = async (content, title = '请确认', opts = {}) => {
 const inputAsync = async (value = '', title = '请输入', opts = {}) => {
     return new Promise(resolve => dialog({
         title, value,
-        onOk: obj => resolve(obj.action === 'ok' ? obj.value : null),
-        onNo: () => resolve(false),
-        onOther: () => resolve(null),
+        okCallback: obj => resolve(obj.action === 'ok' ? obj.value : ''),
+        noCallback: () => resolve(false),
+        otherCallback: () => resolve(null),
         ...opts, type: 'input',
     }));
 };
 
 
-const selectAsync = async (options, value, title = '请选择', opts = {},selectOpts={}) => {
+const selectAsync = async (options, value, title = '请选择', opts = {}, selectOpts = {}) => {
     const getResult = opts?.getResult || function (obj) {
         return obj.value;
     }
     return new Promise(resolve => dialog({
         title, value, select: {'options': options, ...selectOpts},
-        onOk: obj => resolve(obj.action === 'ok' ? getResult(obj) : null),
-        onNo: () => resolve(false),
-        onOther: () => resolve(null),
+        okCallback: obj => resolve(obj.action === 'ok' ? getResult(obj) : null),
+        noCallback: () => resolve(false),
+        otherCallback: () => resolve(null),
         ...opts, type: 'select',
     }));
 };
 
-const treeSelectAsync = async (tree, value, title = '请选择', opts = {},treeOpts={}) => {
+const treeSelectAsync = async (tree, value, title = '请选择', opts = {}, treeOpts = {}) => {
     const getResult = opts?.getResult || function (obj) {
         return obj.value;
     }
     return new Promise(resolve => dialog({
-        title, value, select: {data:tree, ...treeOpts,options:[],isTree:true},
-        onOk: obj => resolve(obj.action === 'ok' ? getResult(obj) : null),
-        onNo: () => resolve(false),
-        onOther: () => resolve(null),
+        title, value, select: {data: tree, ...treeOpts, options: [], isTree: true},
+        okCallback: obj => resolve(obj.action === 'ok' ? getResult(obj) : null),
+        noCallback: () => resolve(false),
+        otherCallback: () => resolve(null),
         width: '400px',
         height: '200px',
         ...opts, type: 'select',
@@ -68,31 +68,30 @@ const treeSelectAsync = async (tree, value, title = '请选择', opts = {},treeO
 };
 
 
-
 export default {
     window: (content, contentProps, opts = {}) => dialog({content, contentProps, ...opts, type: 'window'}),
-    info: (content, duration, opts = {}) => dialog({content, duration, ...opts, type: 'info'}),
-    success: (content, duration, opts = {}) => dialog({content, duration, ...opts, type: 'success'}),
-    warning: (content, duration, opts = {}) => dialog({content, duration, ...opts, type: 'warning'}),
-    error: (content, duration, opts = {}) => dialog({content, duration, ...opts, type: 'error'}),
-    question: (content, duration, opts = {}) => dialog({content, duration, ...opts, type: 'question'}),
+    info: (content, duration = 1500, opts = {}) => dialog({content, duration, ...opts, type: 'info'}),
+    success: (content, duration = 1500, opts = {}) => dialog({content, duration, ...opts, type: 'success'}),
+    warning: (content, duration = 3000, opts = {}) => dialog({content, duration, ...opts, type: 'warning'}),
+    error: (content, duration = 5000, opts = {}) => dialog({content, duration, ...opts, type: 'error'}),
+    question: (content, duration = 1500, opts = {}) => dialog({content, duration, ...opts, type: 'question'}),
     loading: (container, content, opts = {}) => dialog({content, container, ...opts, type: 'loading'}),
-    confirm: (content, onOk, onNo, onOther, container) => {
-        const opts = typeof content === 'object' ? content : {content, onOk, onNo, onOther, container};
+    confirm: (content, okCallback, noCallback, otherCallback, container) => {
+        const opts = typeof content === 'object' ? content : {content, okCallback, noCallback, otherCallback, container};
         opts.type = 'confirm';
         return dialog(opts);
     },
     input: (value, okCallback = () => '', title, opts = {}) => dialog({
         title, value,
-        onOk: obj => okCallback(obj.action === 'ok' ? obj.value : null, obj),
+        okCallback: obj => okCallback(obj.action === 'ok' ? obj.value : null, obj),
         ...opts, type: 'input',
     }),
     select: (options, value, okCallback = () => '', title = '请选择', opts = {}) => dialog({
         title, value, select: {'options': options},
-        onOk: obj => okCallback(obj.action === 'ok' ? obj.value : null, obj),
+        okCallback: obj => okCallback(obj.action === 'ok' ? obj.value : null, obj),
         ...opts, type: 'select',
     }),
-    confirmAsync, inputAsync, selectAsync,treeSelectAsync
+    confirmAsync, inputAsync, selectAsync, treeSelectAsync
 };
 
 

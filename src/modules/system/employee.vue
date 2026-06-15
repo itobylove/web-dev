@@ -56,9 +56,9 @@ const mainReportConfig = {
   menuConfig: {
     defaultMenuHideList: ['clearCache','submitApprove', 'resetApprove', 'approve', 'advancedExport'],
     menu: {
-      add: {sort: 650, title: '新增人员' , icon: 'ri-add-line', click: () => fn.addEmployee()},
-      edit: {sort: 651, title: '修改人员', icon: 'ri-edit-line', click: () => fn.editEmployee()},
-      del: {sort: 652, title: '删除人员', icon: 'ri-delete-bin-2-line', click: () => fn.delEmployee()},
+      create: { click: () => fn.addEmployee()},
+      update: { click: () => fn.editEmployee()},
+      delete: { click: () => fn.delEmployee()},
     },
   },
   searchConfig: {

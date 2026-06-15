@@ -159,8 +159,8 @@ const isSubmit = ref(0);
 const defaultFormOption={
   'text':{},
   'textarea':{},
-  'number-int':{min: 0,step:1,autoWidth:true,decimalPlaces:0},
-  'number-float':{min:0,step:0.01,autoWidth:true,decimalPlaces:2},
+  'number-int':{min: 0,step:1,autoWidth:false,decimalPlaces:0},
+  'number-float':{min:0,step:0.01,autoWidth:false,decimalPlaces:2},
   'datetime':{enableTimePicker:true,allowInput:true,clearable:true,format:"YYYY-MM-DD hh:mm"},
   'date':{allowInput:true,clearable:true,format:"YYYY-MM-DD"},
   'switch':{},

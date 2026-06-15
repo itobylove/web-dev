@@ -19,15 +19,15 @@
             <tr>
               <td>操作员</td>
               <td>设备</td>
-              <td>工段</td>
+              <td>设备组</td>
               <td>工艺</td>
               <td>工序</td>
               <td>状态</td>
             </tr>
             <tr>
               <td>{{ refobj.employee_name }}</td>
-              <td>{{ refobj.equipment_name }}</td>
-              <td>{{ refobj.station_name }}</td>
+              <td>{{ refobj.assets_name }}</td>
+              <td>{{ refobj.assets_group_name }}</td>
               <td>{{ refobj.process_name }}</td>
               <td>{{ refobj.step_name }}</td>
               <td>{{ refobj.status ? '等待下机' : '等待上机' }}</td>
@@ -95,7 +95,7 @@
         </div>
       </div>
       <div class="reportDetails" v-else-if="refobj.tabType==='reportDetails'">
-        <report_history :where="{station_id:refobj.station_id,equipment_id:refobj.equipment_id}"></report_history>
+        <report_history :where="{assets_id:refobj.assets_id}"></report_history>
       </div>
       <div class="scrapDetails" v-else-if="refobj.tabType==='scrapDetails'">报废明细开发中</div>
       <div class="outputDetails" v-else-if="refobj.tabType==='outputDetails'">产出明细开发中</div>
@@ -109,9 +109,9 @@
     <dialogComponent ref="templateBox" v-if="refobj.templateBoxShow" v-bind="obj.templateBox">
       <div class="templateBox">
         <dl v-for="item in obj.templateList" @click="obj.selectTpl(item)">
-          <dt class="title">{{ item.equipment_name }}</dt>
+          <dt class="title">{{ item.assets_name }}</dt>
           <dd class="body">{{ item.template_name }}</dd>
-          <dd class="footer">{{ item.station_name }}</dd>
+          <dd class="footer">{{ item.assets_group_name }}</dd>
         </dl>
       </div>
     </dialogComponent>
@@ -226,10 +226,9 @@ const refobj = reactive({
   indeterminate: false,//部分选中
   employee_id: 0,//人员ID
   employee_name: '',//人员
-  equipment_id: 0,//设备ID
-  equipment_name: '',// 设备名称
-  station_id: 0,//工段ID
-  station_name: '',//工段名称
+  assets_id: '',//设备ID
+  assets_name: '',// 设备名称
+  assets_group_name: '',//设备组名称
   template_id: 0,//模板ID
   template_name: '',//模板名称
   multiple: false,//是否可多工单上机
@@ -300,6 +299,7 @@ const obj = {
   selectTpl: config => {
     Object.assign(refobj, config, JSON.parse(sessionStorage.getItem(sessionStorage.getItem('x-api-key'))));
     templateBox.value?.close();
+    obj.wo(refobj.wonumber);
   },
   wolistShow: () => {
     if(refobj.wolist.length>1 && Boolean(refobj.wonumber)){
@@ -314,6 +314,9 @@ const obj = {
    */
   qtyBox: {
     okval: '上机', noval: '取消', showFooter: true, esc: false, forceEnlarge: false, showClose: false, changeSize: false,
+    okKeyCode: false,
+    noKeyCode: false,
+    otherKeyCode: false,
     onAfterClose: () => refobj.qtyBoxShow = false, okCallback: async o => o.close = await obj.create(),
   },
   selectAll: val => {
@@ -343,8 +346,8 @@ const obj = {
     try{
       qtyBox.value?.close();
       const result = await api.post(apiUrl.mes.report_data.wo, {
-        wonumber, station_id: refobj.station_id,
-        equipment_id: refobj.equipment_id,
+        wonumber,
+        assets_id: refobj.assets_id,
         template_id: refobj.template_id,
         multiple: refobj.multiple,
       });
@@ -404,8 +407,8 @@ const obj = {
       }
 
       const ids = await api.post(apiUrl.mes.report_data.create, {
-        wolist, station_id: refobj.station_id,
-        equipment_id: refobj.equipment_id,
+        wolist,
+        assets_id: refobj.assets_id,
         template_id: refobj.template_id,
         employee_id: refobj.employee_id,
         multiple: refobj.multiple,
@@ -441,9 +444,7 @@ const obj = {
       wolist: refobj.wolist,
       remark: refobj.remark,
       parameters: refobj.parameters,
-
-      station_id: refobj.station_id,
-      equipment_id: refobj.equipment_id,
+      assets_id: refobj.assets_id,
       template_id: refobj.template_id,
       employee_id: refobj.employee_id,
       multiple: refobj.multiple,
@@ -561,10 +562,10 @@ const obj = {
   },
   /**
    * 扫码人员
-   * @param employee_id
+   * @param employee
    */
-  employee: async employee_id => {
-    const result = await api.get(apiUrl.mes.report_data.employee, {employee_id});
+  employee: async employee => {
+    const result = await api.get(apiUrl.mes.report_data.employee, {employee});
     if (result?.id > 0) {
       const employee = {employee_id: result.id, employee_name: result.name};
       Object.assign(refobj, employee);
@@ -574,10 +575,19 @@ const obj = {
   /**
    * 扫码设备  该模板下必须有这个设备 否则不能转换
    */
-  equipment: equipment_id => {
-    const template = obj.templateList.find(t => t.equipment_id === +equipment_id && t.template_id === +refobj.template_id);
-    if (!template) {dialog.error('当前账号未配置该设备，请联系管理员添加！');return;}
-    Object.assign(refobj, {equipment_id: template.equipment_id, equipment_name: template.equipment_name});
+  assets: assets => {
+    api.get(apiUrl.mes.report_data.assets, {assets}).then(res => {
+      if (res?.id > 0) {
+        const assets = {assets_id: res.id, assets_name: res.name};
+        const template = obj.templateList.find(t => t.assets_id === +res.id && t.template_id === +refobj.template_id);
+        if (!template) {
+          dialog.error('当前账号未配置该设备，请联系管理员添加！');
+          return;
+        }
+        Object.assign(refobj, assets);
+        Object.assign(refobj, {assets_id: template.assets_id, assets_name: template.assets_name});
+      }
+    });
   },
   /**
    * 参数改变事件
@@ -644,13 +654,12 @@ const obj = {
 onActivated(() => {
   siyi.navHide = true;//隐藏导航栏
   core.scan(char => {//注册一个扫码监听键盘事件
-    const [prefix, code] = char.split('#');
-    if (prefix === 'employee') {
-      obj.employee(code);
-    } else if (prefix === 'equipment') {
-      obj.equipment(code);
+    if (char.startsWith('ZH') || char.startsWith('H') || char.startsWith('LT') || char.startsWith('Z')) {
+      obj.employee(char);
+    } else if (char.startsWith('C_') || char.startsWith('D_')) {
+      obj.assets(char);
     } else {
-      refobj.employee_id > 0 && refobj.template_id > 0  ? obj.wo(char) : dialog.error('没有选择操作员或者设备模板');
+      refobj.employee_id > 0 && refobj.template_id > 0 ? obj.wo(char) : dialog.error('没有选择操作员或者设备模板');
     }
   }, document.body, 50);
 });

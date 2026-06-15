@@ -24,6 +24,7 @@ const apiUrl = new Proxy({
         job: {
             'list': 'v1/erp/job/list',
             'testBench': 'v1/erp/job/test-bench',
+            'testBenchInit': 'v1/erp/job/test-bench-init',
             'getWeight': 'v1/erp/job/get-weight',
             'saveWeight': 'v1/erp/job/save-weight'
         }
@@ -193,6 +194,7 @@ const apiUrl = new Proxy({
             product_list: '/v2/ac/pandian/product-list',
             product_create: '/v2/ac/pandian/product-create',
             product_send: '/v2/ac/pandian/product-send',
+            product_temp_send: '/v2/ac/pandian/product-temp-send',
             //product_download: '/v2/ac/pandian/product-download',
             step_material_config: '/v2/ac/pandian/step-material-config',
             step_material_list: '/v2/ac/pandian/step-material-list',

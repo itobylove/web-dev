@@ -263,7 +263,6 @@ const searchList = async (type = 'init',param={}) => {
 // 首次挂载
 onMounted(() => {
   let {type}= getQuery();
-  console.log('onMounted type',type);
   vData.params.type=defaultData.typeList.includes(type)?type:defaultData.typeList[0];
   searchList()
 })
@@ -271,7 +270,6 @@ onMounted(() => {
 // 页面显示时
 onActivated(() => {
   let {type}= getQuery();
-  console.log('onActivated type',type);
   if(type!==vData.params.type){
     vData.params.type=defaultData.typeList.includes(type)?type:defaultData.typeList[0];
     searchList();

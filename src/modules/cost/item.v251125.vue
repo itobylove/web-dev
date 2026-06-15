@@ -52,7 +52,6 @@ import * as api from "@/core/script/api.js"
 import {getOptionsLabel} from "@/utils/vars.js";
 import siyi from "@/core/script/siyi.js";
 import dialog from "@/core/script/dialog.js";
-import bomPage from "./bom.v251125.vue";
 import ParameterRules from "../system/parameter_rules.vue";
 import {plantList} from "@/utils/erp.js";
 import dayjs from "dayjs";
@@ -115,9 +114,6 @@ const tableEvent = {
       await report.value.reportConfig.getData();
     }
   },
-  showBom: async () => {
-    dialog.window(bomPage, {query:{plant_id:vData.plant_id}},{width: '80%',height: '80%',title:"bom管理"})
-  },
   showParameter: async () => {
     dialog.window(ParameterRules, {query:{plant_id:vData.plant_id}},{width: '80%',height: '80%',title:"参数管理"})
   },
@@ -143,6 +139,7 @@ const initTable = async () => {
 
 const getReportConfig = () => {
   return {
+    changeSizeRight: true,
     menuConfig: {
       menu:{
         search: {sort: 10},
@@ -171,7 +168,6 @@ const getReportConfig = () => {
         select: {
           outsideClickDeselect: false,//点击外部区域是否取消选中。
         },
-        heightMode:'autoHeight',
       },
       ...table.tableConfig,
       afterLoaded:()=>{

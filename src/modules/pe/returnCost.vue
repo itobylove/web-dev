@@ -60,10 +60,10 @@ onMounted(async () => {
 const table = {
     menuConfig: {
         enableHeader: true,
-        defaultMenuHideList: ['search', 'clearCache', 'submitApprove', 'resetApprove', 'approve', 'advancedExport', 'moreSettings', 'clearWhere',],
+        defaultMenuHideList: ['search', 'delete', 'clearCache', 'submitApprove', 'resetApprove', 'approve', 'advancedExport', 'moreSettings', 'clearWhere',],
         menu: {
-            add: { sort: 151, title: '添加型号', icon: 'ri-add-line', click: () => fn.addModel() },
-            update: { sort: 152, title: '更新面积', icon: 'ri-refresh-line', click: () => fn.updateArea() },
+            create: { title: '添加型号', click: () => fn.addModel() },
+            update: { title: '更新面积', click: () => fn.updateArea() },
         },
     },
     searchConfig: {},
@@ -74,7 +74,6 @@ const table = {
         disablePage: true,
 
         options: {
-            heightMode: 'autoHeight',
             defaultRowHeight: 180,
             frozenColCount: 5,//冻结列
         },

@@ -47,6 +47,7 @@ import {getOptionsLabel, list2Group} from "@/utils/vars.js";
 
 const props = defineProps({
   item:{type:Object,default:{}},
+  plant_id:{type:Number,default:''},
 });
 
 //页面数据
@@ -66,10 +67,10 @@ const tableEvent = {
     table.tableConfig = {...table.tableConfig,...apiData.table,columns:listTableFn.createColumns(apiData.columns, table.tableConfig?.columnSplit || '#')};
     vData.isInit=true;
   },
-  show:async (item)=>{
+  show:async (item,plant_id)=>{
     vData.item={...item};
     await tableEvent.init();
-    tableEvent.plantChange(item.plant_id);
+    tableEvent.plantChange(item?.plant_id || plant_id);
     report.value.reportConfig.getData();
   },
   plantChange: (value) => {
@@ -134,6 +135,7 @@ const tableEvent = {
 
 const table = {
   isInit: false,
+  changeSizeRight: true,
   menuConfig: {
     menu:{
       search: {sort: 10},
@@ -146,7 +148,7 @@ const table = {
     },
     defaultMenuShowList:['search','moreSettings','pageExport'],
   },
-
+  detailConfig:{colNum:1},
   tableConfig:{
     url: api.url2.cost.packageItem.list,
     id:'cost_package_item',
@@ -154,11 +156,12 @@ const table = {
     checkField: 'check',
     disablePage: true,
     options: {
+      enableLineBreak: true, // 自动解析换行符
+      heightMode: 'autoHeight', // 自动行高
       editCellTrigger:'doubleclick', // 单元格双击触发编辑
       select: {
         outsideClickDeselect: false,//点击外部区域是否取消选中。
       },
-      heightMode:'autoHeight',
       excelOptions: {
         fillHandle: true // 启用填充炳功能
       },
@@ -191,14 +194,24 @@ const table = {
         }
       },
       dblclick_cell: async ({originData,field}) => {
-        if (['workshop_id_text','workshop_id'].includes(field)  && originData?.id){
-            await tableEvent.setWorkshop(originData);
+        if (!originData?.id) {
+          await editBoxFn.add();
+          return;
         }
+        if (['workshop_id_text', 'workshop_id'].includes(field)) {
+          await tableEvent.setWorkshop(originData);
+          return ;
+        }
+        report.value.detail.show(originData,field);
       },
     },
     colAfterCallback: (col) => {
       if (col.field === 'sort' || col.field === 'remark') {
         col.editor = 'inputEditor';
+      }
+      if (col.field === 'asset_group_text' || col.field === 'remark') {
+        col.autoWrapText=true; // 是否允许自动换行
+        col.style= {lineHeight:20,lineClamp:'auto'} ; // lineClamp:最大行数;lineHeight:行高
       }
       return col;
     },
@@ -273,8 +286,8 @@ const editBoxFn={
   }
 }
 
-watch(() => [props.item], ([item]) => {
-  tableEvent.show(item);
+watch(() => [props.item, props.plant_id], ([item, plant_id]) => {
+  tableEvent.show(item,plant_id);
 }, { immediate: true, deep: true });
 
 </script>

@@ -18,13 +18,13 @@ const props = defineProps({
 
 //页面数据
 const vData=reactive({
-  selectOptions: {status:[],user_id:[],step_id:[],process_id:[],station_id:[],equipment_id:[]},
+  selectOptions: {status:[],user_id:[],step_id:[],process_id:[],station_id:[],assets_id:[]},
 })
 const listReport = ref();
 const listReportShow = ref(false);
 const listReportConfig = {
   menuConfig: {
-    defaultMenuHideList: ['clearCache', 'submitApprove', 'resetApprove', 'approve', 'advancedExport'],
+    defaultMenuHideList: ['update', 'delete','create','clearCache', 'submitApprove', 'resetApprove', 'approve', 'advancedExport'],
   },
   searchConfig: {
     search: [
@@ -32,14 +32,13 @@ const listReportConfig = {
       {type: 'input', field: 'job', options: {placeholder: '生产型号'}},
       {type: 'select', field: 'step_id', options: {multiple:false,placeholder: '工序',style:{width:'160px'}, options: vData.selectOptions.step_id}},
       {type: 'select', field: 'process_id', options: {multiple:false,placeholder: '工艺',style:{width:'160px'}, options: vData.selectOptions.process_id}},
-      {type: 'select', field: 'equipment_id', options: {multiple:false,placeholder: '设备',style:{width:'160px'}, options: vData.selectOptions.equipment_id}},
+      {type: 'select', field: 'assets_id', options: {multiple:false,placeholder: '设备',style:{width:'160px'}, options: vData.selectOptions.assets_id}},
       {type: 'select', field: 'employee_id', options: {multiple:false,placeholder: '人员',style:{width:'160px'}, options: vData.selectOptions.user_id}},
       {type: 'select', field: 'result', options: {multiple:false,placeholder: '结果',style:{width:'160px'}, options: vData.selectOptions.result}},
       {type: 'rangeTime', field: 'intime', options: {placeholder: '开始时间范围'}},
       {type: 'rangeTime', field: 'outtime', options: {placeholder: '开始时间范围'}},
     ],
   },
-  where: props.where,
   tableConfig: {
     url: apiUrl.mes.report_data.historyMain,
     showCheck: true,
@@ -59,7 +58,7 @@ const detailListReport = ref();
 const detailListReportShow = ref(false);
 const detailListReportConfig = {
   menuConfig: {
-    defaultMenuHideList: ['clearCache','submitApprove', 'resetApprove', 'approve', 'advancedExport'],
+    defaultMenuHideList: ['update', 'delete','create','clearCache','submitApprove', 'resetApprove', 'approve', 'advancedExport'],
   },
   tableConfig: {
     url: apiUrl.mes.report_data.historyDetail,
@@ -77,13 +76,12 @@ onMounted(() => {
     vData.selectOptions = getOptionsLabel(res?.option);
     listReportConfig.tableConfig = {...listReportConfig.tableConfig, ...res.table};
     listReportConfig.tableConfig.columns = tableFn.createColumns(res.columns);
-    const searchFields = ['status', 'result', 'employee_id', 'step_id', 'process_id', 'equipment_id'];
+    const searchFields = ['status', 'result', 'employee_id', 'step_id', 'process_id', 'assets_id','assets_group_id'];
     searchFields.forEach(field => {
       const searchItem = listReportConfig.searchConfig.search.find(item => item.field === field);
       if (searchItem) searchItem.options.options = vData.selectOptions[field] || [];
       if (props.where && props.where[field] !== undefined) {
         searchItem.value = props.where[field];
-        searchItem.options.disabled = true;
       }
     });
     listReportShow.value = true;
@@ -105,6 +103,7 @@ defineExpose({reportTable:listReport, detailTable:detailListReport})
   height: 100%;
   min-height: 0;
   overflow: hidden;
+  gap: 3px;
 }
 
 .report-history .list {

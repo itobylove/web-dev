@@ -1,150 +1,156 @@
 <template>
-    <div class="copy-auth-item-container">
+    <div ref="box" class="body">
         <div class="employee-table">
-            <TableComponent ref="userTable" v-bind="table.employeeTableConfig"/>
+            <TableComponent ref="userTable" v-bind="obj.userTableConfig" />
         </div>
         <div class="select-employee-auth-item-lists">
-            <TableComponent ref="selectEmployeeAuthItemTable" v-bind="table.selectEmployeeAuthItemTableConfig"/>
+            <TableComponent ref="selectUserTable" v-bind="obj.selectUserTableConfig" />
         </div>
         <div class="all-employees-table">
-            <TableComponent ref="allEmployeeTable" v-bind="table.allEmployeeTableConfig"/>
+            <TableComponent ref="allUserTable" v-bind="obj.allUserTableConfig" />
         </div>
     </div>
 </template>
 <script setup>
-    import { ref } from 'vue';
-    import TableComponent from '@/core/component/table_v2.vue';
-    import apiUrl2 from '@/core/config/url2.js';
-    import * as api from "@/core/script/api.js";
-    import dialog from "@/core/script/dialog.js";
-    import * as tableFn from "@/core/script/tableFn.js";
-    import _ from 'lodash'
-    const props = defineProps({
-        query: {
-            type: Object, 
-            default: {}
-        },
-    })
-    const selectEmployeeAuthItemTable = ref(null);
-    const userTable = ref(null)
-    const allEmployeeTable = ref(null);
-    const fromUid = ref(0);
-    const fromName = ref('');
-    const table = {
-        //已授权员工列表
-        employeeTableConfig: {
-            menuConfig:false,
-            searchConfig: false,
-            query: {
-                id: props.query.auth_id
-            },
-            tableConfig: {
-                showCheck:'radio',
-                url: apiUrl2.sys.auth.getEmployeeLists,
-                disablePage: true,
-                columns: [
-                    {field: 'uid', title: '员工ID', align: 'left', width: 120},
-                    {field: 'username', title: '员工号', align: 'left', width: 200},
-                    {field: 'nickname', title: '员工姓名', align: 'left', width: 200},
-                ],
-                events:{
-                    click_cell: ({originData}) => {
-                        allEmployeeTable.value.reportConfig.getData({id: originData.uid}, true);
-                        selectEmployeeAuthItemTable.value.reportConfig.getData({id: originData.uid}, true);
-                        fromUid.value = originData.uid;
-                        fromName.value = originData.nickname;
-                    },
+import { ref, reactive } from 'vue';
+import TableComponent from '@/core/component/table_v2.vue';
+import apiUrl2 from '@/core/config/url2.js';
+import * as api from "@/core/script/api.js";
+import dialog from "@/core/script/dialog.js";
+import * as tableFn from "@/core/script/tableFn.js";
+import _ from 'lodash'
+const props = defineProps({
+    query: {
+        type: Object,
+        default: {}
+    },
+    dialog: { type: Object }
+})
+const selectUserTable = ref(null);
+const userTable = ref(null)
+const allUserTable = ref(null);
+
+const refObj = reactive({
+    fromUid: '',
+    fromName: ''
+});
+const selectUser = {}
+const obj = {
+    //已授权员工列表
+    userTableConfig: {
+        menuConfig: false,
+        searchConfig: false,
+        // query: {
+        //     id: props.query.auth_id
+        // },
+        tableConfig: {
+            showCheck: 'radio',
+            url: apiUrl2.sys.auth.getAllEmployeeLists,
+            disablePage: true,
+            columns: [
+                { field: 'id', title: 'ID', align: 'left', width: 80 },
+                { field: 'username', title: '用户名', align: 'left' },
+                { field: 'nickname', title: '姓名', align: 'left' },
+            ],
+            events: {
+                click_cell: ({ originData }) => {
+                    if (originData?.index > 0 && originData.index !== userTable.value.reportConfig.prveSelectRow.index) {
+                        selectUserTable.value.reportConfig.getData({ id: originData.id }, true);
+                        allUserTable.value.reportConfig.getData({ id: originData.id }, true);
+                        refObj.fromUid = originData.id;
+                        refObj.fromName = originData.nickname;
+                    }
                 },
-            }            
-        },
-        //所选员工权限列表
-        selectEmployeeAuthItemTableConfig: {
-            menuConfig:false,
-            searchConfig: false,
-            tableConfig: {
-                showCheck: true,
-                url: apiUrl2.sys.auth.getAuthAssignmentByUid,
-                disablePage: true,
-                columns: [
-                    {field: 'remark', title: '权限名称', align: 'left'}
-                ],
             },
+        }
+    },
+    //所选员工权限列表
+    selectUserTableConfig: {
+        menuConfig: false,
+        searchConfig: false,
+        tableConfig: {
+            showCheck: 'multiple',
+            url: apiUrl2.sys.auth.getAuthAssignmentByUid,
+            disablePage: true,
+            columns: [
+                { field: 'remark', title: '权限名称', align: 'left' }
+            ],
         },
-        // 所有员工列表
-        allEmployeeTableConfig: {
-            menuConfig: {
-                enableHeader: true,
-                defaultMenuHideList: ['search','clearCache','submitApprove', 'resetApprove', 'approve','pageExport', 'advancedExport','moreSettings','clearWhere',],
-                menu: {
-                    add: {
-                        title: '提交复制授权',
-                        icon: 'ri-file-copy-fill',
-                        sort: 100,
-                        click:() => fn.copyAuthItemToEmployee()
-                    },
-                }
-            },
-            searchConfig: false,
-            tableConfig: {
-                showCheck:true,
-                url: apiUrl2.sys.auth.getAllEmployeeLists,
-                disablePage: true,
-                columns: [
-                    {field: 'id', title: '员工ID', align: 'left'},
-                    {field: 'username', title: '员工号', align: 'left'},
-                    {field: 'nickname', title: '员工姓名', align: 'left'},
-                ],
-            },
+    },
+    // 所有员工列表
+    allUserTableConfig: {
+        menuConfig: {
+            enableHeader: true,
+            defaultMenuHideList: ['search', 'delete', 'update', 'clearCache', 'submitApprove', 'resetApprove', 'approve', 'pageExport', 'advancedExport', 'moreSettings', 'clearWhere',],
+            menu: {
+                create: { title: '提交复制授权', click: () => fn.copyAuthItemToEmployee() },
+            }
         },
-    }
-    const fn = {
-         async copyAuthItemToEmployee(){
-            if(fromUid.value === 0){
-                dialog.warning('请选择要复制权限的员工');
-                return;
-            }
-            let itemAuthIds = tableFn.getCheckedRecords(selectEmployeeAuthItemTable.value.reportConfig).map(i => i.auth_id);
-            if(itemAuthIds.length === 0){
-                dialog.warning('请选择要复制的权限');
-                return;
-            }
-            let toUids = tableFn.getCheckedRecords(allEmployeeTable.value.reportConfig).map(i => i.id);
-            if(toUids.length === 0){
-                dialog.warning('请选择要接受复制授权的员工');
-                return;
-            }
-            let msg = `您确定要把员工《${fromName.value}》的权限复制给选中的(${toUids.length})位员工吗？`;
-            dialog.confirm(msg,async() =>{
-                const res = await api.post(apiUrl2.sys.auth.copyAuthAssignment,{
-                    fromUid: fromUid.value,
-                    itemAuthIds,
-                    toUids
-                });
-                if(res.count > 0) {
-                    dialog.success(`成功为${res.count}位员工复制权限`);
-                    tableFn.update(selectEmployeeAuthItemTable.value.reportConfig);
-                    tableFn.update(allEmployeeTable.value.reportConfig);
-                    userTable.value.reportConfig.getData()
-                } else {
-                    dialog.info('所选员工均已拥有该权限，无需重复分配');
-                }
+        searchConfig: false,
+        tableConfig: {
+            showCheck: 'multiple',
+            url: apiUrl2.sys.auth.getAllEmployeeLists,
+            disablePage: true,
+            columns: [
+                { field: 'id', title: 'ID', align: 'left', width: 80 },
+                { field: 'username', title: '用户名', align: 'left' },
+                { field: 'nickname', title: '姓名', align: 'left' },
+            ],
+        },
+    },
+}
+const fn = {
+    async copyAuthItemToEmployee() {
+        if (refObj.fromUid === 0) {
+            dialog.warning('请选择要复制权限的员工');
+            return;
+        }
+        let itemAuthIds = tableFn.getCheckedRecords(selectUserTable.value.reportConfig).map(i => i.auth_id);
+        if (itemAuthIds.length === 0) {
+            dialog.warning('请选择要复制的权限');
+            return;
+        }
+        let toUids = tableFn.getCheckedRecords(allUserTable.value.reportConfig).map(i => i.id);
+        if (toUids.length === 0) {
+            dialog.warning('请选择要接受复制授权的员工');
+            return;
+        }
+        let msg = `您确定要把员工《${refObj.fromName}》的权限复制给选中的(${toUids.length})位员工吗？`;
+        dialog.confirm(msg, async () => {
+            const res = await api.post(apiUrl2.sys.auth.copyAuthAssignment, {
+                fromUid: refObj.fromUid,
+                itemAuthIds,
+                toUids
             });
-         }
+            if (res.ret) {
+                dialog.success('复制权限成功');
+                tableFn.update(selectUserTable.value.reportConfig);
+                tableFn.update(allUserTable.value.reportConfig);
+                userTable.value.reportConfig.getData()
+            } else {
+                dialog.error('复制权限失败');
+            }
+        });
     }
+}
 </script>
 <style scoped>
-    .copy-auth-item-container {
-        display: flex;
-        gap: 3px;
-        height: 100%;
-        .select-employee-auth-item-lists{
-            flex: 1;
-        }
-        .employee-table{
-            flex: 1;
-        }
-        .all-employees-table{
-            flex: 1;
-        }
+.body {
+    display: flex;
+    gap: 3px;
+    height: 100%;
+    padding: 3px;
+
+    .select-employee-auth-item-lists {
+        flex: 1;
     }
+
+    .employee-table {
+        flex: 1;
+    }
+
+    .all-employees-table {
+        flex: 1;
+    }
+}
 </style>

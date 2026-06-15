@@ -60,7 +60,7 @@ const mainReport = ref();
 const mainReportShow = ref(false);
 const mainReportConfig = {
   menuConfig: {
-    defaultMenuHideList: ['clearCache','submitApprove', 'resetApprove', 'approve', 'advancedExport'],
+    defaultMenuHideList: ['create','update','delete','prevPage','nextPage','clearCache','submitApprove', 'resetApprove', 'approve', 'advancedExport'],
     menu: {
       sendPandian: {sort: 650, title: '推送盘点表', icon: 'ri-send-plane-fill', click: () => fn.sendPandian()},
     },

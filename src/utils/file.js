@@ -1,5 +1,5 @@
 import JSZip from 'jszip';
-import FileSaver from 'file-saver';
+import FileSaver, {saveAs} from 'file-saver';
 import axios from "axios";
 import _ from "lodash";
 

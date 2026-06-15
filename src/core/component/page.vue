@@ -22,6 +22,8 @@ const pageMap = {
 const pageConfig = {
   visitor: {title: '电子通行证', login: false},
   test: {title: '测试', login: true},
+  // raiseYourHand: {title: '举手文化', login: true},
+  // raise_detail: {title: '举手文化-详情', login: true},
 };
 
 const pageName = ref('');

@@ -407,8 +407,8 @@ const getMI = () => {
   let jobIdList = tableFn.getCheckedRecords(reportOptions, 'jobid');
   if (jobIdList.length < 1) return dialog.info('请勾选工单')
   const loading = dialog.loading(report.value)
-  jobIdList.map(async id => {
-    await api.getErpPdf('mi', {id})
+  jobIdList.map(async row => {
+    await api.getErpPdf('mi', {id:row.jobid},'open')
     loading.close()
   })
 }
