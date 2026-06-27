@@ -218,7 +218,10 @@ const tableEvent = {
   },
   addUser:()=>{
     const row = reportRef.value.reportOptions.table.getSelectedCellInfos()?.[0]?.[0]?.['originData'] || null;
-    if (!row?.dept_id || !row?.position_id) return ;
+    if (!row?.dept_id || !row?.position_id){
+      dialog.warning('请先选择部门及岗位!');
+      return ;
+    }
     userSelector.bind.title=row.dept.name +' '+ row.position.name+ ' - 添加用户';
     userSelector.isShow=true;
     userSelector.row=row;

@@ -336,9 +336,9 @@ const obj = {
     menuConfig: {
       defaultMenuShowList: ['search','moreSettings', 'clearWhere'],
       menu: {
-        create: {sort: 600, title: '添加' , icon: 'ri-add-line', click: async () => {
-          fn.create()
-        }},
+        create: {
+          click: () => fn.create({})
+        },
         delete: {
           click: () => {
             let asset = tableFn.getCheckedRecords(mainTable.value.reportConfig);
@@ -396,6 +396,7 @@ const obj = {
       checkField: 'check',
       disablePage: true,
       options: {
+        editCellTrigger:'doubleclick',
         maxCharactersNumber: 10000, // 设置单元格显示的最大字符数
         defaultRowHeight: 'auto', // 行高
         autoWrapText: true,
@@ -410,11 +411,7 @@ const obj = {
           const field = vTable?.getHeaderField(col, row); //获取列名
           const record = vTable?.getRecordByCell(col, row); //根据单元格获取行数据
           const newMonth = (new Date()).getMonth() + 1;
-          if((col >= (10+newMonth) && col <= (9+(newMonth*2))) && row >= 2 && field  && record && record?.[field] !== '' ){
-            console.log('newMonth', newMonth)
-
-            console.log()
-            console.log('record', parseFloat(record?.[field]) )
+          if((col >= (10+newMonth) && col <= (9+(newMonth*2))) && row >= 2 && field  && record && (record?.[field] !== '' && record?.[field] !== undefined ) ){
 
             return {
               text: record?.[field],

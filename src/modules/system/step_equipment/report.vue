@@ -42,7 +42,7 @@ const tableEvent = {
 // 页面初始化
 const initTable = async () => {
   // const loading = dialog.loading(undefined, '页面加载中...');
-  const apiData = vData.apiData = await api.get(api.url2.sys.step.reportConfig);
+  const apiData = vData.apiData = await api.get(api.url2.sys.steps.reportConfig);
   // loading && loading.close();
   vData.selectOptions = getOptionsLabel(apiData?.option);
   await tableEvent.plantChange(siyi.user.plantId);
@@ -61,7 +61,7 @@ const initTable = async () => {
       ],
     },
     tableConfig: {
-      url: api.url2.sys.step.report,
+      url: api.url2.sys.steps.report,
       showCheck: false,
       disablePage: true,
       ...apiData.table,

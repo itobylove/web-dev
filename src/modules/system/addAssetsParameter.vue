@@ -1,28 +1,81 @@
 <template>
-  <div class="container">
-    <div class="base-info">
-      <div class="base-info-content">
-        <template v-for="(v, index) in getAsset" :key="index">
-          <div>工厂名称：<span>{{ v['plant_id_text'] }}</span></div>
-          <div>资产编号：<span>{{ v['code'] }}</span></div>
-          <div>资产名称：<span>{{ v['name'] }}</span></div>
-          <div>资产类型：<span>{{ v['type_text'] }}</span></div>
-        </template>
+  <div class="body">
+    <div class="left">
+      <div class="search">
+        <t-input @change="obj.search" placeholder="请输入搜索内容" />
+      </div>
+      <div class="siyi-table">
+        <table>
+          <thead>
+            <tr>
+              <th>参数编码</th>
+              <th>参数名称</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template v-for="item in refObj.parameterList">
+              <tr @click="obj.clickItem(item)" :class="{ active: item.selected }">
+                <td>{{ item.code }}</td>
+                <td>{{ item.name }}</td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
       </div>
     </div>
-    <div class="parameter-lists">
-      <TableComponent class="table" ref="parameter" v-if="refObj.parameterShow" v-bind="obj.parameterConfig" />
+    <div class="right" ref="leftWrap">
+      <div v-for="item in refObj.selectList">
+        <div class="select-list">
+          <div class="parameter-name">
+            <span class="title">参数名称：</span>{{ item.name }}
+          </div>
+          <div class="parameter-value">
+            <span class="title">参数值：</span>
+            <template v-if="item.input_type === 'number'">
+              <t-input-number v-model="item.parameter_value" style="width: 198px;" />
+            </template>
+            <template v-else-if="item.input_type === 'string'">
+              <t-input v-model="item.parameter_value" style="width: 198px;" />
+            </template>
+            <template v-else-if="item.input_type === 'switch'">
+              <t-switch v-model="item.parameter_value" :label="['是', '否']" />
+            </template>
+            <template v-else-if="item.input_type === 'date'">
+              <t-date-picker v-model="item.parameter_value" />
+            </template>
+            <template v-else-if="item.input_type === 'radio'">
+              <t-radio-group v-model="item.parameter_value">
+                <t-radio value="1">是</t-radio>
+                <t-radio value="0">否</t-radio>
+              </t-radio-group>
+            </template>
+            <template v-else-if="item.input_type === 'select'">
+              <t-select v-model="item.parameter_value" creatable :options="refObj.selectOptions" filterable
+                @create="obj.createGroupOptions" />
+            </template>
+            <template v-else-if="item.input_type === 'time'">
+              <t-time-picker v-model="item.parameter_value" />
+            </template>
+            <template v-else-if="item.input_type === 'textarea'">
+              <t-textarea v-model="item.parameter_value" />
+            </template>
+          </div>
+        </div>
+      </div>
+      <div class="btn" v-if="refObj.selectList.length > 0">
+        <span @click="obj.reset" class="reset-btn">重置</span>
+        <span @click="obj.addParameter" class="add-btn">添加</span>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import {computed, onMounted, ref} from 'vue';
-import TableComponent from '@/core/component/table_v2.vue';
+import { onMounted, reactive, nextTick, ref } from 'vue';
 import apiUrl from '@/core/config/url2';
 import * as api from "@/core/script/api.js";
-import * as tableFn from '@/core/script/tableFn';
 import dialog from "@/core/script/dialog.js";
+import _ from "lodash";
 
 const props = defineProps({
   query: {
@@ -30,113 +83,191 @@ const props = defineProps({
     default: {}
   },
   dialog: { type: Object },
-  getAttach: { type: Function,default: () => {} },
-})
-//过滤数据，获取设备信息
-const getAsset = computed(() => {
-  const result = [];
-  result.push({
-    'plant_id_text': props.query.asset['plant_id_text'],
-    'code': props.query.asset['code'],
-    'name': props.query.asset['name'],
-    'type_text': props.query.asset['type_text'],
-  });
-  return result;
+  getAttach: { type: Function, default: () => { } },
 });
-const parameter = ref(null);
-const refObj = ref({parameterShow: false,});
+const leftWrap = ref(null)
+const refObj = reactive({
+  parameterShow: false,
+  parameterList: [],
+  selectList: [],
+  search: '',
+  template: '',
+  activeItem: null,
+  value: [],
+  selectOptions: [], //下拉框选项
+});
 const obj = {
-  parameterConfig: {
-    searchConfig: {},
-    menuConfig: {
-      defaultMenuShowList: ['search', 'clearWhere'],
-      menu: {
-        create: {
-          click: () => {
-            let checkedRecords = tableFn.getCheckedRecords(parameter.value.reportConfig);
-            let fids = checkedRecords.map(i => i.id), assetId = props.query.asset.id,type = props.query.asset.type,str = props.query.asset.type === 'group' ? '资产组' : '资产';
-            if (fids.length === 0) {
-              dialog.info('请先选择要添加的资产属性');
-              return;
-            }
-            dialog.confirm(`确定要添加${fids.length}个资产属性到${str}《${props.query.asset['name']}》吗？`, async () => {
-              const arr = [];
-              checkedRecords.forEach((item) => {
-                arr[item.id] = item.name;
-              });
-              await api.post(apiUrl.sys.asset.addParameter, { assetId, fids,type }).then(res => {
-                if (typeof (res.ret) === 'boolean') {
-                  if (res.ret === true) {
-                    props.getAttach(true);
-                    dialog.success(`成功添加${fids.length}个资产属性到${str}《${props.query.asset['name']}》`);
-                  } else {
-                    dialog.error('添加失败');
-                  }
-                } else if (typeof (res.ret) === 'number') {
-                  if (res.ret < 0) {
-                    dialog.error('资产组赞时不支持添加资产属性');
-                  }
-                } else {
-                  dialog.error('网络错误，请稍后再试');
-                }
-                props.dialog.close();
-              })
-            });
-          }
-        },
-      },
-    },
-    query: {
-      id: props.query.asset.id, type: props.query.asset.type, flag: true
-    },
-    tableConfig: { url: apiUrl.sys.asset.addParameterList, showCheck: 'multiple' }
+  lists: [],
+  //点击参数
+  clickItem: (e) => {
+    e.selected = !e.selected
+    //往现存数组中添加元素，相同则移除它
+    if (refObj.selectList.includes(e)) {
+      // 如果元素存在，使用 filter 方法移除它
+      refObj.selectList = refObj.selectList.filter(item => item !== e);
+    } else {
+      // 如果元素不存在，使用 push 方法添加它
+      e.parameter_value = '';
+      refObj.selectList.push(e);
+      nextTick(() => {
+        obj.scrollToBottom()
+      })
+    }
+
+  },
+  //添加参数
+  addParameter: async () => {
+    const res = await api.post(apiUrl.sys.asset.addParameter, { id: props.query.asset.id, items: refObj.selectList })
+    if (typeof (res.ret) === 'boolean') {
+      if (res.ret === true) {
+        props.getAttach(true);
+        dialog.success('添加成功');
+      } else {
+        dialog.error('添加失败');
+      }
+    } else if (typeof (res.ret) === 'number') {
+      if (res.ret < 0) {
+        dialog.error('参数错误，请确认后再操作');
+      }
+    } else {
+      dialog.error('网络错误，请稍后再试');
+    }
+    props.dialog.close();
+  },
+  //重置
+  reset: () => {
+    refObj.parameterList.forEach(item => item.selected = false);   //清空选中状态
+    refObj.selectList = [];
+  },
+  //搜索
+  search: (e) => {
+    clickCellDebounce(e);
+  },
+  //创建下拉框选项
+  createGroupOptions: (value) => {
+    refObj.selectOptions.push({
+      value,
+      label: value,
+    });
+  },
+  scrollToBottom: () => {
+    const wrap = leftWrap.value
+    if (!wrap) return
+    // 滚动条置底
+    wrap.scrollTop = wrap.scrollHeight
   }
-}
+};
+const clickCellDebounce = _.debounce((e) => {
+  if (e.length === 0) {
+    refObj.parameterList = obj.lists;
+    return;
+  }
+  const ret = obj.lists.filter(item => item.name.includes(e) || item.code.includes(e));
+  refObj.parameterList = ret;
+}, 500);
+
 onMounted(async () => {
-  await api.get(apiUrl.sys.asset.addParameterConfig).then(res => {
-    obj.parameterConfig.tableConfig = { ...obj.parameterConfig.tableConfig, ...res.table };
-    obj.parameterConfig.tableConfig.columns = tableFn.createColumns(res.columns);
-    refObj.value.parameterShow = true;
+  await api.get(apiUrl.sys.asset.addParameterList, { id: props.query.asset.id, type: props.query.asset.type, flag: true }).then(res => {
+    refObj.parameterList = res.list;   //设置参数列表数据
+    obj.lists = res.list;
   });
 });
 </script>
 
 <style scoped>
-.container {
-  padding: 20px;
+.body {
   display: flex;
-  flex-direction: column;
+  height:764px;
+  padding: 3px;
 
-  .base-info {
-    margin-bottom: 20px;
-
-    .base-info-content {
-      display: flex;
-      flex-wrap: wrap;
-      border-bottom: 1px solid #eee;
-
-      >div {
-        width: 50%;
-        margin-bottom: 15px;
-      }
-
-      span {
-        font-weight: 500;
-        color: #606266;
-        margin-right: 5px;
-      }
-    }
+  .active {
+    background: #35a1fd;
   }
 
-  .parameter-lists {
+  .left {
+    .search {
+      position: sticky;
+      top: 0;
+    }
+
+    width: 40%;
     overflow: auto;
+    scrollbar-width: none;
+    -webkit-scrollbar-width: none;
+    -ms-overflow-style: none;
 
-    .table {
-      height: 635px;
-      overflow: auto;
-      flex-shrink: 0;
+    .siyi-table {
+      tr {
+        height: 35px;
+      }
     }
   }
 
+  .right {
+    flex: 1;
+    margin-left: 3px;
+    padding: 3px 3px 20px 3px;
+    border: 1px solid #ccc;
+    overflow: auto;
+    scrollbar-width: none;
+    -webkit-scrollbar-width: none;
+    -ms-overflow-style: none;
+
+    .select-list {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+      box-sizing: border-box;
+      border-bottom: #ccc 1px solid;
+
+      >div span {
+        min-width: 81px;
+      }
+
+      .parameter-name {
+        width: 36%;
+        border-radius: 4px;
+      }
+
+      .parameter-value {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: center;
+      }
+
+      .title {
+        font-weight: bold;
+        font-size: 16px;
+      }
+    }
+
+    .btn {
+      display: flex;
+      justify-content: space-evenly;
+      align-items: center;
+      color: #fff;
+      text-align: center;
+      margin-top: 10px;
+      font-size: 16px;
+
+      .reset-btn {
+        padding: 10px 0;
+        background: #ccc;
+        width: 200px;
+        border-radius: 3px;
+      }
+
+      .add-btn {
+        padding: 10px 0;
+        background: #35a1fd;
+        width: 200px;
+        border-radius: 3px;
+      }
+    }
+  }
 }
 </style>

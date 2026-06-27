@@ -16,9 +16,8 @@ import * as tableFn from '@/core/script/tableFn';
 import siyi from '@/core/script/siyi';
 import dialog from "@/core/script/dialog.js";
 import editPage from "@/modules/cost/quote_edit.vue";
-import {getOptionsLabel, isNumber} from "@/utils/vars.js";
+import {isNumber} from "@/utils/vars.js";
 import * as listTableFn from "@/core/script/tableFn.js";
-import {download} from "@/utils/file.js";
 import * as core from "@/core/script/core.js";
 
 
@@ -32,14 +31,13 @@ const mainTable = ref();
 
 const vData = reactive({
   mainShow: false,
-  selectOptions:{},
-  optionMap:{},
-  FORM_TITLE_MAP:{}, // 语言包
 });
 const dData = reactive({
   costFieldName: {
-    item_type_text:'类型',name: '类别',  title: '名称',desc:'描述', unit: '单位', pcs_used: 'PCS耗量', order_used: '订单耗量',
-    price: '单价', rmb: '货币', order_price: '订单成本#A', pcs_price: 'PCS成本#A', square_price: '平米成本#A',
+    package_name:'来源#H',item_type_text: '分类', name: '类型', title: '名称',desc:'描述', unit: '单位', price: '单价', rmb: '货币',
+    pcs_used: 'PCS耗量', order_used: '订单耗量(毛面积)',order_used_overage:'订单耗量(毛面积+预投)',
+    pcs_price: 'PCS成本#A',order_price: '订单成本(毛面积)#HA',order_price_overage:'订单成本(毛面积+预投)#A',
+    square_price: '平米成本(净面积)#HA', square_price_gross:'平米成本(毛面积)#HA',square_price_gross_overage:'平米成本(毛面积+预投)#A',
   },
 });
 
@@ -121,9 +119,6 @@ const tableEvent={
     }
     const _window = dialog.window(editPage, {
       quote_id: rows?.[0]?.id,
-      optionMap:vData.optionMap,
-      selectOptions:vData.selectOptions,
-      FORM_TITLE_MAP:vData.FORM_TITLE_MAP,
       close: async () => _window.close(),
     }, {
       title: '精细化报价',
@@ -222,12 +217,9 @@ const obj = {
 
 
 onMounted(() => {
-  api.get(apiUrl.cost.quote.config).then(res => {
+  api.get(apiUrl.cost.quote.listInit).then(res => {
     obj.mainConfig.tableConfig = {...obj.mainConfig.tableConfig, ...res.table};
     obj.mainConfig.tableConfig.columns = tableFn.createColumns(res.columns);
-    vData.optionMap = {...res?.option};
-    vData.selectOptions = getOptionsLabel(res?.option);
-    vData.FORM_TITLE_MAP = res.FORM_TITLE_MAP;
     vData.mainShow = true;
   });
 });

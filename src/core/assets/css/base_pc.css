@@ -9,6 +9,9 @@
 
 /*夜晚模式*/
 .siyi.pc.default {
+
+    --main-theme-active-color: #35a1fd; /*主题色*/
+
     --logo-background-color: #30364d;
     --module-background-color: #30364d;
     --user-background-color: #30364d;

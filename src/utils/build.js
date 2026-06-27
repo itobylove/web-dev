@@ -9,7 +9,7 @@ const __dirname = process.cwd();
 
 // 从 Vite 配置中获取构建输出目录和远程目录
 const outDir = viteConfig.build.outDir || 'dist';
-const remoteDir = viteConfig.build?.remoteDir || 'W:\\frontend-test';
+const remoteDir = viteConfig.build?.remoteDir || 'X:\\dist';
 
 // 使用当前时间戳生成版本号
 const version = Date.now();

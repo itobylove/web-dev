@@ -119,6 +119,7 @@ const obj = {
       checkField: 'check',
       disablePage: true ,      
       options: {
+        editCellTrigger:'doubleclick',
         maxCharactersNumber: 10000, // 设置单元格显示的最大字符数
         defaultRowHeight: 'auto', // 行高
         autoWrapText: true,

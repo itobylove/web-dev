@@ -594,14 +594,15 @@ const obj = {
     tableConfig: {
       url:apiUrl.home.analysis.list,
       showCheck: true,
-      disablePage: true,
+      disablePage: false,
       useEncryptionFields: false, //是否使用加密字段
       options: {
-        frozenColCount: 8, // 冻结列
+        // editCellTrigger:'doubleclick', // 单元格双击触发编辑
+        frozenColCount: 7, // 冻结列
         rowSeriesNumber: {width: 55},
-        showFrozenIcon: true,
-        autoWrapText: true,
-        enableLineBreak: true,
+        // showFrozenIcon: true,
+        autoWrapText: true, // 是否允许自动换行
+        enableLineBreak: true, // 自动解析换行符
         maxCharactersNumber: 10000, // 设置单元格显示的最大字符数
         defaultRowHeight: 'auto', // 行高
       },
@@ -618,8 +619,6 @@ const obj = {
       //   };
       // },
       events: {
-        dblclick_cell: ({originData, field}) => { }, // 双击单元格
-        click_cell: ({originData, field}) => { }, // 单元格点击
         change_cell_value: async ({row, col, changedValue, currentValue, rawValue}) => {  // 改变单元格值
           if (changedValue === rawValue) {
             return ;
@@ -688,16 +687,13 @@ onMounted(() => {
     }
     if(!isAdmin.includes('excel_text_edit')){
       delete obj.processTableConfig.menuConfig.menu.edit
+      delete obj.processTableConfig.menuConfig.menu.BatchDataUpdate
     }
 
     if(!isAdmin.includes('excel_text_export')) {
       obj.processTableConfig.menuConfig.defaultMenuShowList = obj.processTableConfig.menuConfig.defaultMenuShowList.filter(
           item => item !== 'pageExport'
       )
-    }
-
-    if(isAdmin.includes('excel_text_all_text')) {
-      delete obj.processTableConfig.menuConfig.menu.BatchDataUpdate
     }
     refObj.processTableShow = true;
   });

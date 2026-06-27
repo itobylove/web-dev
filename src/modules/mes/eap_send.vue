@@ -433,10 +433,6 @@ onUnmounted(() => {
 
 onMounted(async () => {
   siyi.navHide = true;//隐藏导航栏
-
-  await obj.employee('ZH02541');
-  await obj.assets("C_YH_017");
-  obj.formula('WOC2605181453-00-001-007');
   Object.assign(refobj, JSON.parse(sessionStorage.getItem(sessionStorage.getItem('x-api-key'))));
   core.scan(char => {//注册一个扫码监听键盘事件
     if (char.startsWith('ZH') || char.startsWith('H') || char.startsWith('LT') || char.startsWith('Z')) {

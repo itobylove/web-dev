@@ -73,9 +73,9 @@ const obj = {
       disablePage: true,
       options: {
         frozenColCount: 3, // 冻结列
-        maxCharactersNumber: 10000, // 设置单元格显示的最大字符数
-        enableLineBreak: true, // 自动解析换行符
-        defaultRowHeight: 'auto', // 行高
+        // maxCharactersNumber: 10000, // 设置单元格显示的最大字符数
+        // enableLineBreak: true, // 自动解析换行符
+        // defaultRowHeight: 'auto', // 行高
         autoWrapText: true,
         defaultHeaderRowHeight: 30,
       },

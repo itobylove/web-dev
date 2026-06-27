@@ -10,6 +10,7 @@ export const dataMap = {
             cancel: '取消', active: '活动', valid: '生效', close: '关闭', planned: '已计划', toreplenishment: '待返修', shipped: '已发货', onhold: '暂缓', toexchange: '待换货', outsoucing: '外协'
         }
     },
+
     s_job: {
         type: {
             'sample': '样板', 'batch': '批量', 'other': '其它', 'merger': '合拼', 'mgsuit': '套版', 'subsuit': '套版子板'

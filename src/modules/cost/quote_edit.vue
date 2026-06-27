@@ -5,35 +5,41 @@
 
         <t-form ref="quoteRef" :rules="baseForm.quoteRules" :data="baseForm.quote"  label-width="150px" label-align="left" required-mark-position="left" >
 
-          <t-form-item name="plant_id_order">
-            <template #label>{{dData.FORM_TITLE_MAP['plant_id_order']}}<i class="ri-question-fill"/></template>
-            <t-select :popup-props="{'overlayClassName':'select-option-center'}" v-model="baseForm.quote.plant_id_order" :options="plantList" :defaultValue="siyi.user.plantId" />
-          </t-form-item>
-
-
-          <t-form-item name="plant_id_make">
-            <template #label>{{dData.FORM_TITLE_MAP['plant_id_make']}}<i class="ri-question-fill"/></template>
-            <t-select :popup-props="{'overlayClassName':'select-option-center'}" v-model="baseForm.quote.plant_id_make"
-                      @change="(value, context)=>baseFormEvent.change(value, context,'plant_id_make')"
-                      :options="plantList" :defaultValue="siyi.user.plantId" />
-          </t-form-item>
 
           <t-form-item name="sale_type">
-            <template #label>{{dData.FORM_TITLE_MAP['sale_type']}}<i class="ri-question-fill"/></template>
+            <template #label>{{vData.FORM_TITLE_MAP['sale_type']}}<i class="ri-question-fill"/></template>
             <t-select :popup-props="{'overlayClassName':'select-option-center'}" v-model="baseForm.quote.sale_type"
                       @change="(value, context)=>baseFormEvent.change(value, context,'sale_type')"
                       :options="vData.select_options.sale_type"  />
           </t-form-item>
 
+
+
           <t-form-item name="business_region">
-            <template #label>{{dData.FORM_TITLE_MAP['business_region']}}<i class="ri-question-fill"/></template>
+            <template #label>{{vData.FORM_TITLE_MAP['business_region']}}<i class="ri-question-fill"/></template>
             <t-select :popup-props="{'overlayClassName':'select-option-center'}" v-model="baseForm.quote.business_region"
                       @change="(value, context)=>baseFormEvent.change(value, context,'business_region')"
                       :options="vData.select_options.business_region"  />
           </t-form-item>
 
+          <t-form-item name="plant_id_order" >
+            <template #label>{{vData.FORM_TITLE_MAP['plant_id_order']}}<i class="ri-question-fill"/></template>
+            <t-select :popup-props="{'overlayClassName':'select-option-center'}"
+                      v-model="baseForm.quote.plant_id_order" :options="plantList" :defaultValue="siyi.user.plantId" />
+          </t-form-item>
+
+
+          <t-form-item name="plant_id_make">
+            <template #label>{{vData.FORM_TITLE_MAP['plant_id_make']}}<i class="ri-question-fill"/></template>
+            <t-select :popup-props="{'overlayClassName':'select-option-center'}" v-model="baseForm.quote.plant_id_make"
+                      @change="(value, context)=>baseFormEvent.change(value, context,'plant_id_make')"
+                      :options="plantList" :defaultValue="siyi.user.plantId" />
+          </t-form-item>
+
+
+
           <t-form-item name="product_code">
-            <template #label><span @dblclick="baseFormEvent.getMi">{{dData.FORM_TITLE_MAP['product_code']}}</span> <i class="ri-question-fill"/></template>
+            <template #label><span @dblclick="baseFormEvent.getMi">{{vData.FORM_TITLE_MAP['product_code']}}</span> <i class="ri-question-fill"/></template>
 <!--            <t-input align="center" v-model="baseForm.quote.product_code" @change="(value, context)=>baseFormEvent.change(value, context,'product_code')" />-->
 
             <t-select ref="jobSelectorRef" v-model="baseForm.quote.product_code" empty="请输入本厂型号（至少5位）" clearable
@@ -45,31 +51,31 @@
 
 
           <t-form-item name="customer_name">
-            <template #label>{{dData.FORM_TITLE_MAP['customer_name']}}<i class="ri-question-fill"/></template>
+            <template #label>{{vData.FORM_TITLE_MAP['customer_name']}}<i class="ri-question-fill"/></template>
             <!--            <t-select class=my-selector v-model="baseForm.quote.customer_id" filterable />-->
             <t-input align="center" v-model="baseForm.quote.customer_name" />
           </t-form-item>
 
           <t-form-item name="cust_product_name">
-            <template #label>{{dData.FORM_TITLE_MAP['cust_product_name']}}<i class="ri-question-fill"/></template>
+            <template #label>{{vData.FORM_TITLE_MAP['cust_product_name']}}<i class="ri-question-fill"/></template>
             <t-input align="center" v-model="baseForm.quote.cust_product_name" />
           </t-form-item>
 
 
           <t-form-item name="cust_product_code">
-            <template #label>{{dData.FORM_TITLE_MAP['cust_product_code']}}<i class="ri-question-fill"/></template>
+            <template #label>{{vData.FORM_TITLE_MAP['cust_product_code']}}<i class="ri-question-fill"/></template>
             <t-input align="center" v-model="baseForm.quote.cust_product_code" />
           </t-form-item>
 
           <t-form-item name="pcs_length">
-            <template #label>{{dData.FORM_TITLE_MAP['pcs_length']}}<i class="ri-question-fill"/></template>
+            <template #label>{{vData.FORM_TITLE_MAP['pcs_length']}}<i class="ri-question-fill"/></template>
             <t-input-number  v-model="baseForm.quote.pcs_length"
                              @change="(value, context)=>baseFormEvent.change(value, context,'pcs_length')"
                              align="center"  :min=baseForm.quote.pcs_width min="2" step="0.01" suffix="mm"  style="width: 100% "/>
           </t-form-item>
 
           <t-form-item name="pcs_width">
-            <template #label>{{dData.FORM_TITLE_MAP['pcs_width']}}<i class="ri-question-fill"/></template>
+            <template #label>{{vData.FORM_TITLE_MAP['pcs_width']}}<i class="ri-question-fill"/></template>
             <t-input-number  v-model="baseForm.quote.pcs_width"
                              @change="(value, context)=>baseFormEvent.change(value, context,'pcs_width')"
                              align="center"   min="2" step="0.01" :max="baseForm.quote.pcs_length" suffix="mm"  style="width: 100% "/>
@@ -78,7 +84,7 @@
 
 
           <t-form-item name="pcs_num">
-            <template #label>{{dData.FORM_TITLE_MAP['pcs_num']}}<i class="ri-question-fill"/></template>
+            <template #label>{{vData.FORM_TITLE_MAP['pcs_num']}}<i class="ri-question-fill"/></template>
             <t-input-number  v-model="baseForm.quote.pcs_num"
                              @change="(value, context)=>baseFormEvent.change(value, context,'pcs_num')"
                              align="center"  :min="1" step="1" style="width: 100% "/>
@@ -92,148 +98,177 @@
         <t-form ref="paramsRef" :rules="baseForm.paramsRules" @submit="baseFormEvent.submit" label-width="150px" label-align="left" required-mark-position="left" :data="baseForm.params">
 
           <t-form-item name="package_id_base">
-            <template #label>{{dData.FORM_TITLE_MAP['package_id_base']}}<i class="ri-question-fill"/></template>
+            <template #label>{{vData.FORM_TITLE_MAP['package_id_base']}}<i class="ri-question-fill"/></template>
             <t-radio-group name="package_id_base"  theme="button" v-model="baseForm.params.package_id_base" :options="vData.select_options.packages_base"
                            @change="(value,context)=>baseFormEvent.change(value,context,'package_id_base')" />
           </t-form-item>
 
           <t-form-item name="package_id_service" v-show="baseForm.params.package_id_base">
-            <template #label>{{dData.FORM_TITLE_MAP['package_id_service']}}<i class="ri-question-fill"/></template>
+            <template #label>{{vData.FORM_TITLE_MAP['package_id_service']}}<i class="ri-question-fill"/></template>
             <t-select :popup-props="{'overlayClassName':'select-option-center'}" filterable v-model="baseForm.params.package_id_service"
                       :options="vData.select_options.packages_service.filter(item=>item.data.pid===baseForm.params.package_id_base)"
                       @change="(value,context)=>baseFormEvent.change(value,context,'package_id_service')" />
 
           </t-form-item>
 
-          <t-form-item name="features">
-            <template #label>{{dData.FORM_TITLE_MAP['features']}}<i class="ri-question-fill"/></template>
+          <t-form-item name="features" v-if="vData.select_options?.features?.length">
+            <template #label>{{vData.FORM_TITLE_MAP['features']}}<i class="ri-question-fill"/></template>
             <t-check-tag-group v-bind="dData.check_group_bind" v-model="baseForm.params.features"
                                @change="(value,context)=>baseFormEvent.change(value,context,'features')"
                                :options="vData.select_options.features" />
           </t-form-item>
 
           <t-form-item name="layerNum">
-            <template #label>{{dData.FORM_TITLE_MAP['layerNum']}}<i class="ri-question-fill"/></template>
+            <template #label>{{vData.FORM_TITLE_MAP['layerNum']}}<i class="ri-question-fill"/></template>
             <t-input-number align="center"  v-model="baseForm.params.layerNum"
                             @change="(value,context)=>baseFormEvent.change(value,context,'layerNum')"
                             v-bind="baseForm.bind.layerNum" suffix="　层" style="width: 100%" />
           </t-form-item>
 
+
+
           <t-form-item name="thickness">
-            <template #label>{{dData.FORM_TITLE_MAP['thickness']}}<i class="ri-question-fill"/></template>
+            <template #label>{{vData.FORM_TITLE_MAP['thickness']}}<i class="ri-question-fill"/></template>
             <t-input-number align="center"  v-model="baseForm.params.thickness"
                             min="0.01" step="0.01" max="8" suffix="MM" style="width: 100%" />
           </t-form-item>
 
           <t-form-item name="coreThickness" v-if="baseForm.params.layerNum > 2 || typeof baseForm.params.layerNum!=='number' ">
-            <template #label>{{dData.FORM_TITLE_MAP['coreThickness']}}<i class="ri-question-fill"/></template>
+            <template #label>{{vData.FORM_TITLE_MAP['coreThickness']}}<i class="ri-question-fill"/></template>
             <t-input-number align="center"  v-model="baseForm.params.coreThickness"
                             @change="(value,context)=>baseFormEvent.change(value,context,'coreThickness')"
                             min="0.01" step="0.01" max="8" suffix="MM" style="width: 100%" />
           </t-form-item>
 
+
           <t-form-item name="minTraceWidth">
-            <template #label>{{dData.FORM_TITLE_MAP['minTraceWidth']}}<i class="ri-question-fill"/></template>
+            <template #label>{{vData.FORM_TITLE_MAP['minTraceWidth']}}<i class="ri-question-fill"/></template>
             <t-input-number align="center"  v-model="baseForm.params.minTraceWidth"  min="0" step="0.01" max="1" suffix="MM" style="width: 100%" />
           </t-form-item>
 
           <t-form-item name="minTraceSpacing">
-            <template #label>{{dData.FORM_TITLE_MAP['minTraceSpacing']}}<i class="ri-question-fill"/></template>
+            <template #label>{{vData.FORM_TITLE_MAP['minTraceSpacing']}}<i class="ri-question-fill"/></template>
             <t-input-number align="center"  v-model="baseForm.params.minTraceSpacing"  min="0" step="0.01" max="1" suffix="MM" style="width: 100%" />
           </t-form-item>
 
           <t-form-item name="minDrillSize">
-            <template #label>{{dData.FORM_TITLE_MAP['minDrillSize']}}<i class="ri-question-fill"/></template>
+            <template #label>{{vData.FORM_TITLE_MAP['minDrillSize']}}<i class="ri-question-fill"/></template>
             <t-input-number align="center"  v-model="baseForm.params.minDrillSize"  min="0.01" step="0.01" max="3" suffix="MM" style="width: 100%" />
           </t-form-item>
 
           <t-form-item name="copperThickness">
-            <template #label>{{dData.FORM_TITLE_MAP['copperThickness']}}<i class="ri-question-fill"/></template>
+            <template #label>{{vData.FORM_TITLE_MAP['copperThickness']}}<i class="ri-question-fill"/></template>
             <t-input-number align="center"  v-model="baseForm.params.copperThickness"
                             min="0.01" step="0.01" max="140" suffix="um" style="width: 100%" />
           </t-form-item>
 
           <t-form-item name="innerCopperThickness" v-if="baseForm.params.layerNum>2">
-            <template #label>{{dData.FORM_TITLE_MAP['innerCopperThickness']}}<i class="ri-question-fill"/></template>
+            <template #label>{{vData.FORM_TITLE_MAP['innerCopperThickness']}}<i class="ri-question-fill"/></template>
             <t-input-number align="center"  v-model="baseForm.params.innerCopperThickness"
                             min="0.01" step="0.01" max="140" suffix="um" style="width: 100%" />
           </t-form-item>
 
           <t-form-item name="mechBlindBuriedViaLayers" v-if="vData.package_service?.label?.includes('机械盲')">
-            <template #label>{{dData.FORM_TITLE_MAP['mechBlindBuriedViaLayers']}}<i class="ri-question-fill"/></template>
+            <template #label>{{vData.FORM_TITLE_MAP['mechBlindBuriedViaLayers']}}<i class="ri-question-fill"/></template>
             <t-input-number align="center"  v-model="baseForm.params.mechBlindBuriedViaLayers"  min="1"  suffix="　层" style="width: 100%" />
+          </t-form-item>
+
+          <t-form-item name="mainPPMaxNum" v-if="vData.FORM_TITLE_MAP?.['mainPPMaxNum']">
+            <template #label>{{vData.FORM_TITLE_MAP['mainPPMaxNum']}}<i class="ri-question-fill"/></template>
+            <t-input-number align="center"  v-model="baseForm.params.mainPPMaxNum"
+                            @change="(value,context)=>baseFormEvent.change(value,context,'mainPPMaxNum')"
+                            v-bind="baseForm.bind.mainPPMaxNum" suffix="　张" style="width: 100%" />
+          </t-form-item>
+
+          <t-form-item name="holeAspectRatio" v-if="vData.FORM_TITLE_MAP?.['holeAspectRatio']">
+            <template #label>{{vData.FORM_TITLE_MAP['holeAspectRatio']}}<i class="ri-question-fill"/></template>
+            <t-input align="center"  v-model="baseForm.params.holeAspectRatio"    style="width: 100%" />
           </t-form-item>
 
 
           <t-form-item name="finishType">
-            <template #label>{{dData.FORM_TITLE_MAP['finishType']}}<i class="ri-question-fill"/></template>
-            <t-select :popup-props="{'overlayClassName':'select-option-center'}" v-model="baseForm.params.finishType" filterable :options="vData.select_options.finishType" />
+            <template #label>{{vData.FORM_TITLE_MAP['finishType']}}<i class="ri-question-fill"/></template>
+            <t-select :popup-props="{'overlayClassName':'select-option-center'}"
+                      v-model="baseForm.params.finishType" filterable :options="vData.select_options.finishType" />
           </t-form-item>
 
 
           <t-form-item name="testingItems">
-            <template #label>{{dData.FORM_TITLE_MAP['testingItems']}}<i class="ri-question-fill"/></template>
-            <t-select :popup-props="{'overlayClassName':'select-option-center'}" v-model="baseForm.params.testingItems" multiple filterable :options="vData.select_options.testingItems"
+            <template #label>{{vData.FORM_TITLE_MAP['testingItems']}}<i class="ri-question-fill"/></template>
+            <t-select :popup-props="{'overlayClassName':'select-option-center'}"
+                      v-model="baseForm.params.testingItems" multiple filterable :options="vData.select_options.testingItems"
                       @change="(value,context)=>baseFormEvent.change(value,context,'testingItems')" />
           </t-form-item>
 
 <!--          <t-form-item name="useAVI">
-            <template #label>{{dData.FORM_TITLE_MAP['useAVI']}}<i class="ri-question-fill"/></template>
+            <template #label>{{vData.FORM_TITLE_MAP['useAVI']}}<i class="ri-question-fill"/></template>
             <t-radio-group  theme="button" v-model="baseForm.params.useAVI"  :options="vData.select_options.useAVI"/>
           </t-form-item>-->
 
+          <t-form-item name="hasCopper" v-if="vData.select_options?.hasCopper?.length">
+            <template #label>{{vData.FORM_TITLE_MAP['hasCopper']}}<i class="ri-question-fill"/></template>
+            <t-radio-group  theme="button" v-model="baseForm.params.hasCopper"  :options="vData.select_options.hasCopper"/>
+          </t-form-item>
 
-          <t-form-item name="isResinPlugging">
-            <template #label>{{dData.FORM_TITLE_MAP['isResinPlugging']}}<i class="ri-question-fill"/></template>
+          <t-form-item name="isResinPlugging" v-if="vData.select_options?.isResinPlugging?.length">
+            <template #label>{{vData.FORM_TITLE_MAP['isResinPlugging']}}<i class="ri-question-fill"/></template>
             <t-radio-group  theme="button" v-model="baseForm.params.isResinPlugging"  :options="vData.select_options.isResinPlugging"/>
           </t-form-item>
 
-          <t-form-item name="isBuriedCopper">
-            <template #label>{{dData.FORM_TITLE_MAP['isBuriedCopper']}}<i class="ri-question-fill"/></template>
+          <t-form-item name="resinPluggingNum" v-show="baseForm.params.isResinPlugging===dData.IS_YES">
+            <template #label>{{vData.FORM_TITLE_MAP['resinPluggingNum']}}<i class="ri-question-fill"/></template>
+            <t-input-number align="center"  v-model="baseForm.params.resinPluggingNum" min="1" step="1"
+                            @change="(value,context)=>baseFormEvent.change(value,context,'resinPluggingNum')"
+                            suffix="　次" style="width: 100%" />
+          </t-form-item>
+
+          <t-form-item name="isBuriedCopper" v-if="vData.select_options?.isBuriedCopper?.length">
+            <template #label>{{vData.FORM_TITLE_MAP['isBuriedCopper']}}<i class="ri-question-fill"/></template>
             <t-radio-group theme="button" v-model="baseForm.params.isBuriedCopper" :options="vData.select_options.isBuriedCopper"
                            @change="(value,context)=>baseFormEvent.change(value,context,'isBuriedCopper')" />
           </t-form-item>
 
-          <t-form-item name="isXQYJ">
-            <template #label>{{dData.FORM_TITLE_MAP['isXQYJ']}}<i class="ri-question-fill"/></template>
+          <t-form-item name="isXQYJ" v-if="vData.select_options?.isXQYJ?.length">
+            <template #label>{{vData.FORM_TITLE_MAP['isXQYJ']}}<i class="ri-question-fill"/></template>
             <t-radio-group theme="button" v-model="baseForm.params.isXQYJ" :options="vData.select_options.isXQYJ"/>
           </t-form-item>
 
-          <t-form-item name="profileType">
-            <template #label>{{dData.FORM_TITLE_MAP['profileType']}}<i class="ri-question-fill"/></template>
+          <t-form-item name="profileType" v-if="vData.select_options?.profileType?.length">
+            <template #label>{{vData.FORM_TITLE_MAP['profileType']}}<i class="ri-question-fill"/></template>
             <t-radio-group theme="button" v-model="baseForm.params.profileType" :options="vData.select_options.profileType"/>
           </t-form-item>
 
-          <t-form-item name="goldFingerType">
-            <template #label>{{dData.FORM_TITLE_MAP['goldFingerType']}}<i class="ri-question-fill"/></template>
+          <t-form-item name="goldFingerType"  v-if="vData.select_options?.goldFingerType?.length">
+            <template #label>{{vData.FORM_TITLE_MAP['goldFingerType']}}<i class="ri-question-fill"/></template>
             <t-radio-group theme="button" v-model="baseForm.params.goldFingerType" :options="vData.select_options.goldFingerType"/>
           </t-form-item>
 
-          <t-form-item name="XBType">
-            <template #label>{{dData.FORM_TITLE_MAP['XBType']}}<i class="ri-question-fill"/></template>
+          <t-form-item name="XBType"  v-if="vData.select_options?.XBType?.length">
+            <template #label>{{vData.FORM_TITLE_MAP['XBType']}}<i class="ri-question-fill"/></template>
             <t-radio-group theme="button" v-model="baseForm.params.XBType" :options="vData.select_options.XBType"/>
           </t-form-item>
 
 
 
-          <t-form-item name="drillType">
-            <template #label>{{dData.FORM_TITLE_MAP['drillType']}}<i class="ri-question-fill"/></template>
+
+          <t-form-item name="drillType"  v-if="vData.select_options?.drillType?.length">
+            <template #label>{{vData.FORM_TITLE_MAP['drillType']}}<i class="ri-question-fill"/></template>
             <t-radio-group theme="button" v-model="baseForm.params.drillType"
-                           @change="(value,context)=>baseFormEvent.change(value,context,'AAAA')"
+                           @change="(value,context)=>baseFormEvent.change(value,context,'drillType')"
                            :options="vData.select_options.drillType"/>
           </t-form-item>
 
 
 
-          <t-form-item name="vDrillMultipleType">
-            <template #label>{{dData.FORM_TITLE_MAP['vDrillMultipleType']}}<i class="ri-question-fill"/></template>
+          <t-form-item name="vDrillMultipleType" v-if="vData.select_options?.vDrillMultipleType?.length">
+            <template #label>{{vData.FORM_TITLE_MAP['vDrillMultipleType']}}<i class="ri-question-fill"/></template>
             <t-check-tag-group v-bind="dData.check_group_bind" v-model="baseForm.params.vDrillMultipleType"
                                @change="(value,context)=>baseFormEvent.change(value,context,'vDrillMultipleType')"
                                :options="vData.select_options.vDrillMultipleType" />
           </t-form-item>
 
-          <t-form-item name="vDrillMultipleType2">
-            <template #label>{{dData.FORM_TITLE_MAP['vDrillMultipleType2']}}<i class="ri-question-fill"/></template>
+          <t-form-item name="vDrillMultipleType2"  v-if="vData.select_options?.vDrillMultipleType2?.length">
+            <template #label>{{vData.FORM_TITLE_MAP['vDrillMultipleType2']}}<i class="ri-question-fill"/></template>
             <t-check-tag-group v-bind="dData.check_group_bind" v-model="baseForm.params.vDrillMultipleType2"
                                @change="(value,context)=>baseFormEvent.change(value,context,'vDrillMultipleType2')"
                                :options="vData.select_options.vDrillMultipleType2" />
@@ -241,15 +276,19 @@
 
 
           <t-form-item name="fontMultipleType">
-            <template #label>{{dData.FORM_TITLE_MAP['fontMultipleType']}}<i class="ri-question-fill"/></template>
+            <template #label>{{vData.FORM_TITLE_MAP['fontMultipleType']}}<i class="ri-question-fill"/></template>
             <t-check-tag-group v-bind="dData.check_group_bind" v-model="baseForm.params.fontMultipleType"
                                @change="(value,context)=>baseFormEvent.change(value,context,'fontMultipleType')"
                                :options="vData.select_options.fontMultipleType" />
           </t-form-item>
 
+          <t-form-item name="fontColor"  v-if="vData.select_options?.fontColor?.length">
+            <template #label>{{vData.FORM_TITLE_MAP['fontColor']}}<i class="ri-question-fill"/></template>
+            <t-radio-group theme="button" v-model="baseForm.params.fontColor" :options="vData.select_options.fontColor"/>
+          </t-form-item>
 
           <t-form-item name="checkTools">
-            <template #label>{{dData.FORM_TITLE_MAP['checkTools']}}<i class="ri-question-fill"/></template>
+            <template #label>{{vData.FORM_TITLE_MAP['checkTools']}}<i class="ri-question-fill"/></template>
             <t-check-tag-group v-bind="dData.check_group_bind" v-model="baseForm.params.checkTools"
                                @change="(value,context)=>baseFormEvent.change(value,context,'checkTools')"
                                :options="vData.select_options.checkTools" />
@@ -317,7 +356,7 @@
 
                              <t-input-number title="物料数量"  v-model="parameter_material.num.ratio" v-show="!parameter.is_readonly" align="center"
                                  @change="()=>processEvent.getMaterialNum(parameter,packages_item,material_index,true)"
-                                  class="parameter_material_ratio" theme="normal" min="1" step="1" max="9" style="width: 60px" />
+                                  class="parameter_material_ratio" theme="normal" min="1" step="1" max="20" style="width: 60px" />
 
                              <t-input-number title="物料用量" v-model="parameter_material.num.value"
                                              class="parameter_material_num" align="center" theme="normal"
@@ -337,8 +376,8 @@
                                            :suffix="parameter.unit_name" theme="normal"
                                            :readonly="Boolean(parameter.is_readonly)"
                                            :status="parameter.input_options?.required && ( parameter.value==='' || parameter.value===null) ?'error':'default' "
-                                           @focus="()=>processEvent.getParameter(parameter,packages_item)"
-                                           @change="()=>processEvent.change(parameter)"
+                                           @focus="()=>processEvent.calcParameter(parameter,packages_item)"
+                                           @change="()=>processEvent.parameterChange(parameter)"
                                            :decimalPlaces="parameter.decimal_places"
                                            style="width: 350px" v-bind="parameter.input_options || {}"/>
                          </div>
@@ -356,7 +395,7 @@
 
                            <t-input align="center" v-if="parameter.input_type===dData.input_type.TEXT"
                                     v-model="parameter.value"
-                                    @change="()=>processEvent.change(parameter)"
+                                    @change="()=>processEvent.parameterChange(parameter)"
                                     :status="parameter.input_options?.required && ( parameter.value==='' || parameter.value===null) ?'error':'default' "
                                     :defaultValue="parameter.default_value" :disabled="Boolean(parameter.is_readonly)"
                                     :suffix="parameter.unit_name"
@@ -366,7 +405,7 @@
                                            v-model="parameter.value"
                                            :defaultValue="parameter.default_value" :disabled="Boolean(parameter.is_readonly)"
                                            :suffix="parameter.unit_name"
-                                           @change="()=>processEvent.change(parameter)"
+                                           @change="()=>processEvent.parameterChange(parameter)"
                                            :status="parameter.input_options?.required && ( parameter.value==='' || parameter.value===null) ?'error':'default' "
                                            :placeholder="'请输入'+(parameter.value_type===dData.value_type.INT?'整数':'数字')"
                                            theme="normal"
@@ -382,12 +421,12 @@
                                      @create="(value)=>processEvent.createOptions(value,parameter)"
                                      :options="parameter.select_options || []"
                                      :status="parameter.input_options?.required && ( parameter.value==='' || parameter.value===null || parameter.value===[]) ?'error':'default' "
-                                     @change="()=>processEvent.change(parameter)"
+                                     @change="()=>processEvent.parameterChange(parameter)"
                                      :multiple="parameter.input_type===dData.input_type.SELECT"
                                      style="width: 350px" v-bind="parameter.input_options || {}"/>
 
                            <t-switch v-if="parameter.input_type==='switch'" v-model="parameter.value"
-                                     @change="()=>processEvent.change(parameter)"
+                                     @change="()=>processEvent.parameterChange(parameter)"
                                      :status="parameter.input_options?.required && ( parameter.value==='' || parameter.value===null) ?'error':'default' "
                                      :defaultValue="parameter.default_value" :disabled="Boolean(parameter.is_readonly)"
                                      :customValue="parameter.select_options || ['是', '否']" :label="parameter.select_options || ['是', '否']" size="large"
@@ -424,25 +463,39 @@
         <TableComponent   v-if="costTable.isShow"  ref="costTableRef" v-bind="costTableEvent.bind()"/>
         <template  v-else>
           <div class="steps scrollbar-hidden">
-<!--            <dl  class="stepMenu" style="background-color: #eee; padding: 2px 10px; color: #000; border-radius: 5px;">
+            <dl  class="stepMenu" style="background-color: #eee; padding: 2px 10px; color: #000; border-radius: 5px;">
               <dd style="border: 6px solid #0f95fb;"></dd>
-              <dt>总成本</dt>
-              <dt class="stepDesc">平米成本：1111.2元</dt>
-              <dt class="stepDesc">PCS成本：5.123元</dt>
-            </dl>-->
-            <dl v-for="(text,id) in dData.stepList" @click="costList.scrollTo(id)" :class="['stepMenu',{active:costList.step===id}]">
-              <dd></dd>
-              <dt>{{ text }} </dt>
-<!--              <dt class="stepDesc">1111</dt>-->
-<!--              <dt class="stepDesc">1111</dt>-->
+              <dt>总成本(未税)</dt>
+              <dt class="stepDesc">{{roundNum(resultBox.data.square_price_gross_overage)}}元/平米</dt>
             </dl>
-            <span class="cost-table-switcher" @click="costTableEvent.show()"><i class="ri-table-3"></i></span>
+            <dl  class="stepMenu" style="background-color: #eee; padding: 2px 10px; color: #000; border-radius: 5px;" title="BOM+工序变动">
+              <dd style="border: 6px solid #0f95fb;"></dd>
+              <dt>总变动成本(未税)</dt>
+              <dt class="stepDesc">{{roundNum(resultBox.data.base_square_price_gross_overage)}}元/平米</dt>
+            </dl>
+            <dl v-for="(step,stepId) in dData.stepList" @click="costList.scrollTo(stepId)" :class="['stepMenu',{active:costList.step===stepId}]">
+              <dd></dd>
+              <dt>{{ step.title }} </dt>
+              <dt class="stepDesc">
+                <span v-if="vData.stepData?.[stepId]?.square_price_gross_overage">
+                  {{roundNum(vData.stepData?.[stepId]?.square_price_gross_overage || 0,0,0)}}元/平米
+                </span>
+                <span v-else>-</span>
+              </dt>
+            </dl>
+            <dl  class="stepMenu" style="padding: 2px 10px; color: #000; border-radius: 5px;">
+              <span class="cost-table-switcher" title="显示表格" @click="costTableEvent.show()"><i class="ri-table-3"></i></span>
+            </dl>
+
           </div>
 
             <div class="list" v-if="costList.isInit">
 
               <div id="step_bom">
-                <div class="title collapse" @click="costEvent.collapse('bom')">BOM成本</div>
+
+                <div class="title collapse" @click="costEvent.collapse('bom')">
+                  <span>{{dData.stepList.bom.title}}</span>
+                </div>
                 <div class="cost-items">
                   <div class="siyi-table header">
                     <table>
@@ -454,8 +507,8 @@
 <!--                        <td>PCS耗量</td>-->
                         <td>订单耗量(含预投)</td>
 <!--                        <td>PCS成本</td>-->
-                        <td>订单成本(含预投)</td>
-                        <td>平米成本(毛面积)</td>
+                        <td>订单成本(含预投/未税)</td>
+                        <td>平米成本(含预投/未税)</td>
                       </tr>
 
                       <tr v-show="!costItems.bom.collapse"
@@ -472,9 +525,9 @@
                       </tr>
                       <tr @click="costEvent.collapse('bom')" class="collapse">
                         <td colspan="4">合计</td>
-<!--                        <td>{{roundNum((costItems.bom?.pcs_price || 0)+(costItems.bom_ext?.pcs_price || 0),2,4)}} 元</td>-->
-                        <td>{{roundNum((costItems.bom?.order_price_overage || 0)+(costItems.bom_ext?.order_price_overage || 0),2,4)}} 元</td>
-                        <td>{{roundNum((costItems.bom?.square_price_gross_overage || 0)+(costItems.bom_ext?.square_price_gross_overage || 0),2,4)}} 元</td>
+<!--                        <td>{{roundNum((costItems.bom?.pcs_price || 0),2,4)}} 元</td>-->
+                        <td>{{roundNum((costItems.bom?.order_price_overage || 0),2,4)}} 元</td>
+                        <td>{{roundNum((costItems.bom?.square_price_gross_overage || 0),2,4)}} 元</td>
                       </tr>
                       </tbody>
                     </table>
@@ -484,10 +537,47 @@
 
 
               <div id="step_process_dynamic">
-                <div class="title collapse" @click="costEvent.collapse('process_dynamic')">{{dData.stepList.process_dynamic}} </div>
+                <div class="title collapse" @click="costEvent.collapse('process_dynamic')">
+                  <span >{{dData.stepList.process_dynamic.title}}</span>
+                  <span @click="costEvent.showCate('process_dynamic')">
+                    <i class="ri-arrow-right-s-line" v-if="costCateItems.process_dynamic.isShow" />
+                    <i class="ri-arrow-down-s-line" v-else />
+                  </span>
+                </div>
                 <div class="cost-items">
                   <div class="siyi-table header">
-                    <table>
+
+                    <table v-if="costCateItems.process_dynamic.isShow" >
+                      <tbody>
+
+                      <tr @click="costEvent.collapse('process_dynamic')" class="collapse">
+                        <td>类型</td>
+                        <td>PCS成本(元/PCS)</td>
+                        <td>平米成本(元)</td>
+                        <td>订单成本(含预投/未税)</td>
+                        <td>平米成本(含预投/未税)</td>
+                      </tr>
+                      <tr v-show="!costItems.process_dynamic.collapse" v-for="(costCateItem,cate) in costCateItems.process_dynamic" >
+                         <template v-if="costCateItem?.sum?.pcs_price">
+                           <td>{{cate}}</td>
+                           <td>{{roundNum(costCateItem.sum.pcs_price,4,4)}}</td>
+                           <td>{{roundNum(costCateItem.sum.square_price_gross,4,4)}}</td>
+                           <td>{{roundNum(costCateItem.sum.order_price_overage,4,4)}}</td>
+                           <td>{{roundNum(costCateItem.sum.square_price_gross_overage,4,4)}}</td>
+                         </template>
+                      </tr>
+                      <tr >
+                        <td>合计</td>
+                        <td>{{roundNum(costItems.process_dynamic?.pcs_price ,4,4)}} 元</td>
+                        <td>{{roundNum(costItems.process_dynamic?.square_price_gross || 0 ,2,4)}} 元</td>
+                        <td>{{roundNum(costItems.process_dynamic?.order_price_overage || 0 ,4,4)}} 元</td>
+                        <td>{{roundNum(costItems.process_dynamic?.square_price_gross_overage || 0 ,2,4)}} 元</td>
+                      </tr>
+                      </tbody>
+                    </table>
+
+
+                    <table v-else>
                       <tbody>
                       <tr @click="costEvent.collapse('process_dynamic')" class="collapse">
                         <td>类型</td>
@@ -498,9 +588,10 @@
                         <td>订单耗量(含预投)</td>
 <!--                        <td>PCS成本</td>-->
 <!--                        <td>平米成本</td>-->
-                        <td>订单成本(含预投)</td>
-                        <td>平米成本(含预投)</td>
+                        <td>订单成本(含预投/未税)</td>
+                        <td>平米成本(含预投/未税)</td>
                       </tr>
+
                       <tr v-show="!costItems.process_dynamic.collapse" v-for="item in costItems.process_dynamic.list">
                         <td>{{item.name}}</td>
                         <td class="cost-item-title">{{item.title}}</td>
@@ -528,29 +619,67 @@
 
 
               <div id="step_process_static">
-                <div class="title collapse" @click="costEvent.collapse('process_static')">{{dData.stepList.process_static}}  </div>
+                <div class="title collapse" >
+                  <span @click="costEvent.collapse('process_static')">{{dData.stepList.process_static.title}}</span>
+                  <span @click="costEvent.showCate('process_static')">
+                    <i class="ri-arrow-right-s-line" v-if="costCateItems.process_static.isShow" />
+                    <i class="ri-arrow-down-s-line" v-else />
+                  </span>
+                </div>
                 <div class="cost-items">
                   <div class="siyi-table header">
-                    <table>
+
+                    <table v-if="costCateItems.process_static.isShow" >
+                      <tbody>
+
+                      <tr @click="costEvent.collapse('process_static')" class="collapse">
+                        <td>类型</td>
+                        <td>PCS成本(元/PCS)</td>
+                        <td>平米成本(元)</td>
+                        <td>订单成本(含预投/未税)</td>
+                        <td>平米成本(含预投/未税)</td>
+                      </tr>
+                      <tr v-show="!costItems.process_static.collapse" v-for="(costCateItem,cate) in costCateItems.process_static" >
+                        <template v-if="costCateItem?.sum?.pcs_price">
+                          <td>{{cate}}</td>
+                          <td>{{roundNum(costCateItem.sum.pcs_price,4,4)}}</td>
+                          <td>{{roundNum(costCateItem.sum.square_price_gross,4,4)}}</td>
+                          <td>{{roundNum(costCateItem.sum.order_price_overage,4,4)}}</td>
+                          <td>{{roundNum(costCateItem.sum.square_price_gross_overage,4,4)}}</td>
+                        </template>
+                      </tr>
+                      <tr >
+                        <td>合计</td>
+                        <td>{{roundNum(costItems.process_static?.pcs_price ,4,4)}} 元</td>
+                        <td>{{roundNum(costItems.process_static?.square_price_gross || 0 ,2,4)}} 元</td>
+                        <td>{{roundNum(costItems.process_static?.order_price_overage || 0 ,4,4)}} 元</td>
+                        <td>{{roundNum(costItems.process_static?.square_price_gross_overage || 0 ,2,4)}} 元</td>
+                      </tr>
+                      </tbody>
+                    </table>
+
+
+                    <table v-else>
                       <tbody>
                       <tr @click="costEvent.collapse('process_static')" class="collapse">
                         <td>类型</td>
                         <td class="cost-item-title">名称</td>
                         <td>单价</td>
                         <!--                        <td>耗量(PCS)</td>-->
-<!--                        <td>订单耗量</td>-->
+                        <!--                        <td>订单耗量</td>-->
                         <td>订单耗量(含预投)</td>
                         <!--                        <td>PCS成本</td>-->
                         <!--                        <td>平米成本</td>-->
-                        <td>订单成本(含预投)</td>
-                        <td>平米成本(含预投)</td>
+                        <td>订单成本(含预投/未税)</td>
+                        <td>平米成本(含预投/未税)</td>
                       </tr>
+
                       <tr v-show="!costItems.process_static.collapse" v-for="item in costItems.process_static.list">
                         <td>{{item.name}}</td>
                         <td class="cost-item-title">{{item.title}}</td>
                         <td>{{roundNum(item.price,4,4)}}  {{item.rmb}} / {{item.unit}}</td>
                         <!--                        <td>{{roundNum(item.pcs_used,4,4)}} {{item.unit}}</td>-->
-<!--                        <td>{{roundNum(item.order_used,4,4)}}   {{item.unit}}</td>-->
+                        <!--                        <td>{{roundNum(item.order_used,4,4)}}   {{item.unit}}</td>-->
                         <td>{{roundNum(item.order_used_overage,4,4)}}   {{item.unit}}</td>
                         <!--                        <td>{{roundNum(item.pcs_price,4,4)}} {{item.rmb}}</td>-->
                         <!--                        <td>{{ item.square_price_gross}} {{item.rmb}}</td>-->
@@ -571,29 +700,67 @@
               </div>
 
               <div id="step_others">
-                <div class="title collapse" @click="costEvent.collapse('others')">{{dData.stepList.others}}</div>
+                <div class="title collapse" >
+                  <span @click="costEvent.collapse('others')" class="collapse">{{dData.stepList.others.title}}</span>
+                 <span @click="costEvent.showCate('others')">
+                    <i class="ri-arrow-right-s-line" v-if="costCateItems.others.isShow" />
+                    <i class="ri-arrow-down-s-line" v-else />
+                 </span>
+                </div>
                 <div class="cost-items">
                   <div class="siyi-table header">
-                    <table>
+
+                    <table v-if="costCateItems.others.isShow" >
+                      <tbody>
+
+                      <tr @click="costEvent.collapse('others')" class="collapse">
+                        <td>类型</td>
+                        <td>PCS成本(元/PCS)</td>
+                        <td>平米成本(元)</td>
+                        <td>订单成本(含预投/未税)</td>
+                        <td>平米成本(含预投/未税)</td>
+                      </tr>
+                      <tr v-show="!costItems.others.collapse" v-for="(costCateItem,cate) in costCateItems.others" >
+                        <template v-if="costCateItem?.sum?.pcs_price">
+                          <td>{{cate}}</td>
+                          <td>{{roundNum(costCateItem.sum.pcs_price,4,4)}}</td>
+                          <td>{{roundNum(costCateItem.sum.square_price_gross,4,4)}}</td>
+                          <td>{{roundNum(costCateItem.sum.order_price_overage,4,4)}}</td>
+                          <td>{{roundNum(costCateItem.sum.square_price_gross_overage,4,4)}}</td>
+                        </template>
+                      </tr>
+                      <tr >
+                        <td>合计</td>
+                        <td>{{roundNum(costItems.others?.pcs_price ,4,4)}} 元</td>
+                        <td>{{roundNum(costItems.others?.square_price_gross || 0 ,2,4)}} 元</td>
+                        <td>{{roundNum(costItems.others?.order_price_overage || 0 ,4,4)}} 元</td>
+                        <td>{{roundNum(costItems.others?.square_price_gross_overage || 0 ,2,4)}} 元</td>
+                      </tr>
+                      </tbody>
+                    </table>
+
+
+                    <table v-else>
                       <tbody>
                       <tr @click="costEvent.collapse('others')" class="collapse">
                         <td>类型</td>
                         <td class="cost-item-title">名称</td>
                         <td>单价</td>
                         <!--                        <td>耗量(PCS)</td>-->
-<!--                        <td>订单耗量</td>-->
+                        <!--                        <td>订单耗量</td>-->
                         <td>订单耗量(含预投)</td>
                         <!--                        <td>PCS成本</td>-->
                         <!--                        <td>平米成本</td>-->
-                        <td>订单成本(含预投)</td>
-                        <td>平米成本(含预投)</td>
+                        <td>订单成本(含预投/未税)</td>
+                        <td>平米成本(含预投/未税)</td>
                       </tr>
+
                       <tr v-show="!costItems.others.collapse" v-for="item in costItems.others.list">
                         <td>{{item.name}}</td>
                         <td class="cost-item-title">{{item.title}}</td>
                         <td>{{roundNum(item.price,4,4)}}  {{item.rmb}} / {{item.unit}}</td>
                         <!--                        <td>{{roundNum(item.pcs_used,4,4)}} {{item.unit}}</td>-->
-<!--                        <td>{{roundNum(item.order_used,4,4)}}   {{item.unit}}</td>-->
+                        <!--                        <td>{{roundNum(item.order_used,4,4)}}   {{item.unit}}</td>-->
                         <td>{{roundNum(item.order_used_overage,4,4)}}   {{item.unit}}</td>
                         <!--                        <td>{{roundNum(item.pcs_price,4,4)}} {{item.rmb}}</td>-->
                         <!--                        <td>{{ item.square_price_gross}} {{item.rmb}}</td>-->
@@ -602,9 +769,8 @@
                       </tr>
                       <tr @click="costEvent.collapse('others')" class="collapse">
                         <td colspan="4">合计</td>
-                        <!-- <td>{{roundNum(costItems.others?.pcs_price ,4,4)}} 元</td>-->
-
-                   <!--  <td>{{roundNum(costItems.others?.order_price || 0 ,2,4)}} 元</td>-->
+                        <!--                        <td>{{roundNum(costItems.others?.pcs_price ,4,4)}} 元</td>-->
+                        <!--                        <td>{{roundNum(costItems.others?.square_price_gross || 0 ,4,4)}} 元</td>-->
                         <td>{{roundNum(costItems.others?.order_price_overage || 0 ,2,4)}} 元</td>
                         <td>{{roundNum(costItems.others?.square_price_gross_overage || 0 ,2,4)}} 元</td>
                       </tr>
@@ -617,7 +783,7 @@
 
 
               <div id="step_mix3">
-                <div class="title collapse" @click="costEvent.collapse('sales')">{{dData.stepList.mix3}} </div>
+                <div class="title collapse" @click="costEvent.collapse('sales')">{{dData.stepList.mix3.title}} </div>
                 <div class="cost-items">
                   <div class="siyi-table header">
                     <table>
@@ -631,8 +797,8 @@
                         <td>订单耗量(含预投)</td>
                         <!--                        <td>PCS成本</td>-->
                         <!--                        <td>平米成本</td>-->
-                        <td>订单成本(含预投)</td>
-                        <td>平米成本(含预投)</td>
+                        <td>订单成本(含预投/未税)</td>
+                        <td>平米成本(含预投/未税)</td>
                       </tr>
                       <tr v-show="!costItems.sales.collapse" v-for="item in [...costItems.sales.list, ...costItems.manger.list,...costItems.finance.list]">
                         <td>{{item.name}}</td>
@@ -664,7 +830,7 @@
 
 
               <div id="step_outwork">
-                <div class="title collapse" @click="costEvent.collapse('outwork')">{{dData.stepList.outwork}} </div>
+                <div class="title collapse" @click="costEvent.collapse('outwork')">{{dData.stepList.outwork.title}} </div>
                 <div class="cost-items">
                   <div class="siyi-table header">
                     <table>
@@ -678,8 +844,8 @@
                         <td>订单耗量(含预投)</td>
                         <!--                        <td>PCS成本</td>-->
                         <!--                        <td>平米成本</td>-->
-                        <td>订单成本(含预投)</td>
-                        <td>平米成本(含预投)</td>
+                        <td>订单成本(含预投/未税)</td>
+                        <td>平米成本(含预投/未税)</td>
                       </tr>
                       <tr v-show="!costItems.outwork.collapse" v-for="item in costItems.outwork.list" >
                         <td>{{item.name}}</td>
@@ -709,7 +875,7 @@
 
 
               <div id="step_order_ext">
-                <div class="title " >{{dData.stepList.order_ext}} </div>
+                <div class="title " >{{dData.stepList.order_ext.title}} </div>
                 <div class="cost-items">
                   <div class="siyi-table header">
                     <table>
@@ -717,7 +883,7 @@
                       <tr >
                         <td class="cost-item-title">名称</td>
                         <td>订单成本</td>
-                        <td>订单成本(含预投)</td>
+                        <td>订单成本(含预投/未税)</td>
                       </tr>
                       <tr  v-for="item in costItems.order_ext.list" >
                         <td class="cost-item-title">{{item.title}}</td>
@@ -747,128 +913,154 @@
           <p>成本总金额 {{resultBox.data.order_money_all}} =  (<t-tooltip content="单PCS成本 =  BOM物料按PNL计算按PCS分摊 + 工序固定成本按往期费率固定分摊 + 工序变动成本按产量增减 + 外协工序成本基于缺失工序补足 + 非工序公摊成本由辅助部门产生按面积分摊 + 销管财成本"  placement="top">单PCS成本:{{resultBox.data.pcs_price}}</t-tooltip> * (订单PCS数:{{baseForm.quote.pcs_num}} +  <t-tooltip content="预投数 ： 基于不同产品加工路线及品质管控难度特性、订单面积综合得出 "  placement="top">预投PCS数:{{resultBox.data.pcs_num_all-baseForm.quote.pcs_num}}</t-tooltip>)) * (1+  <t-tooltip content="税负率 ： 增值税（13%） + 附加税（近三年均值3%）"  placement="top">其他税负率:{{resultBox.data.vat_rate + resultBox.data.surtax_rate}}%</t-tooltip>)  + 附加费用:{{resultBox.data.order_money_extra}} </p>
 <!--          * (1+<t-tooltip content="利润率 ： 基于不同产品加工难度及耗用资源（如设备、人工、物料）综合得出"  placement="top">利润率:{{resultBox.data.profit_rate}}%</t-tooltip>)-->
         </div>
-        <div class="msg-box" v-if="processBox.msgList.length>0">
+        <div class="msg-box" v-if="processBox.msgList?.length">
           <t-alert v-for="msg in processBox.msgList" :theme="msg.type" :message="msg.content" close-btn />
         </div>
         <div class="result-box">
+
           <div class="result-box-row">
+            <dl>
+              <dt> 订单PCS数</dt>
+              <dd class="number-editor">
+                <span>{{ baseForm.quote.pcs_num }} PCS</span>
+              </dd>
+            </dl>
+
+            <dl>
+              <dt> 订单PNL数</dt>
+              <dd class="number-editor">
+                <span>{{ resultBox.data.pcs_of_pnl ? (baseForm.quote.pcs_num / resultBox.data.pcs_of_pnl) : '' }} PNL</span>
+              </dd>
+            </dl>
+
+            <dl>
+              <dt>订单毛面积(按SET)</dt>
+              <dd class="number-editor">
+                <span>{{ roundNum(baseForm.quote.order_area_gross, 4, 4) }} m²</span>
+              </dd>
+            </dl>
 
 
-          <dl>
-          <dt> 订单数量</dt>
-          <dd class="number-editor" :title="(resultBox.data.pcs_of_pnl?(baseForm.quote.pcs_num/resultBox.data.pcs_of_pnl):'')+' PNL'">
-            <span  >{{baseForm.quote.pcs_num}}</span>PCS
-          </dd>
-        </dl>
-        <dl>
-          <dt>订单毛面积(按SET)</dt>
-          <dd class="number-editor" >
-            <span >{{roundNum(baseForm.quote.order_area_gross,4,4)}}</span>m²
-          </dd>
-        </dl>
+            <dl :title="(resultBox.data.overage_config?.description || '') + '  (批量预投率：'+(resultBox.data.overage_config?.overage_rate || 0)+' %)'">
+              <dt>预投率(含报废)</dt>
+              <dd class="number-editor">
+                <span>{{ roundNum(resultBox.data.overage_rate, 2) }}%</span>
+              </dd>
+            </dl>
 
-        <dl :title="(resultBox.data.overage_config?.description || '') + '  (批量预投率：'+(resultBox.data.overage_config?.overage_rate || 0)+' %)'">
-          <dt>预投率(含报废)</dt>
-          <dd class="number-editor" >
-            <span >{{roundNum(resultBox.data.overage_rate,2)}}%</span>
-          </dd>
-        </dl>
-
-            <dl >
-              <dt >单PCS<span style="color: #f56c6c">未税</span>BOM成本(含预投)</dt>
-              <dd > - 元</dd>
+            <dl>
+              <dt>单PCS<span style="color: #f56c6c">未税</span>BOM成本(含预投)</dt>
+              <dd v-if="vData.stepData?.bom?.pcs_price">
+                {{ roundNum(vData.stepData?.bom.pcs_price * (1 + resultBox.data.overage_rate / 100)) }} 元
+              </dd>
+              <dd v-else>-</dd>
             </dl>
             <dl :title="'不含预投：'+resultBox.data.pcs_price+' 元'">
-              <dt >单PCS<span style="color: #f56c6c">未税</span>成本(含预投)</dt>
-              <dd >{{resultBox.data.pcs_price_overage}} 元</dd>
+              <dt>单PCS<span style="color: #f56c6c">未税</span>成本(含预投)</dt>
+              <dd>{{ resultBox.data.pcs_price_overage }} 元</dd>
             </dl>
 
-            <dl >
-              <dt >平米<span style="color: #f56c6c">未税</span>BOM成本(含预投)</dt>
-              <dd > - 元</dd>
+            <dl>
+              <dt>平米<span style="color: #f56c6c">未税</span>BOM成本(含预投)</dt>
+              <dd v-if="vData.stepData?.bom?.square_price_gross_overage">
+                {{ roundNum(vData.stepData?.bom.square_price_gross_overage) }} 元
+              </dd>
+              <dd v-else>-</dd>
             </dl>
 
             <dl :title="'不含预投：'+resultBox.data.square_price_gross+' 元'">
-              <dt >平米价<span style="color: #f56c6c">未税</span>成本(含预投)</dt>
-              <dd >{{resultBox.data.square_price_gross_overage}} 元</dd>
+              <dt>平米<span style="color: #f56c6c">未税</span>成本(含预投)</dt>
+              <dd>{{ resultBox.data.square_price_gross_overage }} 元</dd>
             </dl>
-
-
-          <dl :title="`增值税：${resultBox.data.vat_rate}% + 附加税：${resultBox.data.surtax_rate}%`">
-            <dt>税率</dt>
-            <dd class="number-editor">
-              <span >{{resultBox.data.vat_rate + resultBox.data.surtax_rate}}%</span>
-            </dd>
-          </dl>
+            <dl>
+              <dt>总变动成本 (含预投/税/附加费)</dt>
+              <dd :title="'变动平米成本（BOM+工序变动）'+resultBox.data.base_square_price_gross_overage+'元*面积'+baseForm.quote.order_area_gross+'*税率+额外费用'+resultBox.data.order_money_extra">
+                {{roundNum(resultBox.data.base_square_price_gross_overage*baseForm.quote.order_area_gross*(1+(resultBox.data.vat_rate + resultBox.data.surtax_rate)/100)+resultBox.data.order_money_extra,2,2)}}
+                元</dd>
+            </dl>
 
           </div>
 
 
-
           <div class="result-box-row">
-          <dl>
-            <dt> 投产数量(PCS)</dt>
-            <dd class="number-editor">
-              <span >{{resultBox.data.pcs_num_all}} PCS</span>
-            </dd>
-          </dl>
+            <dl>
+              <dt> 投产数量(PCS)</dt>
+              <dd class="number-editor">
+                <span>{{ resultBox.data.pcs_num_all }} PCS</span>
+              </dd>
+            </dl>
 
-          <dl>
-            <dt> 投产数量(PNL)</dt>
-            <dd class="number-editor" >
-              <span >{{resultBox.data.pnl_num_all}} PNL </span>
-            </dd>
-          </dl>
-
-
-        <dl>
-          <dt>投产面积(按PNL)</dt>
-          <dd class="number-editor">
-            <span >{{roundNum(resultBox.data.order_area_all,4,4)}}</span>m²
-          </dd>
-        </dl>
+            <dl>
+              <dt> 投产数量(PNL)</dt>
+              <dd class="number-editor">
+                <span>{{ resultBox.data.pnl_num_all }} PNL </span>
+              </dd>
+            </dl>
 
 
+            <dl>
+              <dt>投产面积(按PNL)</dt>
+              <dd class="number-editor">
+                <span>{{ roundNum(resultBox.data.order_area_all, 4, 4) }} m²</span>
+              </dd>
+            </dl>
 
 
+            <dl :title="`增值税：${resultBox.data.vat_rate}% + 附加税：${resultBox.data.surtax_rate}%`">
+              <dt>税率</dt>
+              <dd class="number-editor">
+                <span>{{ resultBox.data.vat_rate + resultBox.data.surtax_rate }}%</span>
+              </dd>
+            </dl>
 
 
-<!--        <dl>
-          <dt>预留净利率</dt>
-          <dd class="number-editor">
-            <input :value="resultBox.data.profit_rate" name="profit_rate" min="0" max="100"  @change="resultEvent.change"/>%
-          </dd>
-        </dl>-->
+            <!--        <dl>
+                      <dt>预留净利率</dt>
+                      <dd class="number-editor">
+                        <input :value="resultBox.data.profit_rate" name="profit_rate" min="0" max="100"  @change="resultEvent.change"/>%
+                      </dd>
+                    </dl>-->
             <dl title="含预投/含税">
               <dt>单PCS<span style="color: #35a1fd">含税</span>BOM成本(含预投)</dt>
-              <dd>- 元</dd>
+              <dd v-if="vData.stepData?.bom?.pcs_price">
+                {{ roundNum(vData.stepData?.bom.pcs_price * (1 + (resultBox.data.overage_rate + resultBox.data.vat_rate + resultBox.data.surtax_rate) / 100)) }}
+                元
+              </dd>
+              <dd v-else>-</dd>
             </dl>
 
             <dl title="含预投/含税">
               <dt>单PCS<span style="color: #35a1fd">含税</span>成本(含预投)</dt>
-              <dd>{{resultBox.data.pcs_price_all}} 元</dd>
+              <dd>{{ resultBox.data.pcs_price_all }} 元</dd>
             </dl>
 
 
             <dl title="含预投/含税">
-              <dt>平米价<span style="color: #35a1fd">含税</span>BOM成本(含预投)</dt>
-              <dd>- 元</dd>
+              <dt>平米<span style="color: #35a1fd">含税</span>BOM成本(含预投)</dt>
+              <dd v-if="vData.stepData?.bom?.square_price_gross_overage">
+                {{ roundNum(vData.stepData?.bom.square_price_gross_overage * (1 + (resultBox.data.vat_rate + resultBox.data.surtax_rate) / 100)) }}
+                元
+              </dd>
+              <dd v-else>-</dd>
             </dl>
 
 
-
-        <dl title="含预投/含税">
-          <dt>平米价<span style="color: #35a1fd">含税</span>成本(含预投)</dt>
-          <dd>{{resultBox.data.square_price_gross_all}} 元</dd>
-        </dl>
-
-        <dl>
-          <dt>应报价金额 (含预投/税/附加费)</dt>
-            <dd :title="'含附加费用'+resultBox.data.order_money_extra+'元'">{{resultBox.data.order_money_all}}  元</dd>
-        </dl>
+            <dl title="含预投/含税">
+              <dt>平米<span style="color: #35a1fd">含税</span>成本(含预投)</dt>
+              <dd>{{ resultBox.data.square_price_gross_all }} 元</dd>
+            </dl>
+            <dl>
+              <dt>应报价金额 (含预投/税/附加费)</dt>
+              <dd :title="'含附加费用'+resultBox.data.order_money_extra+'元'">{{resultBox.data.order_money_all}}  元</dd>
+            </dl>
 
           </div>
+
+
+
+
         </div>
+
       </div>
 
     <dialogComponent  v-if="materialBox.isShow" v-bind="materialBox.bind" >
@@ -922,11 +1114,8 @@ import {MessagePlugin} from "tdesign-vue-next";
 
 
 const props = defineProps({
-  quote_id:{type:Number,default:0}, // id
-  optionMap:{type:Object,default:{}}, // 选择项
-  selectOptions:{type:Object,default:{}}, // 选择项
-  FORM_TITLE_MAP:{type:Object,default:{}}, // 语言包
-  product_code:{type:String,default:''},// 产品编码
+  quote_id: {type: Number, default: 0}, // id
+  quote: {type: Object, default: {}}, // 报价单数据
 });
 
 const quoteRef = ref();
@@ -940,8 +1129,6 @@ const packages_items = ref([]);
 
 // 静态数据
 const dData = {
-  FORM_TITLE_MAP:{...props.FORM_TITLE_MAP},
-  optionMap:{...props.optionMap},  selectOptions:{...props.selectOptions},
   KL_CODE:['KL','CKL'], // 开料工序CODE;
   plugin_name: {
     auto_calc: 'auto_calc',
@@ -997,13 +1184,13 @@ const dData = {
     DATE: 'date',
   },
   stepList: {
-    bom: 'BOM物料',
-    process_dynamic: '工序-变动',
-    process_static: '工序-固定',
-    others: '非工序',
-    mix3: '销管财',
-    outwork: '外协加工',
-    order_ext: '附加费用',
+    bom: {title: "BOM物料",items:['bom']},
+    process_dynamic: {title: "工序-变动",items:['process_dynamic']},
+    process_static: {title: "工序-固定",items:['process_static']},
+    others: {title: "非工序",items:['others']},
+    mix3: {title: "销管财",items:['sales','manger','finance']},
+    outwork: {title: "外协加工",items:['outwork']},
+    order_ext: {title: "附加费用",items:['order_ext']},
   },
   // quote_base选填字段
   quoteBaseOptionalFields:['cust_product_code','product_code'],
@@ -1014,10 +1201,10 @@ const dData = {
   // quote_params数字字段
   quoteParamsNumberFields:['layerNum','thickness','copperThickness','innerCopperThickness','minTraceWidth','minTraceSpacing','minDrillSize'],
   costTableColumns: {
-    item_type: '分类', name: '类型', title: '名称',desc:'描述', unit: '单位', price: '单价', rmb: '货币',
-    pcs_used: 'PCS耗量', order_used: '订单耗量',order_used_overage:'订单耗量(含预投)',
-    pcs_price: 'PCS成本#A',order_price: '订单成本#H',order_price_overage:'订单成本(含预投)#A',
-    square_price: '平米成本#H', square_price_gross:'平米成本(毛面积)#A',square_price_gross_overage:'平米成本(含预投)#A',
+    package_name:'来源#H',item_type: '分类',cate: '分组#H', name: '类型', title: '名称',desc:'描述', unit: '单位', price: '单价', rmb: '货币',
+    pcs_used: 'PCS耗量', order_used: '订单耗量(毛面积)',order_used_overage:'订单耗量(毛面积+预投)',
+    pcs_price: 'PCS成本#A',order_price: '订单成本(毛面积)#HA',order_price_overage:'订单成本(毛面积+预投)#A',
+    square_price: '平米成本(净面积)#HA', square_price_gross:'平米成本(毛面积)#HA',square_price_gross_overage:'平米成本(毛面积+预投)#A',
   },//表格成本项列名
   costItemDefault:{
     type: null,item_type: null,name: null,cate: null,  title: null,desc:null, unit: null,  rmb: '元',item_data:{},price: null,priceRate: 1,
@@ -1026,6 +1213,9 @@ const dData = {
     order_used_overage:null,order_price_overage:null,
     square_price: null, square_price_gross:null,square_price_gross_overage:null,
   },// 成本项默认值
+  costSumFields:[
+      'pcs_price','order_price','order_price_overage','square_price','square_price_gross','square_price_gross_overage'
+  ],// 需要求和的成本字段
   overage_list:[],// 预投率列表
   overage:{
     TYPE_AREA:0, // 预投率类型：按面积
@@ -1042,14 +1232,15 @@ const dData = {
 // 默认数据
 const defaultData={
   quote_base:{
-    plant_id_order: siyi.user.plantId,
-    plant_id_make: siyi.user.plantId,
+    plant_id_order: siyi.user.plantId || 1,
+    plant_id_make: siyi.user.plantId || 1,
     sale_type: 'cn',
     customer_name: '',
     cust_product_name: '',
     cust_product_code: '',
-    product_code: siyi.isDev?'BH1286P04E0136470A0':'',//
+    product_code: siyi.isDev?'CR0030S12O0142458A1':'',//
     product_id: 0, // 型号ID(隐藏属性)
+    process_count: 0, // 流程数量（隐藏属性，用于识别MI是否完整）
     pcs_length: null, // pcs长
     pcs_width: null, // pcs宽
     pcs_num: null, // pcs数量
@@ -1063,6 +1254,7 @@ const defaultData={
     package_id_base: null,
     package_id_service: null,
     layerNum: null, // 层数
+    mainPPMaxNum: null, // 主介层PP数量
     thickness: null, // 成品板厚
     copperThickness: null,//成品铜厚
     innerCopperThickness: null,//内层成品铜厚
@@ -1071,14 +1263,17 @@ const defaultData={
     minTraceSpacing: null, //最小线距
     minDrillSize: null, // 最小孔径
     mechBlindBuriedViaLayers: null,// 机械盲埋孔贯穿层数
+    holeAspectRatio: null,// 孔径比(珠海专用)
     finishType: null, //表面处理方式
     testingItems: [],// 测试方式
     checkTools:[], // 检测工具
     // useAVI: dData.IS_NO, //是否使用AVI
     // isOpticalModule:dData.IS_NO, // 是否光模块
     isResinPlugging: dData.IS_NO, // 是否树脂塞孔
+    resinPluggingNum: 0, // 树脂塞孔出现次数
     isBuriedCopper: dData.IS_NO, //是否线圈或压接孔板
     isXQYJ: dData.IS_NO, //是否是否埋铜块
+    hasCopper: dData.IS_NO, //是否含铜
     goldFingerType: dData.IS_NONE, //金手指类型
     XBType: siyi.isDev?dData.IS_NONE:null, //斜边类型
     profileType: 'routing', // 外形加工方式
@@ -1086,55 +1281,10 @@ const defaultData={
     vDrillMultipleType: [dData.IS_NONE], //特殊钻锣V
     vDrillMultipleType2: [dData.IS_NONE], //特殊钻锣V
     fontMultipleType: [dData.IS_NONE], //文字工艺
+    fontColor:null,
     features:[dData.IS_NONE], // 其他特性
-    holdsSumOfPcs:{},// 机械孔数(隐藏属性),按工艺区分
-    jgzHoldsSumOfPcs:{},//激光钻孔数(隐藏属性)
-  },
-};
-
-
-// 公共动态数据
-const vData = reactive({
-  package_base:{}, //当前选中的基础包
-  package_service:{data:{pnl_min:2}}, // 当前选中的服务包
-  // select下拉选择项
-  select_options:{
-    sale_type: [],
-    packages_base: [],
-    packages_service: [],
-    package_id:[],
-    product_code:[],
-
-    // productionType:[],
-    // useAVI:[],
-    // isOpticalModule:[],
-    isBuriedCopper:[],
-    isResinPlugging:[],
-    profileType:[],
-    goldFingerType:[],
-    testingItems:[],
-    finishType:[],
-    XBType:[],
-    // finishTypeGold:[],
-    drillType:[],
-    vDrillMultipleType:[],
-    vDrillMultipleType2:[],
-    fontMultipleType:[],
-    features:[],
-    material_show_all: [{label: '按条件显示', value: 0,}, {label: '显示全部', value: 1,},],
-    item_type:[],
-    business_region:[],
-  },
-});
-
-const jobSelectorRef=ref();
-
-// 基础表格
-const baseForm = reactive({
-  isInit:false,
-  // 表格配置
-  bind: {
-    layerNum: {min: 1, max: 30, step: 2},
+    holdsSumOfPcs:0,// 机械孔数(隐藏属性)
+    jgzHoldsSumOfPcs:0,//激光钻孔数(隐藏属性)
   },
   quoteRules: {
     pcs_num: [
@@ -1181,6 +1331,57 @@ const baseForm = reactive({
       }
     ],*/
   },
+};
+
+
+// 公共动态数据
+const vData = reactive({
+  FORM_TITLE_MAP:{},
+  optionMap:{},
+  package_base:{}, //当前选中的基础包
+  package_service:{data:{pnl_min:2}}, // 当前选中的服务包
+  // select下拉选择项
+  select_options:{
+    sale_type: [],
+    packages_base: [],
+    packages_service: [],
+    package_id:[],
+    product_code:[],
+
+    // productionType:[],
+    // useAVI:[],
+    // isOpticalModule:[],
+    hasCopper:[],
+    isBuriedCopper:[],
+    isResinPlugging:[],
+    profileType:[],
+    goldFingerType:[],
+    testingItems:[],
+    finishType:[],
+    fontColor:[],
+    XBType:[],
+    // finishTypeGold:[],
+    drillType:[],
+    vDrillMultipleType:[],
+    vDrillMultipleType2:[],
+    fontMultipleType:[],
+    features:[],
+    material_show_all: [{label: '按条件显示', value: 0,}, {label: '显示全部', value: 1,},],
+    item_type:[],
+    business_region:[],
+  },
+  stepData:{},
+});
+
+const jobSelectorRef=ref();
+
+// 基础表格
+const baseForm = reactive({
+  isInit:false,
+  // 表格配置
+  bind: {
+    layerNum: {min: 1, max: 30, step: 2},
+  },
   id:null, // 报价ID
   quote: {...defaultData.quote_base},// 报价单基础数据
   params: {...defaultData.quote_params},// 报价单参数
@@ -1188,6 +1389,50 @@ const baseForm = reactive({
 
 const baseFormEvent={
   init: async () => {
+
+    baseForm.quoteRules=_.cloneDeep(defaultData.quoteRules);
+    baseForm.paramsRules=_.cloneDeep(defaultData.paramsRules);
+
+    // 初始化表单规则
+    Object.keys(baseForm.quote).forEach(key => {
+      const title = vData.FORM_TITLE_MAP?.[key];
+
+      if (!baseForm.quoteRules.hasOwnProperty(key)) baseForm.quoteRules[key] = [];
+
+      // 非选填字段，增加必填验证规则
+      if (!dData.quoteBaseOptionalFields.includes(key) && title) {
+        baseForm.quoteRules[key].push({required: true, message: title + '不能为空', trigger: 'change',});
+      }
+
+      // 数字字段，增加数字验证规则
+      if (dData.quoteBaseNumberFields.includes(key) && title){
+        baseForm.quoteRules[key].push({number:true, message: title + '只能是数字', trigger: 'change',});
+        baseForm.quoteRules[key].push({min: 0, message: title + '不能小于0', trigger: 'change',});
+      }
+
+    });
+
+
+
+    Object.keys(baseForm.params).forEach(key => {
+      const title = vData.FORM_TITLE_MAP?.[key];
+
+      if (!baseForm.paramsRules.hasOwnProperty(key)) baseForm.paramsRules[key] = [];
+
+      // 非选填字段，增加必填验证规则
+      if (!dData.quoteParamsOptionalFields.includes(key) && title){
+        baseForm.paramsRules[key].push({required: true,message: title+`不能为空`, trigger: 'change',});
+      }
+
+      // 数字字段，增加数字验证规则
+      if (dData.quoteParamsNumberFields.includes(key)){
+        baseForm.paramsRules[key].push({number:true, message: title + '只能是数字', trigger: 'change',});
+        baseForm.paramsRules[key].push({min: 0, message: title + '不能小于0', trigger: 'change',});
+      }
+
+    });
+
+
     baseForm.isInit=true;
     console.log('form-init',baseForm);
     if (baseForm.quote.product_code && !baseForm.id){
@@ -1214,7 +1459,11 @@ const baseFormEvent={
     }
     // 制造工厂改表
     if (field === 'plant_id_make') {
-      plantChange(value);
+      const loading = dialog.loading(null,'工厂切换中...');
+      await plantChange(baseForm.quote.plant_id_make); // 初始化默认工厂
+      await baseFormEvent.init(); // 表单初始化
+      loading.close();
+      return ;
     }
     // 基础包改变
     if (field === 'package_id_base') {
@@ -1254,7 +1503,7 @@ const baseFormEvent={
 
     // 层数变动
     if (field === 'layerNum' && value <= 2) {
-      baseForm.params.coreThickness = baseForm.params.thickness;
+      baseForm.params.coreThickness = baseForm.params.thickness;  // <=3层，芯板厚度 = 成品板厚
     }
 
 
@@ -1367,7 +1616,7 @@ const baseFormEvent={
     costEvent.updateAllCost();
     costTable.isShow=false;
     document.title = "报价单_"+siyi.user.nickname+'_'+baseForm.quote.product_code;
-    baseForm.quote.product_id && await processEvent.autoLoad();
+    baseForm.quote.product_id && baseForm.quote.process_count && await processEvent.autoLoad();
   },
   // 获取预投率
   getOverage:async ()=>{
@@ -1419,16 +1668,46 @@ const processEvent={
             await processEvent.getMaterialNum(parameter, packages_item, material_index);
           }
         } else if (parameter.plugin_name) {
-          await processEvent.getParameter(parameter, packages_item, {}, true);
+          await processEvent.calcParameter(parameter, packages_item, {}, true);
         }
       }
     }
     loading.close();
     resultEvent.check();
   },
+  // 获取开料参数
   getKlValue:()=>{
    return  packages_items.value.length>0?Object.fromEntries(packages_items.value.find(item=>dData.KL_CODE.includes(item?.process?.code))?.parameters?.map(p => [p.code, p.value])):null;
   },
+  // 添加物料组件
+  addMaterial: async (parameter, material_index) => {
+    const material_max= parameter?.plugin_params?.material_max || 10;
+    if (material_max && parameter.material_list.length>=material_max){
+      dialog.warning('超过最大数量限制：'+material_max);
+      return ;
+    }
+    const _defaultData = { code: { value: '' }, num: { value: 0 } };
+    const currentItem = parameter.material_list[material_index];
+    const newItem = {
+      ...currentItem,
+      code: { ...currentItem.code, ..._defaultData.code },
+      num: { ...currentItem.num, ..._defaultData.num }
+    };
+    // 插入到指定 index 后面
+    parameter.material_list.splice(material_index + 1, 0, newItem);
+  },
+  // 移除物料组件
+  removeMaterial: async (parameter, material_index) => {
+    if (parameter.material_list.length <= 1) {
+      dialog.warning('至少保留一行');
+      return;
+    }
+    const res = await dialog.confirmAsync('确定要移除 【' + parameter.name + '】第'+(material_index+1)+'行吗？');
+    if (!res) return;
+    parameter.material_list.splice(material_index, 1);
+    costEvent.updateAllCost();
+  },
+  // 获取物料列表
   getMaterialList:async (parameter,packages_item,material_index,showDialog=true)=>{
     const code_parameter= parameter.material_list[material_index].code;
     const parameters = Object.fromEntries(packages_item.parameters.map(item => [item.code, item.value])); // 当前步骤参数
@@ -1449,14 +1728,14 @@ const processEvent={
     }
     const materialList = removeDataLabel(apiRes?.list || [],apiRes?.columnSplit || '#'); // 还原原始不带标识的数据
     if (typeof materialList === 'object' && materialList.length === 1  && materialList[0]?.value && !query.value) {
-      await processEvent.choseMaterial(parameter, code_parameter, materialList)  // 为空，只有一个，直接选择
+      await processEvent.choseMaterial(parameter, code_parameter, materialList,material_index)  // 为空，只有一个，直接选择
     } else if (showDialog) {
-      await materialEvent.show(query, (rows) => processEvent.choseMaterial(parameter, code_parameter, rows), code_parameter.name); // 不止一个，弹窗，提示用户选择
+      await materialEvent.show(query, (rows) => processEvent.choseMaterial(parameter, code_parameter, rows,material_index), code_parameter.name); // 不止一个，弹窗，提示用户选择
     }
   },
   // 选择物料
-  choseMaterial: async (parameter, code_parameter, rows) => {
-    const row = rows?.[0] || null;
+  choseMaterial: async (parameter, code_parameter, materialList,material_index) => {
+    const row = materialList?.[0] || null;
     if (!row?.value) {
       dialog.warning('物料：'+row.label+' 不可选!');
       return;
@@ -1465,20 +1744,34 @@ const processEvent={
     code_parameter.price = row.price;
     code_parameter.select_options = [{label: row.label, value: row.value}];
     code_parameter.material = {...row};
-    processEvent.change(parameter);
+    processEvent.materialUpdate(parameter);
+    processEvent.parameterChange(parameter);
     return true;
   },
   // 计算bom用量
   getMaterialNum:async (parameter,packages_item,material_index,isReplace=true)=>{
     const num_parameter=parameter.material_list[material_index].num;
-    const res = await processEvent.getParameter(num_parameter, packages_item,{material:parameter.material_list[material_index]},isReplace);
+    const res = await processEvent.calcParameter(num_parameter, packages_item,{material:parameter.material_list[material_index]},isReplace);
     res && (num_parameter.value *= parameter.material_list[material_index].num.ratio)
-    processEvent.change(parameter);
+    processEvent.materialUpdate(parameter);
+    processEvent.parameterChange(parameter);
+  },
+  // 物料参数更新
+  materialUpdate: (parameter)=>{
+    parameter.value = parameter.material_list.map(material => {
+      return {
+        code: material.code.value,
+        ratio: material.num.ratio,
+        num: material.num.value,
+        price: material.code.price,
+        // material: material.code.material
+      }
+    })
   },
   // 后台计算参数
-  getParameter:async (parameter,packages_item,post_data,isReplace=false)=>{
+  calcParameter:async (parameter,packages_item,post_data,isReplace=false)=>{
     if (parameter.value && !isReplace && !parameter.is_readonly){
-      processEvent.change(parameter)
+      processEvent.parameterChange(parameter)
       return  // 有数据，不处理
     }
     const parameters = Object.fromEntries(packages_item.parameters.map(item => [item.code, item.value]));
@@ -1497,41 +1790,13 @@ const processEvent={
     const res = await api.post(api.url2.cost.quote.calcParameter,post);
     if (!res) return;
     parameter.value= res.value;
+    if (res?.ratio)  parameter.ratio= res.ratio;
     parameter.input_options= res.input_options;
-    processEvent.change(parameter)
+    processEvent.parameterChange(parameter)
     return parameter.value;
   },
-
-  // 添加物料组件
-  addMaterial: async (parameter, material_index) => {
-    const material_max= parameter?.plugin_params?.material_max || 10;
-    if (material_max && parameter.material_list.length>=material_max){
-      dialog.warning('超过最大数量限制：'+material_max);
-      return ;
-    }
-    const defaultData = { code: { value: '' }, num: { value: 0 } };
-    const currentItem = parameter.material_list[material_index];
-    const newItem = {
-      ...currentItem,
-      code: { ...currentItem.code, ...defaultData.code },
-      num: { ...currentItem.num, ...defaultData.num }
-    };
-    // 插入到指定 index 后面
-    parameter.material_list.splice(material_index + 1, 0, newItem);
-  },
-  // 移除物料组件
-  removeMaterial: async (parameter, material_index) => {
-    if (parameter.material_list.length <= 1) {
-      dialog.warning('至少保留一行');
-      return;
-    }
-    const res = await dialog.confirmAsync('确定要移除 【' + parameter.name + '】第'+(material_index+1)+'行吗？');
-    if (!res) return;
-    parameter.material_list.splice(material_index, 1);
-    costEvent.updateAllCost();
-  },
   //表单数据改变事件
-  change:(parameter)=>{
+  parameterChange:(parameter)=>{
     if (parameter?.plugin_name || dData.KL_CODE.includes(parameter?.process?.code)){
       costEvent.updateAllCost();
     }
@@ -1567,9 +1832,6 @@ const processEvent={
 
 
 // 物料选择
-
-
-
 const materialRef= ref();
 const materialEvent={
   show: async (query,onChoose,title) => {
@@ -1591,7 +1853,6 @@ const materialEvent={
     res &&  materialEvent.close();
   },
 }
-
 const materialBox = reactive({
   query:{},
   isShow: false,
@@ -1601,9 +1862,6 @@ const materialBox = reactive({
   reportIsInit: false,
   isError:false,
 });
-
-
-
 const materialReport={
   menuConfig: {
     defaultMenuShowList:['query','search','moreSettings','pageExport','clearCache'],
@@ -1645,6 +1903,7 @@ const materialReport={
   }
 };
 
+// 物料调价
 const materialPriceEvent={
   init:()=>{
     const last_data=[...materialPriceBox.data];
@@ -1704,6 +1963,7 @@ const costList = reactive({
 })
 
 const costItems = ref();
+const costCateItems = ref();
 
 const costEvent={
   updateAllCost: () => {
@@ -1720,14 +1980,19 @@ const costEvent={
   },
   // 初始化
   init:()=>{
-    const items = Object.fromEntries(
-        [...vData.select_options.item_type.map(i => i.value), 'order_ext'].map(v => [
-          v,
-          { list: [], collapse: false, pcs_price: 0, order_price: 0,order_price_overage:0,
-            square_price: 0, square_price_gross:0,square_price_gross_overage:0} // 合计价格
-        ])
-    );
-    costItems.value={...items};
+    costItems.value={};
+    costCateItems.value={};
+    const sumItems = Object.fromEntries(dData.costSumFields.map(f => [f, 0]));
+    const item_type_list = [...vData.select_options.item_type.map(i => i.value), 'order_ext'];
+    item_type_list.forEach(item_type => {
+      costItems.value[item_type] = { list: [], collapse: false, ...sumItems };
+      costCateItems.value[item_type] = {};
+
+    });
+    Object.keys(dData.stepList).forEach(step_id=>{
+      vData.stepData[step_id]={...sumItems};
+    })
+    costTable.list=[];
     costList.isInit=true;
     const kl_parameters = Object.fromEntries(
         (packages_items.value.find(item =>
@@ -1739,13 +2004,14 @@ const costEvent={
     const pcsOfSet = Number(kl_parameters?.['COST_PCS_OF_SET'] || 0);
     resultBox.data.pcs_of_pnl = setOfPnl * pcsOfSet;//一个PNL 多少个PCS
     baseFormEvent.execOrderArea();
+
   },
   // 更新预投率
   updateOverageRate: () => {
     const overage_list = dData.overage_list.filter(item =>
         baseForm.quote.order_area_gross> item.area_min
         && baseForm.quote.order_area_gross<= item.area_max
-    ); // 先根据面积锁定预投率
+    ); // 先根据毛面积锁定预投率
     const overage_rate_list = [...new Set(overage_list.map(v=>v.overage_rate))].filter(v=>v);
     if (baseForm.quote.order_area_gross && (!overage_rate_list || overage_rate_list.length!==1)){
       dialog.warning('预投率获取失败，请检查预投率配置！'+JSON.stringify(overage_list));
@@ -1800,41 +2066,44 @@ const costEvent={
 
   // 更新孔数
   updateZKPrice: () => {
-    const zk_holds_sum = {};  // 机械孔数
-    const jgz_holds_sum = {}; // 激光钻孔数
+    let zk_holds_sum = 0;  // 机械孔数
+    let jgz_holds_sum = 0; // 激光钻孔数
     const pcsOfPnl = resultBox.data.pcs_of_pnl || 0;
     if (pcsOfPnl>0){
       packages_items.value.forEach(({ process:{id}, parameters }) => {
         for (const { plugin_name, value } of parameters) {
           const v = Number(value) / pcsOfPnl;
           if (plugin_name === dData.plugin_name.zk_normal_holds) {
-            zk_holds_sum[id] = (zk_holds_sum[id] || 0) + v;
+            zk_holds_sum  +=  v;
           } else if (plugin_name === dData.plugin_name.zk_slot_holds) {
-            zk_holds_sum[id] = (zk_holds_sum[id] || 0) + v * 1.5;
+            zk_holds_sum += v * 1.5;
           } else if (plugin_name === dData.plugin_name.jgz_normal_holds) {
-            jgz_holds_sum[id] = (jgz_holds_sum[id] || 0) + v;
+            jgz_holds_sum += v;
           } else if (plugin_name === dData.plugin_name.jgz_slot_holds) {
-            jgz_holds_sum[id] = (jgz_holds_sum[id] || 0) + v * 1.5;
+            jgz_holds_sum += v * 1.5;
           }
         }
       });
     }
-    baseForm.params.holdsSumOfPcs = { ...zk_holds_sum };
-    baseForm.params.jgzHoldsSumOfPcs = { ...jgz_holds_sum };
+    baseForm.params.holdsSumOfPcs = zk_holds_sum;
+    baseForm.params.jgzHoldsSumOfPcs = jgz_holds_sum;
   },
   // 更新来自工序的成本
   updateProcessPrice: () => {
     processBox.costData.forEach(item => {
       const priceData={
         ...dData.costItemDefault,
+        cate:item.item_category,
         name:item.item_name,
         type:dData.cost_type.TYPE_PROCESS,
         item_type:item.item_type,
         title:item.title,
         unit:item.unit_name,
         price:item.avg_price,
+        package_name:item.package_name,
         item_data:{...item},
       };
+
 
       if (['平米','平方米'].includes(item.unit_name)){
         // 单价是整个订单的毛面积平米价，用量就是订单毛面积
@@ -1842,7 +2111,7 @@ const costEvent={
         priceData.order_used = baseForm.quote.order_area_gross; // 订单耗量，就是订单毛面积
       }else if(item.unit_name==='千孔'){
         const isJgz = item.process_name?.includes('激光'); // 是否是激光钻
-        const holdsNum= (isJgz ? baseForm.params.jgzHoldsSumOfPcs : baseForm.params.holdsSumOfPcs)?.[item.process_id] || 0
+        const holdsNum= (isJgz ? baseForm.params.jgzHoldsSumOfPcs : baseForm.params.holdsSumOfPcs) || 0
         priceData.pcs_used = roundNum(holdsNum / 1000); // PCS耗量
         priceData.order_used = roundNum(baseForm.quote.pcs_num * priceData.pcs_used); // 订单耗量
       }else{
@@ -1850,14 +2119,14 @@ const costEvent={
       }
       // 销管财，面积不含预投
       const pcs_num= ['sales','manger','finance'].includes(item.item_type) ?baseForm.quote.pcs_num :resultBox.data.pcs_num_all;
-      // priceData.order_used_overage=roundNum(priceData.pcs_used *  pcs_num); // 订单耗量(预投) = PCS用量 * 订单PCS数量(不含预投)
+      priceData.order_used_overage=roundNum(priceData.pcs_used *  pcs_num); // 订单耗量(预投) = PCS用量 * 订单PCS数量(不含预投)
 
       if (priceData.price>0 && priceData.order_used>0){
         costEvent.pushCostItem(priceData);
       }
     });
   },
-  // 更新成本项中的设备组
+  // 更新成本项中的设备组 @todo 待修复
   updateAssetGroup: () => {
     const cost_data={...costItems.value};
     const allAssetGroups = [...new Set(packages_items.value.map(v => Object.values(v.item.asset_group_id)).flat())] ;
@@ -1881,6 +2150,7 @@ const costEvent={
             ...dData.costItemDefault,
             type: dData.cost_type.TYPE_BOM,
             item_type:'bom',
+            cate:material_name,
             name:material_name,
             title :parameter_material.code.material?.label || '',
             desc: (parameter_material.code.material?.value || '') + (parameter_material.code.material?.['规格'] || ''),
@@ -1911,11 +2181,13 @@ const costEvent={
     packages_items.value.forEach((item) => {
       const mj_parameters= item.parameters.filter(v=>v.plugin_name===dData.plugin_name.mj_price) || [];
       mj_parameters.forEach(mj_parameter => {
+        const parameter_name= (mj_parameter?.name || '').replace('平米成本','').replace('(未税)','');
         const priceData={
           ...dData.costItemDefault,
-          name:(mj_parameter?.name || '').replace('平米成本','').replace('(未税)',''),
+          name:parameter_name,
+          cate:parameter_name,
           type:dData.cost_type.TYPE_AREA,
-          item_type:mj_parameter.plugin_params?.cost_type || 'bom',
+          item_type:mj_parameter.plugin_params?.cost_item_type || 'bom',
           unit: '平米',
           order_used: baseForm.quote.order_area_gross, // 毛面积
           price: mj_parameter?.value || 0,
@@ -1937,15 +2209,15 @@ const costEvent={
 
   // 更新订单附加价格
   updateOrderPrice: () => {
-    costItems.value.order_ext.list=[];
     packages_items.value.forEach((item) => {
       const order_parameters = item.parameters.filter(v=>v.plugin_name===dData.plugin_name.order_price) || [];
       order_parameters.forEach(order_parameter => {
         const priceData={
           name:'附加费用',
           type:dData.cost_type.TYPE_ORDER,
-          item_type:order_parameter.plugin_params?.cost_type || 'bom',
+          item_type:order_parameter.plugin_params?.cost_item_type || 'bom',
           title:order_parameter?.name || '',
+          cate:order_parameter?.name || '',
           price: order_parameter?.value || 0,
           package_item:{
             item:item.item,
@@ -1999,46 +2271,46 @@ const costEvent={
       priceData.square_price_gross_overage=roundNum(priceData.order_price_overage/baseForm.quote.order_area_gross);
       // 平米成本(毛面积/预投) = 订单成本(预投) /  订单毛面积
     }
+    priceData.type_text = dData.optionMap?.[priceData.type] || priceData.type;
+    priceData.item_type_text = dData.optionMap?.[priceData.item_type] || priceData.item_type;
+
     costItems.value[priceData.item_type].list.push(priceData);
+    costTable.list.push(priceData);
+
   },
   updateResult: () => {
-    costTable.list=[];
-    resultBox.data.pcs_price=0;
-    resultBox.data.square_price=0;
-    resultBox.data.square_price_gross=0;
-    resultBox.data.square_price_gross_overage=0;
-    resultBox.data.order_price_overage=0;
+    const sumItems = Object.fromEntries(dData.costSumFields.map(f => [f, 0]));
+    resultBox.data= {...resultBox.data,...sumItems}; // 结果统计重置
+    resultBox.data.base_square_price_gross_overage=0;// 总变动成本平米价
 
     for (const key in costItems.value) {
-      costItems.value[key]['pcs_price']=0;
-      costItems.value[key]['order_price']=0;
-      costItems.value[key]['order_price_overage']=0;
 
-      costItems.value[key]['square_price']=0;
-      costItems.value[key]['square_price_gross']=0;
-      costItems.value[key]['square_price_gross_overage']=0;
+      costItems.value[key]= {...costItems.value[key],...sumItems}; // 分类统计重置
 
       costItems.value[key].list.map(item=>{
-        costItems.value[key]['pcs_price'] += item.pcs_price; // pcs单价分组求和
-        costItems.value[key]['order_price'] += item.order_price; // 订单价格分组求和
-        costItems.value[key]['order_price_overage'] += item.order_price_overage; // 平米单价含预投分组求和
 
-        costItems.value[key]['square_price'] += item.square_price; // 平米单价分组求和
-        costItems.value[key]['square_price_gross'] += item.square_price_gross; // 毛平米单价分组求和
-        costItems.value[key]['square_price_gross_overage'] += item.square_price_gross_overage; // 平米价（含预投，毛面积）
+        dData.costSumFields.map(sumField=>costItems.value[key][sumField]+= item[sumField]);//分类合计
+        dData.costSumFields.map(sumField=>resultBox.data[sumField]+= item[sumField]); // 结果合计
 
-        resultBox.data.pcs_price+=item.pcs_price; //纯PCS单价
+        // 分组合计
+        costCateItems.value[item.item_type][item.cate]= costCateItems.value[item.item_type]?.[item.cate] || {list:[],isShow:false,sum:{...sumItems}};
+        costCateItems.value[item.item_type][item.cate].list.push(item);
+        dData.costSumFields.map(sumField=>costCateItems.value[item.item_type][item.cate]['sum'][sumField]+= item[sumField]);
 
-        resultBox.data.square_price+=item.square_price;  // 净平米成本价
-        resultBox.data.square_price_gross+=item.square_price_gross; // 毛平米成本价
-        resultBox.data.square_price_gross_overage+=item.square_price_gross_overage; //毛平米成本价(未税，含预投)
+        if (['bom','process_dynamic'].includes(key)){
+          resultBox.data.base_square_price_gross_overage+= item.square_price_gross_overage;
+        }
 
-        resultBox.data.order_price_overage+=item.order_price_overage;
+        for (const stepId in dData.stepList) {
+          if (dData.stepList[stepId]['items'].includes(key)){
+            dData.costSumFields.map(sumField=>vData.stepData[stepId][sumField]+= item[sumField]);
+          }
+        }
 
-
-        costTable.list.push({...item,type_text:dData.optionMap?.[item.type] || item.type});
       })
+
     }
+
 
 
   /**
@@ -2113,6 +2385,9 @@ const costEvent={
   // 折叠
   collapse: (key) => {
     costItems.value[key].collapse = !costItems.value[key].collapse;
+  },
+  showCate: (key) => {
+    costCateItems.value[key].isShow = !costCateItems.value[key].isShow;
   },
 
 }
@@ -2190,9 +2465,11 @@ const resultBox=reactive({
     pnl_num_all: null, // 总PNL数量(订单+预投)
     order_area_all: null, // 总PNL投产面积(订单+预投)
 
-    profit_rate: 0, // 净利润
+
     vat_rate: 13, // 增值税率
     surtax_rate: 0, // 额外税率
+
+    profit_rate: 0, // 净利润
 
     overage_rate: 0, //真实预投率
     overage_list: [], //预投设置多个
@@ -2210,6 +2487,9 @@ const resultBox=reactive({
     square_price_gross:0,//毛平米成本价(纯成本)
     square_price_gross_overage:0,//毛平米成本价(+预投)
     square_price_gross_all: 0, // 毛平米价(预投+税+利润率)
+
+
+    base_square_price_gross_overage:0,// 总变动成本(bom+工序变动)
 
     order_price_overage:0,// 订单成本(含预投)
     order_money: 0, // 订单金额
@@ -2290,10 +2570,16 @@ const resultEvent={
 
 
 // 工厂变化，过滤
-const plantChange=(value) => {
-  vData.select_options= {...dData.selectOptions};
-  vData.select_options.packages_base = vData.select_options.package_id.filter(item => item.data.type === dData.package_type.TYPE_BASE && item.data.plant_id === value);
-  vData.select_options.packages_service = vData.select_options.package_id.filter(item => item.data.type === dData.package_type.TYPE_SERVICE && item.data.plant_id === value);
+const plantChange=async (plant_id) => {
+  const res = await api.get(apiUrl.cost.quote.editInit,{plant_id});
+  if (!res) return;
+
+  vData.FORM_TITLE_MAP = {...res.FORM_TITLE_MAP};
+  vData.optionMap = {...res?.option};
+  vData.select_options= getOptionsLabel(vData.optionMap);
+  vData.select_options.packages_base = vData.select_options.package_id.filter(item => item.data.type === dData.package_type.TYPE_BASE && item.data.plant_id === plant_id);
+  vData.select_options.packages_service = vData.select_options.package_id.filter(item => item.data.type === dData.package_type.TYPE_SERVICE && item.data.plant_id === plant_id);
+
   baseForm.params.package_id_base = vData.select_options.packages_base.find(v=>v.value===baseForm.params.package_id_base)?.['value'];
   baseForm.params.package_id_service = vData.select_options.packages_service.filter(v=>v.data.pid===baseForm.params.package_id_base && v.value===baseForm.params.package_id_service)[0]?.value;
 };
@@ -2320,8 +2606,8 @@ watch(() => [props.quote_id, props.quote], async (effects) => {
   const [quote_id, quote] = effects;
   console.log('watch', props, effects);
   if (quote) {
-    baseForm.quote = {...quote.quote_base};
-    baseForm.params = {...quote.quote_base};
+    baseForm.quote = {...defaultData.quote_base,...quote.quote_base};
+    baseForm.params = {...defaultData.quote_params,...quote.quote_base};
   }else if(quote_id){
     await idChange(quote_id);
   }
@@ -2333,60 +2619,13 @@ onActivated(async () => {
 
 onMounted(async () => {
   console.log('onMounted',props);
+  console.log('baseForm',baseForm);
   siyi.navHide=true;
 
-  // 初始化配置
-  if(!props.FORM_TITLE_MAP?.plant_id_order){
-    const res = await  api.get(apiUrl.cost.quote.config);
-    dData.optionMap = {...res?.option};
-    dData.selectOptions = getOptionsLabel(res?.option);
-    dData.FORM_TITLE_MAP = {...res.FORM_TITLE_MAP};
-  }
+  await plantChange(baseForm.quote.plant_id_make); // 初始化默认工厂
+  await baseFormEvent.init(); // 表单初始化
 
-  // 初始化默认工厂
-  plantChange(baseForm.quote.plant_id_make);
-
-  // 初始化表单规则
-  Object.keys(baseForm.quote).forEach(key => {
-
-    // 非选填字段，增加必填验证规则
-    if (!dData.quoteBaseOptionalFields.includes(key)) {
-      if (!baseForm.quoteRules.hasOwnProperty(key)) baseForm.quoteRules[key] = [];
-      baseForm.quoteRules[key].push({required: true, message: dData.FORM_TITLE_MAP?.[key] + '不能为空', trigger: 'change',});
-    }
-
-    // 数字字段，增加数字验证规则
-    if (dData.quoteBaseNumberFields.includes(key)){
-      baseForm.quoteRules[key].push({number:true, message: dData.FORM_TITLE_MAP[key] + '只能是数字', trigger: 'change',});
-      baseForm.quoteRules[key].push({min: 0, message: dData.FORM_TITLE_MAP[key] + '不能小于0', trigger: 'change',});
-    }
-
-  });
-  Object.keys(baseForm.params).forEach(key => {
-
-    // 非选填字段，增加必填验证规则
-    if (!dData.quoteParamsOptionalFields.includes(key)){
-      if (!baseForm.paramsRules.hasOwnProperty(key)) baseForm.paramsRules[key] = [];
-      baseForm.paramsRules[key].push({required: true,message: dData.FORM_TITLE_MAP[key]+`不能为空`, trigger: 'change',});
-    }
-
-    // 数字字段，增加数字验证规则
-    if (dData.quoteParamsNumberFields.includes(key)){
-      baseForm.paramsRules[key].push({number:true, message: dData.FORM_TITLE_MAP[key] + '只能是数字', trigger: 'change',});
-      baseForm.paramsRules[key].push({min: 0, message: dData.FORM_TITLE_MAP[key] + '不能小于0', trigger: 'change',});
-    }
-
-  });
-
-  console.log('baseForm',baseForm);
-
-
-
-  // 表单初始化
-  await baseFormEvent.init();
-
-  // 成本初始化
-  costEvent.init();
+  costEvent.init();// 成本初始化
 });
 
 
@@ -2816,9 +3055,9 @@ defineExpose({
         background-color: #fff;
         overflow-x: scroll;
         display: flex;
-        justify-content: center;
         align-items: center;
-        gap: 20px;
+        justify-content: space-evenly;
+        //gap: 10px;
         flex-shrink: 0;
         position: relative;
 
@@ -2874,6 +3113,15 @@ defineExpose({
         table-layout: fixed; /* 必须 */
         width: 100%;
 
+        .title{
+            display: flex;
+            justify-content: space-between;
+          padding-right: 20px;
+          i{
+            font-size: 16px;
+          }
+        }
+
         td{
           padding: 1px;
           line-height: 24px;
@@ -2924,9 +3172,6 @@ defineExpose({
       }
 
       .cost-table-switcher{
-        position: absolute;
-        right: 20px;
-        top: 20px;
         font-size: 20px;
         cursor: pointer;
         &:hover{
@@ -2995,7 +3240,6 @@ defineExpose({
         display: flex;
         flex-direction: column;
         padding: 0 5px;
-        width: 12.5%;
 
         > dt {
           height: 40px;

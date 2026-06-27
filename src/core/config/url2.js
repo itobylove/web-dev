@@ -56,15 +56,8 @@ const apiUrl = new Proxy(
                 getData: '/mes/return-cost/getData',
                 editData: '/mes/return-cost/editData',
                 updateArea: '/mes/return-cost/updateArea',
-                getJobInfo: '/mes/return-cost/getJobInfo'
-            },
-            stacked_structure: {
-                'index': '/mes/stackedstructure/index',
-                'save': '/mes/stackedstructure/saveStackStructure',
-                'validate': '/mes/stackedstructure/validateCode',
-                'reStack': '/mes/stackedstructure/reStack',
-                'employee': '/mes/stackedstructure/employee',
-                'getAssetsByCode': '/mes/stackedstructure/assets',
+                getJobInfo: '/mes/return-cost/getJobInfo',
+                del: '/mes/return-cost/del',
             },
             stackedBoard: {
                 employee: '/mes/stacked-board/employee',
@@ -72,7 +65,11 @@ const apiUrl = new Proxy(
                 stackupInfo: '/mes/stacked-board/stackupInfo',
                 validCode: '/mes/stacked-board/validCode',
                 save: '/mes/stacked-board/save',
+                applyMixedBoard: '/mes/stacked-board/applyMixedBoard',
             },
+            trace_source: {
+                search: '/mes/trace-source/search',
+            }
         },
         eap: {
             interface: {
@@ -104,7 +101,8 @@ const apiUrl = new Proxy(
                 list: '/cost/index/list',
             },
             quote: {
-                config: '/cost/quote/config',
+                listInit: '/cost/quote/listInit',
+                editInit: '/cost/quote/editInit',
                 list: '/cost/quote/list',
                 get: '/cost/quote/get',
                 exportQuote: '/cost/quote/exportQuote',
@@ -137,6 +135,12 @@ const apiUrl = new Proxy(
                 save: '/cost/item/save',
                 delete: '/cost/item/delete',
             },
+            material_price: {
+                init: '/cost/MaterialPrice/init',
+                list: '/cost/MaterialPrice/list',
+                save: '/cost/MaterialPrice/save',
+                delete: '/cost/MaterialPrice/delete',
+            },
             overage: {
                 init: '/cost/overage/init',
                 list: '/cost/overage/list',
@@ -163,6 +167,17 @@ const apiUrl = new Proxy(
                 delete: '/cost/zxd/delete',
             },
         },
+        pe:{
+            GenesisQueue:{
+                init: 'engineering/GenesisQueue/init',
+                list: 'engineering/GenesisQueue/list',
+                add: 'engineering/GenesisQueue/add',
+                set: 'engineering/GenesisQueue/set',
+                save: 'engineering/GenesisQueue/save',
+                import: 'engineering/GenesisQueue/import',
+                delete: 'engineering/GenesisQueue/delete',
+            }
+        },
         sys: {
             unit: {
                 config: '/base/unit/config',
@@ -178,87 +193,27 @@ const apiUrl = new Proxy(
                 stepsCreate: '/base/steps/stepsCreate',
                 stepsUpdate: '/base/steps/stepsUpdate',
                 stepsDelete: '/base/steps/stepsDelete',
-                processConfig: '/base/steps/processConfig',
-                processList: '/base/steps/processList',
-                bindstepsProcess: '/base/steps/bindstepsProcess',
-                unBindstepsProcess: '/base/steps/unBindstepsProcess',
+                bindStepsProcess: '/base/steps/bindStepsProcess',
+                unBindStepsProcess: '/base/steps/unBindStepsProcess',
+                bindStepsAssets: '/base/steps/bindStepsAssets',
+                unBindStepsAssets: '/base/steps/unBindStepsAssets',
+                reportConfig: '/base/steps/reportConfig',
+                report: '/base/steps/report',
             },
-            step: {
-                config: '/base/step/config',
-                list: '/base/step/list',
-                attach: '/base/Step/getAttrToId',   //  指定ID获取工序属性、参数等信息
-                add: '/base/step/save',
-                edit: '/base/step/save',
-                del: '/base/step/delete',
-                import: '/base/step/import',
-                report: '/base/step/report',
-                reportConfig: '/base/step/reportConfig',
-                process: {
-                    config: '/base/stepProcess/config',
-                    list: '/base/stepProcess/list',
-                    add: '/base/stepProcess/save',
-                    del: '/base/stepProcess/delete',
-                }
-            },
+
             process: {
                 processConfig: '/base/process/processConfig',
                 processList: '/base/process/processList',
-                processCreate: 'base/process/processCreate',
+                processCreate: '/base/process/processCreate',
                 processUpdate: '/base/process/processUpdate',
-                processDelete: '/base/process/processDelete',
                 processDisabled: '/base/process/processDisabled',
-
-                bindAssets: '/base/process/bindAssets', // 绑定资产到工艺
-                unBindAssets: '/base/process/unBindAssets', // 解绑指定工艺下的资产
-                updateAssets: '/base/process/updateAssets', // 修改状态和备注
-
-                config: '/base/process/config',
-                list: '/base/process/list',
-                assetsConfig: '/base/process/assetsConfig',
-                assetsList: '/base/process/assetsList',
-                parameterConfig: '/base/process/parameterConfig',
-                parameterList: '/base/process/parameterList',
-                parameterDel: '/base/process/parameterDel',
-                parameterAdd: '/base/process/parameterAdd',
-                parameterSet: '/base/process/parameterSet',
-                mainList: '/base/process/mainList',
-                attach: '/base/process/getAttrToId',   //  指定ID获取工艺属性、参数等信息
-                add: '/base/process/save',
-                edit: '/base/process/save',
-                del: '/base/process/delete',
-                import: '/base/process/import',
-                step: {
-                    config: '/base/processStep/config',
-                    list: '/base/processStep/list',
-                    add: '/base/processStep/save',
-                    del: '/base/processStep/delete',
-                },
-                station: {
-                    config: '/base/processStation/config',
-                    list: '/base/processStation/list',
-                    add: '/base/processStation/save',
-                    del: '/base/processStation/delete',
-                }
+                processDelete: '/base/process/processDelete',
+                bindProcessAssets: '/base/process/bindProcessAssets',
+                unBindProcessAssets: '/base/process/unBindProcessAssets',
+                bindProcessParameter: '/base/process/bindProcessParameter',
+                unBindProcessParameter: '/base/process/unBindProcessParameter',
             },
-            station: {
-                init: '/base/station/init',
-                list: '/base/station/list',
-                attach: '/base/station/getAttrToId',   //  指定ID获取工段属性、参数等信息数据
-                save: '/base/station/save',
-                delete: '/base/station/delete',
-                process: {
-                    config: '/base/stationProcess/config',
-                    list: '/base/stationProcess/list',
-                    add: '/base/stationProcess/save',
-                    del: '/base/stationProcess/delete',
-                },
-                parameter: {
-                    config: '/base/stationParameter/config',
-                    list: '/base/stationParameter/list',
-                    add: '/base/stationParameter/save',
-                    del: '/base/stationParameter/delete',
-                }
-            },
+
             employee: {
                 config: '/base/employee/config',
                 list: '/base/employee/list',
@@ -361,8 +316,17 @@ const apiUrl = new Proxy(
                 deleteRepair: '/asset/assets/deleteRepair',
                 addRepair: '/asset/assets/addRepair',
                 editRepair: '/asset/assets/editRepair',
+                stepsConfig: '/asset/assets/stepsConfig',
+                stepsList: '/asset/assets/stepsList',
+                addStep: '/asset/assets/addStep',
+                delSteps: '/asset/assets/delSteps',
+                addProcess:'asset/assets/addProcess',
+                delProcess: '/asset/assets/delProcess',
             },
-
+            review_approval: {
+                index: '/sys/reviewApproval/getReviewMixedBoard',
+                set: '/sys/reviewApproval/setReviewMixedBoard'
+            }
 
         },
         home: {
@@ -479,7 +443,8 @@ const apiUrl = new Proxy(
                 assessee_list: '/home/performance/assessee_list',
                 user_list: '/home/performance/user_list',
                 batch_modify: '/home/performance/batch_modify',
-                assessee_user_list: '/home/performance/assessee_user_list'
+                assessee_user_list: '/home/performance/assessee_user_list',
+                user_info: '/home/performance/user_info',
             },
             cost_control: {
                 init: '/home/cost-control/init',
@@ -492,6 +457,23 @@ const apiUrl = new Proxy(
             process_output: {
                 init: '/home/process-output/init',
                 list: '/home/process-output/list',
+            },
+            stabdardCostConfig: {
+                init: '/home/CostConfig/init',
+                list: '/home/CostConfig/list',
+                save: '/home/CostConfig/save',
+                del: '/home/CostConfig/delete',
+                matrix_init: '/home/CostConfig/matrix_init',
+                matrix_list: '/home/CostConfig/matrix_list',
+                constLogInit: '/home/CostConfig/const_log',
+                constLogList: '/home/CostConfig/const_log_list',
+            },
+            stabdardCost: {
+                init: '/home/StabdardCost/init',
+                list: '/home/StabdardCost/list',
+                save: '/home/StabdardCost/save',
+                config_list: '/home/StabdardCost/config_list',
+                getOption: '/home/StabdardCost/getOption',
             }
         },
         common: {
@@ -500,7 +482,8 @@ const apiUrl = new Proxy(
             assetGroupList: '/common/getAssetsGroupLists',
             getGroupLabelLists: '/common/getGroupLabelLists',
             workshopsLists: '/common/getWorkshopsLists',
-        }
+        },
+
     },
     {
         get(target, prop) {

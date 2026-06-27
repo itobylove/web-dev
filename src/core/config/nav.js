@@ -28,6 +28,7 @@ export const components = {
     ecnApprove: reg({loader: () => import('@/modules/pe/ecnApprove.v250313.vue'), loadingComponent, errorComponent}),
     ecnApprove_mobile: reg({loader: () => import('@/modules/pe/ecnApprove.v250313.vue'), loadingComponent, errorComponent}),
     return_cost: reg({loader: () => import('@/modules/pe/returnCost.vue'), loadingComponent, errorComponent}),
+    genesis_queue: reg({loader: () => import('@/modules/pe/genesis_queue.vue'), loadingComponent, errorComponent}),
     moWaitingMaterials: reg({loader: () => import('@/modules/sc/moWaitingMaterials.v250210.vue'), loadingComponent, errorComponent}),
     rukuScanCode_mobile: reg({loader: () => import('@/modules/sc/rukuScanCode.v240515.vue'), loadingComponent, errorComponent}),
     testStand_v240816: reg({loader: () => import('@/modules/sc/testStand.v240816.vue'), loadingComponent, errorComponent}),
@@ -57,6 +58,7 @@ export const components = {
     cache_list: reg({loader: () => import('@/modules/system/cache.v251014.vue'), loadingComponent, errorComponent}),
     dev_test: reg({loader: () => import('@/modules/system/test.vue'), loadingComponent, errorComponent}),
     queue_list: reg({loader: () => import('@/modules/system/queue.v250219.vue'), loadingComponent, errorComponent}),
+    review_approval: reg({loader: () => import('@/modules/system/review_approval.vue'), loadingComponent, errorComponent}),
     asset_list: reg({loader: () => import('@/modules/asset/index.v250701.vue'), loadingComponent, errorComponent}),
     asset_check_mobile: reg({loader: () => import('@/modules/asset/check_v250920.vue'), loadingComponent, errorComponent}),
     outwork_order: reg({loader: () => import('@/modules/outwork/order.v240826.vue'), loadingComponent, errorComponent}),
@@ -75,6 +77,7 @@ export const components = {
     job_weight: reg({loader: () => import('@/modules/sc/jobWeight.v250425.vue'), loadingComponent, errorComponent}),
     job_test_bench: reg({loader: () => import('@/modules/asset/testBench.v250510.vue'), loadingComponent, errorComponent}),
     cost_item: reg({loader: () => import('@/modules/cost/item.v251125.vue'), loadingComponent, errorComponent}),
+    material_price: reg({loader: () => import('@/modules/cost/material_price.vue'), loadingComponent, errorComponent}),
     cost_overage: reg({loader: () => import('@/modules/cost/overage.vue'), loadingComponent, errorComponent}),
     cost_quote: reg({loader: () => import('@/modules/cost/quote_list.vue'), loadingComponent, errorComponent}),
     cost_zxd: reg({loader: () => import('@/modules/cost/zxd.vue'), loadingComponent, errorComponent}),
@@ -103,12 +106,8 @@ export const components = {
     steps: reg({loader: () => import('@/modules/system/steps.vue'), loadingComponent, errorComponent}),
     process: reg({loader: () => import('@/modules/system/process.vue'), loadingComponent, errorComponent}),
     assets: reg({loader: () => import('@/modules/system/assets.vue'), loadingComponent, errorComponent}),
-    // sys_step_equipment: reg({loader: () => import('@/modules/system/step_equipment/index.vue'), loadingComponent, errorComponent}),
     sys_step_report: reg({loader: () => import('@/modules/system/step_equipment/report.vue'), loadingComponent, errorComponent}),
     sys_step_mobile: reg({loader: () => import('@/modules/system/step_equipment/step.vue'), loadingComponent, errorComponent}),
-    // sys_process: reg({loader: () => import('@/modules/system/step_equipment/process.vue'), loadingComponent, errorComponent}),
-    // sys_process_mobile: reg({loader: () => import('@/modules/system/step_equipment/process.vue'), loadingComponent, errorComponent}),
-    // sys_station: reg({loader: () => import('@/modules/system/step_equipment/station.vue'), loadingComponent, errorComponent}),
 
     sys_employee: reg({loader: () => import('@/modules/system/employee.vue'), loadingComponent, errorComponent}),
     sys_employee_mobile: reg({loader: () => import('@/modules/system/employee.vue'), loadingComponent, errorComponent}),
@@ -125,7 +124,8 @@ export const components = {
     mes_production_report_data_mobile: reg({loader: () => import('@/modules/mes/report_history.vue'), loadingComponent, errorComponent}),
     mes_eap_send_mobile: reg({loader: () => import('@/modules/mes/eap_send.vue'), loadingComponent, errorComponent}),
     mes_eap_send: reg({loader: () => import('@/modules/mes/eap_send.vue'), loadingComponent, errorComponent}),
-    mes_stacked_structure: reg({loader: () => import('@/modules/mes/stacked_structure1.vue'), loadingComponent, errorComponent}),
+    mes_stacked_structure: reg({loader: () => import('@/modules/mes/stacked_structure.vue'), loadingComponent, errorComponent}),
+    mes_trace_source: reg({loader: () => import('@/modules/mes/trace_source.vue'), loadingComponent, errorComponent}),
     sys_category: reg({loader: () => import('@/modules/system/category.vue'), loadingComponent, errorComponent}),
     sys_category_mobile: reg({loader: () => import('@/modules/system/category.vue'), loadingComponent, errorComponent}),
     academy: reg({loader: () => import('@/modules/home/academy.vue'), loadingComponent, errorComponent}),
@@ -154,6 +154,11 @@ export const components = {
     performance_kpi: reg({loader: () => import('@/modules/home/performance_kpi.vue'), loadingComponent, errorComponent}),
     cost_control: reg({loader: () => import('@/modules/home/cost_control.vue'), loadingComponent, errorComponent}),
     process_output: reg({loader: () => import('@/modules/home/process_output.vue'), loadingComponent, errorComponent}),
+
+    data_v : reg({loader: () => import('@/modules/home/data_v.vue'), loadingComponent, errorComponent}),
+    stabdard_cost_config : reg({loader: () => import('@/modules/home/stabdard_cost_config.vue'), loadingComponent, errorComponent}),
+    stabdard_cost : reg({loader: () => import('@/modules/home/stabdard_cost.vue'), loadingComponent, errorComponent})
+
 
 }
 
@@ -2179,7 +2184,7 @@ export const nav = ref([
                     ],
                     menu: {approve: {hide: true}, resetApprove: {hide: true}, submitApprove: {hide: true},}
                 }
-            },{
+            }, {
                 id: 'lt_report_wlccayhz',
                 cid: 'publicReport',
                 title: '1104-物料出仓按月汇总',
@@ -2196,7 +2201,16 @@ export const nav = ref([
                     ],
                     menu: {approve: {hide: true}, resetApprove: {hide: true}, submitApprove: {hide: true},}
                 }
-            }
+            }, {
+                id: 'lt_report_zhwlcgqgkc',
+                title: '1105-板材PP物料汇总',
+                cid: 'publicReport',
+                query: {
+                    search: [
+                        {type: 'select', load: 'factory', value: [siyi.user.plantId], field: 'plantsId', options: {multiple:false, placeholder: '工厂'}},
+                    ],
+                }
+            },
         ]
     },
     {
@@ -2273,6 +2287,11 @@ export const nav = ref([
                 id: 'return_cost',
                 title: '返单成本登记',
                 icon: 'ri-refund-2-line',
+            },
+            {
+                id: 'genesis_queue',
+                title: 'genesis任务',
+                icon: 'ri-play-list-2-line',
             },
         ]
     },
@@ -2641,8 +2660,9 @@ export const nav = ref([
             {
                 'id': 'tags_625',
                 'title': '625标签',
-                'icon':  'ri-file-list-3-line',
-            }
+                'icon': 'ri-file-list-3-line',
+            },
+            {id: 'lt_report_zhpcmx', cid: 'publicReport', title: '珠海排产工单',},
 
         ]
     },
@@ -2802,6 +2822,7 @@ export const nav = ref([
                 icon: 'ri-play-list-add-line',
                 query: {
                     search: [
+                        {type: 'select', load: 'factory', field: 'plant', value: siyi.user.plantId, options: {multiple: false, placeholder: '采购工厂'}},
                         {type: 'select', load: 'material_category', value: ['40'], field: 'category', options: {placeholder: '类型'}},
                         {type: 'input', field: 'code', style: {width: '200px'}, options: {placeholder: '代码'}},
                         {type: 'input', field: 'name', style: {width: '200px'}, options: {placeholder: '名称'}},
@@ -2920,7 +2941,7 @@ export const nav = ref([
                 }
             },
             {
-                id:'assets',
+                id: 'assets',
                 icon: 'ri-device-line',
                 query: {},
                 title: '资产管理(新)',
@@ -3022,7 +3043,6 @@ export const nav = ref([
             },
 
 
-
         ]
     },
     {
@@ -3054,6 +3074,12 @@ export const nav = ref([
                 id: 'mes_stacked_structure',
                 title: '叠构生产记录',
                 icon: 'ri-play-list-add-line',
+            },
+            {
+                id: 'mes_trace_source',
+                icon: 'ri-flask-line',
+                query: {},
+                title: 'mes朔源',
             }
         ]
     },
@@ -3104,6 +3130,12 @@ export const nav = ref([
                 icon: 'ri-computer-line',
                 query: {},
             },
+            {
+                id: 'material_price',
+                title: '物料价格',
+                icon: 'ri-computer-line',
+                query: {},
+            },
             /*{
                 id: 'sys_step_equipment',
                 icon: 'ri-community-line',
@@ -3116,12 +3148,12 @@ export const nav = ref([
                 query: {},
                 title: '工序数据',
             },
-           /* {
-                id: 'sys_parameter_rules',
-                icon: 'ri-community-line',
-                query: {},
-                title: '参数取值规则',
-            },*/
+            /* {
+                 id: 'sys_parameter_rules',
+                 icon: 'ri-community-line',
+                 query: {},
+                 title: '参数取值规则',
+             },*/
             /*{
                 id: 'siyi_job',
                 icon: 'ri-community-line',
@@ -3164,22 +3196,22 @@ export const nav = ref([
                 icon: 'ri-school-line',
                 // scope: 'admin',
                 // auth: true,
-                api:[],
+                api: [],
             },
             {
                 id: 'raise',
                 title: '举手文化',
                 icon: 'ri-hand',
-                api:[],
+                api: [],
             },
             {
                 id: 'quotation_price',
                 title: '报价涨价表单',
                 icon: 'ri-increase-decrease-line',
                 api: [],
-            },{
+            }, {
                 id: "analysis",
-                title: '原因分析',
+                title: '指标-原因分析',
                 icon: 'ri-increase-decrease-line',
                 query: {
                     type: 'reason',
@@ -3198,9 +3230,9 @@ export const nav = ref([
                     // apiUrl2.home.analysis.batch_modify,
                     // apiUrl2.home.analysis.field_config
                 ],
-            },{
+            }, {
                 id: 'analysis_kpi',
-                title: '数据填充',
+                title: '指标-数据填充',
                 icon: 'ri-increase-decrease-line',
                 query: {
                     type: 'result',
@@ -3219,7 +3251,7 @@ export const nav = ref([
                     // apiUrl2.home.analysis.batch_modify,
                     // apiUrl2.home.analysis.field_config
                 ],
-            },{
+            }, {
                 id: 'performance_kpi',
                 title: '绩效考评',
                 icon: 'ri-increase-decrease-line',
@@ -3247,6 +3279,21 @@ export const nav = ref([
             {
                 id: 'process_output',
                 title: '工序小时产出监控',
+                icon: 'ri-dashboard-fill',
+                api: []
+            }, {
+                id: "data_v",
+                title: '数据可视化',
+                icon: 'ri-dashboard-fill',
+                api: []
+            }, {
+                id: "stabdard_cost_config",
+                title: '标准成本框架价格-配置',
+                icon: 'ri-dashboard-fill',
+                api: []
+            }, {
+                id: "stabdard_cost",
+                title: '标准成本框架价格',
                 icon: 'ri-dashboard-fill',
                 api: []
             }
@@ -3385,6 +3432,11 @@ export const nav = ref([
                 icon: 'ri-building-line',
                 title: '新部门管理',
             },
+            {
+                id: 'review_approval',
+                icon: 'ri-heart-3-fill',
+                title: '审批',
+            }
         ]
     },
     {

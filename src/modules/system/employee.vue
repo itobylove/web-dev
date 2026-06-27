@@ -13,6 +13,9 @@
           <t-form-item label="姓名" name="name">
             <t-input v-model="dialogConfig.data.name" />
           </t-form-item>
+          <t-form-item label="钻孔雇员ID" name="zk_gy_id">
+            <t-input-number v-model="dialogConfig.data.zkid" type="integer" theme="column" style="width: 100%"  min="1" max="999"/>
+          </t-form-item>
           <t-form-item label="排序" name="sort" >
             <t-input-number v-model="dialogConfig.data.sort" theme="column" style="width: 100%" type="integer" min="0" Employee="1" max="9999"  placeholder="数字小靠前" />
           </t-form-item>
@@ -130,6 +133,7 @@ const dialogConfig = reactive({
     code: [{required: true, message: '请输入人员工号', trigger: 'change'},],
     name: [{required: true, message: '请输入人员姓名', trigger: 'change'},],
     status: [{required: true, message: '请选择状态', trigger: 'change'},],
+    zk_gy_id: [{type: 'number', min: 1, message: '数字必须>=1', trigger: 'change'},{type: 'number', max: 999, message: '数字必须<=999', trigger: 'change'}],
   },
   bind:{
     width: '50%',
@@ -142,6 +146,7 @@ const dialogConfig = reactive({
   },
   submit: async ({validateResult, firstError}) => {
     if (validateResult !== true) return dialog.warning(firstError);
+
     const loading = dialog.loading(undefined, '保存中...');
     const res = await api.post(apiUrl.sys.employee[dialogConfig.type], dialogConfig.data);
     loading && loading.close();

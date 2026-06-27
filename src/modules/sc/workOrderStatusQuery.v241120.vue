@@ -1,7 +1,7 @@
 <template>
   <div ref="box" class="workOrderStatusQuery">
     <div class="header">
-      <Menu :menu :table="reportOptions" :search="searchRef" :default-menu-hide-list="['submitApprove', 'resetApprove', 'approve']"/>
+      <Menu :menu :table="reportOptions" :search="searchRef" :default-menu-hide-list="['create','update','delete','submitApprove', 'resetApprove', 'approve']"/>
       <Search ref="searchRef" :search :table="reportOptions" :filterCallBack/>
     </div>
     <div :class="['body',{'hidecount':siyi.navHide}]">
@@ -49,6 +49,12 @@
     <dialogComponent v-if="holidayTimeShow" v-bind="holidayTime.dialog">
       <TableComponent ref="holidayTimeReport" v-bind="holidayTime.table"/>
     </dialogComponent>
+    <dialogComponent v-if="oaPauseDialog.show" v-bind="oaPauseDialog.dialogConfig">
+      <div class="oaPauseDialog">
+        <t-select v-model="oaPauseDialog.value" v-bind="oaPauseDialog.selectoptions"/>
+        <t-textarea v-model="oaPauseDialog.remark" v-bind="oaPauseDialog.textareaoptions"/>
+      </div>
+    </dialogComponent>
     <dialogComponent v-if="woManagementShow" v-bind="woManagement.dialog">
       <t-tabs v-model="woManagementTab" v-bind="woManagement.tabs">
         <t-tab-panel value="detail" :destroyOnHide="false" label="工单数据">
@@ -88,12 +94,6 @@
         </t-tab-panel>
       </t-tabs>
     </dialogComponent>
-    <dialogComponent v-if="oaPauseDialog.show" v-bind="oaPauseDialog.dialogConfig">
-      <div class="oaPauseDialog">
-        <t-select v-model="oaPauseDialog.value" v-bind="oaPauseDialog.selectoptions"/>
-        <t-textarea v-model="oaPauseDialog.remark" v-bind="oaPauseDialog.textareaoptions"/>
-      </div>
-    </dialogComponent>
   </div>
 </template>
 <script setup>
@@ -118,7 +118,7 @@ import TableComponent from '@/core/component/table.vue'
 
 
 const menu = {
-  hidecount: {sort: 110, title: '切换', icon: 'ri-layout-4-line', click: () => siyi.navHide = !siyi.navHide},
+  // hidecount: {sort: 110, title: '切换', icon: 'ri-layout-4-line', click: () => siyi.navHide = !siyi.navHide},
   plan: {sort: 120, title: '开始', icon: 'ri-exchange-funds-line', click: () => start_cancel()},
   delplan: {sort: 130, title: '取消', icon: 'ri-close-circle-line', click: () => start_cancel(false)},
   planPause: {sort: 140, title: '暂停', icon: 'ri-pause-line', click: () => pause_restore()},
@@ -130,10 +130,10 @@ const menu = {
   oaPause: {sort: 185, title: '品质暂停', icon: 'ri-pause-line', click: () => oaPause()},
   oaStart: {sort: 190, title: '品质恢复', icon: 'ri-play-line', click: () => oaStart()},
   miPDF: {sort: 195, title: '查看MI', icon: 'ri-file-pdf-2-line', click: () => getMI()},
-  stepMoreSettings: {title: '工序汇总设置', icon: 'ri-settings-3-line', click: () => tableFn.seting({table: stephuizongOptions}),},
-  partnumhuizongMoreSettings: {title: '型号汇总设置', icon: 'ri-settings-3-line', click: () => tableFn.seting({table: partnumhuizongOptions}),},
-  jiecunMoreSettings: {title: '结存汇总设置', icon: 'ri-settings-3-line', click: () => tableFn.seting({table: jiecunOptions}),},
-  kucunMoreSettings: {title: '库存汇总设置', icon: 'ri-settings-3-line', click: () => tableFn.seting({table: kucunOptions}),},
+  // stepMoreSettings: {title: '工序汇总设置', icon: 'ri-settings-3-line', click: () => tableFn.seting({table: stephuizongOptions}),},
+  // partnumhuizongMoreSettings: {title: '型号汇总设置', icon: 'ri-settings-3-line', click: () => tableFn.seting({table: partnumhuizongOptions}),},
+  // jiecunMoreSettings: {title: '结存汇总设置', icon: 'ri-settings-3-line', click: () => tableFn.seting({table: jiecunOptions}),},
+  // kucunMoreSettings: {title: '库存汇总设置', icon: 'ri-settings-3-line', click: () => tableFn.seting({table: kucunOptions}),},
   pageExport: {click: () => pageExport()},
 }
 
@@ -169,8 +169,8 @@ const search = [
   {type: 'input', field: 'monumber', filter: true, options: {placeholder: '制造单号'}, style: {width: '150px'}},
   {type: 'input', field: 'custmatdesc', filter: true, options: {placeholder: '客户物料号'}, style: {width: '150px'}},
   {type: 'input', field: 'custcontractnumber', filter: true, options: {placeholder: '客户订单号'}, style: {width: '150px'}},
-  {type: 'date', field: 'zwwoplandate', filter: true, options: {placeholder: '最晚排产', presets: false}},
-  {type: 'date', field: 'soplandate', filter: true, options: {placeholder: '排单交期', presets: false}},
+  {type: 'rangeDate', field: 'zwwoplandate', filter: true, options: {placeholder: '最晚排产', presets: false}},
+  {type: 'rangeDate', field: 'soplandate', filter: true, options: {placeholder: '排单交期', presets: false}},
 ]
 
 /**
@@ -408,7 +408,7 @@ const getMI = () => {
   if (jobIdList.length < 1) return dialog.info('请勾选工单')
   const loading = dialog.loading(report.value)
   jobIdList.map(async row => {
-    await api.getErpPdf('mi', {id:row.jobid},'open')
+    await api.getErpPdf('mi', {id: row.jobid}, 'open')
     loading.close()
   })
 }

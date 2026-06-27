@@ -64,6 +64,27 @@ const table = {
         menu: {
             create: { title: '添加型号', click: () => fn.addModel() },
             update: { title: '更新面积', click: () => fn.updateArea() },
+            delete: {
+                click: () => {
+                    let ids = tableFn.getCheckedRecords(tableRef.value.reportConfig).map(i => i.id);
+                    console.log(ids);
+                    if (ids.length === 0) {
+                        dialog.info('请先选择要删除的记录');
+                        return;
+                    }
+                    dialog.confirm(`确定要删除吗？`, async () => {
+                        await api.post(apiUrl2.mes.return_cost.del, {ids}).then(res => {
+                            console.log(res);
+                            if (res.ret > 0) {
+                                dialog.success(`删除成功`);
+                                tableRef.value.reportConfig.getData();
+                            } else {
+                                dialog.error(res.msg || '删除失败');
+                            }
+                        })
+                    });
+                }
+            },
         },
     },
     searchConfig: {},

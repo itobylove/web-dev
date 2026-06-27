@@ -266,14 +266,18 @@ const fn = {
     }
   },
   userEvaluationSearch: async () => {
-    console.log('formData', formData.value)
     const isValid = await formDataRef.value.validate()
     if(isValid === true){
       userEvaluationTable.value.reportConfig.getData(formData.value);
     }
   },
-  print: () => {
-    dialog.window(print_performance, {query: {asset: {} } }, {width: '80%', height: '80%', title: "标签打印"})
+  print: async () => {
+    const isValid = await formDataRef.value.validate()
+    if(isValid === true){
+      dialog.window(print_performance, {query: {asset: formData.value } }, {width: '80%', height: '80%', title: "打印"})
+    }
+
+
   }
 }
 
@@ -344,6 +348,7 @@ const obj = {
       checkField: 'check',
       disablePage: true,
       options: {
+        editCellTrigger:'doubleclick', // 单元格双击触发编辑
         rowSeriesNumber: {
           width: 55,
         }

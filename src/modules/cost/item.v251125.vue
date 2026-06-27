@@ -165,6 +165,7 @@ const getReportConfig = () => {
       useEncryptionFields: false,
       columnSplit: '',
       options: {
+        editCellTrigger:'doubleclick', // 单元格双击触发编辑
         select: {
           outsideClickDeselect: false,//点击外部区域是否取消选中。
         },

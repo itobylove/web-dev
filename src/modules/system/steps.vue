@@ -5,6 +5,9 @@
       <t-tab-panel class="tabsPanel" value="process" v-bind="obj.panelConfig">
         <TableComponent ref="processTable" v-if="refObj.process.tableShow" v-bind="obj.process.tableConfig"/>
       </t-tab-panel>
+      <t-tab-panel class="tabsPanel" value="assets" v-bind="obj.panelConfig" label="资产与组">
+        <TableComponent ref="assetsTable" v-if="refObj.assets.tableShow" v-bind="obj.assets.tableConfig"/>
+      </t-tab-panel>
     </t-tabs>
     <dialogComponent ref="stepsDialog" v-if="refObj.steps.dialogShow" v-bind="obj.steps.dialogConfig">
       <t-form class="form" ref="stepsForm" :data="refObj.steps.data" v-bind="obj.steps.formConfig">
@@ -15,7 +18,8 @@
           <t-select v-model="refObj.steps.data.workshop_id" :options="refObj.steps.workshop"/>
         </t-form-item>
         <t-form-item label="ERP工序" name="erp_step_id">
-          <t-select v-model="refObj.steps.data.erp_step_id" :options="refObj.steps.options" @change="obj.steps.change.steps" filterable clearable/>
+          <t-select v-model="refObj.steps.data.erp_step_id" :options="refObj.steps.options"
+                    @change="obj.steps.change.steps" filterable clearable/>
         </t-form-item>
         <t-form-item label="编号" name="code">
           <t-input v-model="refObj.steps.data.code"/>
@@ -24,7 +28,8 @@
           <t-input v-model="refObj.steps.data.name"/>
         </t-form-item>
         <t-form-item label="排序" name="sort">
-          <t-input-number v-model="refObj.steps.data.sort" theme="column" style="width: 100%" type="integer" min="0" step="1" max="9999" placeholder="数字小靠前"/>
+          <t-input-number v-model="refObj.steps.data.sort" theme="column" style="width: 100%" type="integer" min="0"
+                          step="1" max="9999" placeholder="数字小靠前"/>
         </t-form-item>
         <t-form-item label="状态" name="status">
           <t-select v-model="refObj.steps.data.status" :options="obj.steps.options.status"/>
@@ -51,6 +56,7 @@ import {getOptionsLabel} from '@/utils/vars.js';
 const body = ref();//容器DOM
 const stepsTable = ref();//工序表DOM
 const processTable = ref();//工艺表DOM
+const assetsTable = ref();//资产表DOM
 const stepsDialog = ref();//工序添加修改窗口DOM
 const stepsForm = ref();//工序添加修改表单DOM
 
@@ -59,6 +65,7 @@ const refObj = reactive({
   tab: 'process',
   steps: {tableShow: false, dialogShow: false, options: {}, workshop: {}, data: {}},
   process: {tableShow: false, dialogShow: false},
+  assets: {tableShow: false, dialogShow: false},
 });
 
 
@@ -74,7 +81,16 @@ const obj = {
           create: () => {
             obj.steps.formType = 'stepsCreate';
             obj.steps.dialogConfig.title = '添加工序';
-            refObj.steps.data = {id: 0, workshop_id: '', erp_step_id: null, code: '', name: '', sort: 100, status: 1, remark: ''};
+            refObj.steps.data = {
+              id: 0,
+              workshop_id: '',
+              erp_step_id: null,
+              code: '',
+              name: '',
+              sort: 100,
+              status: 1,
+              remark: ''
+            };
             refObj.steps.data.plant_id = stepsTable.value.search.search.searchList[0].value[0];
             const erpStepsIds = stepsTable.value.reportConfig.data.map(item => item.erp_step_id).filter(id => id !== undefined);
             refObj.steps.options = obj.steps.options.erp_steps.filter(item => item.plantsId === refObj.steps.data.plant_id && !erpStepsIds.includes(item.recId));
@@ -89,7 +105,11 @@ const obj = {
           delete: async () => {
             const checkedRows = tableFn.getCheckedRecords(stepsTable.value.reportConfig);
             if (!checkedRows?.length) return dialog.info('请勾选工序');
-            const result = await dialog.confirmAsync('确定要删除【' + checkedRows[0].name + '】工序吗？<br>删除后无法恢复，建议禁用。', '请确认', {okval: '禁用', noval: '删除', showClose: true});
+            const result = await dialog.confirmAsync('确定要删除【' + checkedRows[0].name + '】工序吗？<br>删除后无法恢复，建议禁用。', '请确认', {
+              okval: '禁用',
+              noval: '删除',
+              showClose: true
+            });
             const res = await api.post(apiUrl.sys.steps[result ? 'stepsDisabled' : 'stepsDelete'], {id: checkedRows[0].id});
             if (res) {
               dialog.success(res);
@@ -118,12 +138,14 @@ const obj = {
               const erpStepsIds = stepsTable.value.reportConfig.data.map(item => item.erp_step_id).filter(id => id !== undefined);
               refObj.steps.options = obj.steps.options.erp_steps.filter(item => item.plantsId === refObj.steps.data.plant_id && !erpStepsIds.includes(item.recId));
               refObj.steps.options.push({value: originData.erp_step_id, label: originData.name})
+              refObj.steps.workshop = obj.steps.options.workshop.filter(item => item.plant_id === refObj.steps.data.plant_id && item.status === 1);
               refObj.steps.dialogShow = true;
             }
           },
           click_cell: ({originData}) => {
             if (originData?.index > 0 && originData.index !== stepsTable.value.reportConfig.prveSelectRow.index) {
               processTable.value.reportConfig.getData({step_id: originData.id});
+              assetsTable.value.reportConfig.getData({step_id: originData.id});
             }
           }
         },
@@ -192,14 +214,25 @@ const obj = {
             if (!checkedRows?.length) return dialog.info('请勾选工序');
             const processIds = processTable.value.reportConfig.options.records.map(item => item.id).filter(id => id !== undefined);
             const options = obj.steps.options.process.filter(item => item.plant_id === checkedRows[0].plant_id && !processIds.includes(item.id) && item.status === 1);
-            const result = await dialog.selectAsync([], '', '请选择要关联的工艺', {select: {options, placeholder: '请选择工艺'}});
-            if (result !== false && result > 0) {
-              const res = await api.post(apiUrl.sys.steps.bindstepsProcess, {step_id: checkedRows[0].id, process_id: result});
-              if (res) {
-                dialog.success(res);
-                processTable.value.reportConfig.getData({step_id: checkedRows[0].id});
-              }
+            const ids = await dialog.selectAsync(options, '', '请选择要关联的工艺', {
+              width: '500px'
+            }, {
+              multiple: true,
+              placeholder: '请输入名称过滤',
+              clearable: true,
+              reserveKeyword: true,
+              minCollapsedNum: 10
+            });
+            if (!ids || !ids.length) return;
+            const res = await api.post(apiUrl.sys.steps.bindStepsProcess, {
+              step_id: stepsTable.value.reportConfig.selectRow.id,
+              processIds: ids
+            });
+            if (res) {
+              dialog.success(res);
+              processTable.value.reportConfig.getData({step_id: checkedRows[0].id});
             }
+
           },
           delete: async () => {
             const checkedRows = tableFn.getCheckedRecords(processTable.value.reportConfig);
@@ -207,7 +240,10 @@ const obj = {
             const processIds = checkedRows.map(item => item.id).filter(id => id !== undefined);
             const result = await dialog.confirmAsync('确定要删除' + processIds.length + '条数据吗？');
             if (!result) return;
-            const res = await api.post(apiUrl.sys.steps.unBindstepsProcess, {step_id: stepsTable.value.reportConfig.selectRow.id, processIds});
+            const res = await api.post(apiUrl.sys.steps.unBindStepsProcess, {
+              step_id: stepsTable.value.reportConfig.selectRow.id,
+              processIds
+            });
             if (res) {
               dialog.success(res);
               processTable.value.reportConfig.getData({step_id: stepsTable.value.reportConfig.selectRow.id});
@@ -217,12 +253,111 @@ const obj = {
       },
       searchConfig: false,
       tableConfig: {
-        url: apiUrl.sys.steps.processList,
+        url: apiUrl.sys.process.processList,
         autoLoad: false,
         showCheck: 'multiple',
       },
     },
   },
+  assets: {
+    tableConfig: {
+      menuConfig: {
+        defaultMenuHideList: ['search', 'update', 'submitApprove', 'resetApprove', 'approve', 'advancedExport', 'clearWhere', 'clearCache'],
+        menu: {
+          create: async () => {
+            const checkedRows = tableFn.getCheckedRecords(stepsTable.value.reportConfig);
+            if (!checkedRows?.length) return dialog.info('请勾选工序');
+
+            const assetsIds = assetsTable.value.reportConfig.options.records.filter(item => item.type === 'assets' && item.id).map(item => item.id);
+            const assetsGroupIds = assetsTable.value.reportConfig.options.records.filter(item => item.type === 'group' && item.id).map(item => item.id);
+
+            const assetsOptions = obj.steps.options.assets
+                .filter(item => item.plant_id === checkedRows[0].plant_id && !assetsIds.includes(item.id) && item.status === 1)
+                .map(item => ({
+                  ...item,
+                  value: `assets_${item.id}`,
+                  originalId: item.id,
+                  type: 'assets',
+                  label: `【资产】${item.name}`,
+                }));
+
+            const groupOptions = obj.steps.options.assetsGroup
+                .filter(item => item.plant_id === checkedRows[0].plant_id && !assetsGroupIds.includes(item.id) && item.status === 1)
+                .map(item => ({
+                  ...item,
+                  value: `group_${item.id}`,
+                  originalId: item.id,
+                  type: 'group',
+                  label: `【资产组】${item.name}`,
+                }));
+
+            const options = [...assetsOptions, ...groupOptions];
+
+            const result = await dialog.selectAsync(options, '', '请选择要关联的资产与资产组', {
+              width: '500px', height: '200px'
+            }, {
+              multiple: true,
+              placeholder: '请输入名称过滤',
+              clearable: true,
+              reserveKeyword: true,
+              minCollapsedNum: 10
+            });
+
+
+            if (result && result.length > 0) {
+
+              // 1. 定义两个容器，分别存放两类 ID
+              const assetsIds = [];
+              const assetsGroupIds = [];
+
+              // 2. 遍历结果，根据前缀分类并提取 ID
+              result.forEach(val => {
+                if (val.startsWith('assets_')) {
+                  assetsIds.push(val.substring(7));  // 截取 'assets_' 后面的部分作为 ID
+                } else if (val.startsWith('group_')) {
+                  assetsGroupIds.push(val.substring(6)); // 截取 'group_' 后面的部分作为 ID
+                }
+              });
+              const res = await api.post(apiUrl.sys.steps.bindStepsAssets, {
+                step_id: checkedRows[0].id,
+                assetsIds: assetsIds,
+                assetsGroupIds: assetsGroupIds
+              });
+
+              if (res) {
+                dialog.success(res || '绑定成功');
+                assetsTable.value.reportConfig.getData({step_id: checkedRows[0].id});
+              }
+            }
+          },
+          delete: async () => {
+            const checkedRows = tableFn.getCheckedRecords(assetsTable.value.reportConfig);
+            if (!checkedRows?.length) return dialog.info('请勾选资产');
+            const assetsIds = checkedRows.filter(item => item.type === 'assets' && item.id).map(item => item.id);
+            const assetsGroupIds = checkedRows.filter(item => item.type === 'group' && item.id).map(item => item.id);
+            const result = await dialog.confirmAsync('确定要删除' + (assetsIds.length + assetsGroupIds.length) + '条数据吗？');
+            if (!result) return;
+            const res = await api.post(apiUrl.sys.steps.unBindStepsAssets, {
+              step_id: stepsTable.value.reportConfig.selectRow.id,
+              assetsIds,
+              assetsGroupIds
+            });
+            if (res) {
+              dialog.success(res);
+              assetsTable.value.reportConfig.getData({step_id: stepsTable.value.reportConfig.selectRow.id});
+            }
+          }
+        },
+      },
+      searchConfig: false,
+      tableConfig: {
+        url: apiUrl.sys.asset.mainList,
+        autoLoad: false,
+        showCheck: 'multiple',
+      },
+    },
+  },
+
 }
 
 
@@ -235,11 +370,18 @@ onMounted(() => {
     obj.steps.options.erp_steps = res.option.erp_steps;
     obj.steps.options.process = res.option.process;
     obj.steps.options.workshop = res.option.workshop;
+    obj.steps.options.assets = res.option.assets;
+    obj.steps.options.assetsGroup = res.option.assetsGroup;
   });
-  api.get(apiUrl.sys.steps.processConfig).then(res => {
+  api.get(apiUrl.sys.process.processConfig).then(res => {
     obj.process.tableConfig.tableConfig = {...obj.process.tableConfig.tableConfig, ...res.table};
     obj.process.tableConfig.tableConfig.columns = tableFn.createColumns(res.columns);
     refObj.process.tableShow = true;
+  });
+  api.get(apiUrl.sys.asset.assetsConfig).then(res => {
+    obj.assets.tableConfig.tableConfig = {...obj.assets.tableConfig.tableConfig, ...res.table};
+    obj.assets.tableConfig.tableConfig.columns = tableFn.createColumns(res.columns);
+    refObj.assets.tableShow = true;
   });
 });
 </script>
@@ -251,7 +393,7 @@ onMounted(() => {
   padding: 3px;
 
   > .stepsTable {
-    height: 40%;
+    height: 60%;
     flex-shrink: 0;
   }
 

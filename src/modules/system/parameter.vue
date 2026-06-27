@@ -25,35 +25,39 @@
                       :options="[{label:'无',value:''},...vData.selectOptions.plugin_name]"
             />
           </t-form-item>
-          <t-form-item label="物料分类" name="plugin_params.category_ids"  v-if="dialogConfig.data.plugin_name===dData.plugin_name.material_code">
-            <t-select v-model="dialogConfig.data.plugin_params.category_ids" filterable clearable multiple reserve-keyword
-                      :options="vData.selectOptions.erp_category_ids"
-                      @change="(value,context)=>dialogConfig.change('plugin_params.category_ids',value,context)" />
-          </t-form-item>
 
-          <t-form-item label="物料名称" name="plugin_params.material_name"  v-if="dialogConfig.data.plugin_name===dData.plugin_name.material_code">
-            <t-input v-model="dialogConfig.data.plugin_params.material_name" placeholder="物料关键词（名称或编码,多个用空格隔开），选填" />
-          </t-form-item>
+          <div class="plugin_params" v-if="dialogConfig.data.plugin_name">
+              <div  v-if="dialogConfig.data.plugin_name===dData.plugin_name.material_code">
+                  <t-form-item label="物料分类" name="plugin_params.category_ids"   >
+                    <t-select v-model="dialogConfig.data.plugin_params.category_ids" filterable clearable multiple reserve-keyword
+                              :options="vData.selectOptions.erp_category_ids"
+                              @change="(value,context)=>dialogConfig.change('plugin_params.category_ids',value,context)" />
+                  </t-form-item>
+                  <t-form-item label="物料名称" name="plugin_params.material_name"   >
+                    <t-input v-model="dialogConfig.data.plugin_params.material_name" placeholder="物料关键词（名称或编码,多个用空格隔开），选填" />
+                  </t-form-item>
+                  <t-form-item label="数量参数" name="plugin_params.parameter_num"   >
+                    <t-input v-model="dialogConfig.data.plugin_params.parameter_num" placeholder="关联的数量字段code"  />
+                  </t-form-item>
+                  <t-form-item label="物料最大数量" name="plugin_params.material_max"   >
+                    <t-input-number v-model="dialogConfig.data.plugin_params.material_max" :min="1" :step="1" style="width: 100%;" :decimal-places="0" placeholder="物料最大数量" />
+                  </t-form-item>
+              </div>
 
-          <t-form-item label="数量参数" name="plugin_params.parameter_num"  v-if="dialogConfig.data.plugin_name===dData.plugin_name.material_code">
-            <t-input v-model="dialogConfig.data.plugin_params.parameter_num" placeholder="关联的数量字段code" />
-          </t-form-item>
+              <t-form-item label="物料成本项" name="plugin_params.cost_items"
+                           v-if="[dData.plugin_name.material_code,dData.plugin_name.material_num].includes(dialogConfig.data.plugin_name)">
+                <t-select v-model="dialogConfig.data.plugin_params.cost_items" filterable clearable multiple reserve-keyword
+                          :options="vData.selectOptions.cost_item"
+                          @change="(value,context)=>dialogConfig.change('plugin_params.cost_items',value,context)" />
+              </t-form-item>
 
-          <t-form-item label="物料最大数量" name="plugin_params.material_max"  v-if="dialogConfig.data.plugin_name===dData.plugin_name.material_code">
-            <t-input-number v-model="dialogConfig.data.plugin_params.material_max" :min="1" :step="1" :decimal-places="0" placeholder="物料最大数量" />
-          </t-form-item>
+              <t-form-item label="成本项类型" name="plugin_params.cost_item_type"    v-else>
+                <t-select v-model="dialogConfig.data.plugin_params.cost_item_type" filterable clearable reserve-keyword
+                          :options="vData.selectOptions.cost_item_type"
+                          @change="(value,context)=>dialogConfig.change('plugin_params.cost_item_type',value,context)" />
+              </t-form-item>
 
-          <t-form-item label="物料成本项" name="plugin_params.cost_items"  v-if="[dData.plugin_name.material_code,dData.plugin_name.material_num].includes(dialogConfig.data.plugin_name)">
-            <t-select v-model="dialogConfig.data.plugin_params.cost_items" filterable clearable multiple reserve-keyword
-                      :options="vData.selectOptions.cost_item"
-                      @change="(value,context)=>dialogConfig.change('plugin_params.cost_items',value,context)" />
-          </t-form-item>
-
-          <t-form-item label="成本项类型" name="plugin_params.cost_item_type"  v-else>
-            <t-select v-model="dialogConfig.data.plugin_params.cost_item_type" filterable clearable reserve-keyword
-                      :options="vData.selectOptions.cost_item_type"
-                      @change="(value,context)=>dialogConfig.change('plugin_params.cost_item_type',value,context)" />
-          </t-form-item>
+          </div>
 
           <t-form-item label="组件备注" name="plugin_remark"  v-if="dialogConfig.data.plugin_name">
             <t-input v-model="dialogConfig.data.plugin_remark" />
@@ -490,6 +494,14 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   flex-wrap: nowrap;
+  .plugin_params{
+    .t-form__item{
+      margin-bottom: 20px;
+    }
+    :deep(.t-form__label label){
+      color: var(--main-theme-active-color);;
+    }
+  }
 }
 </style>
 

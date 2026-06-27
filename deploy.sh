@@ -33,22 +33,36 @@ PROJECT_NAME="$(basename "$PROJECT_DIR")"
 # =========================
 
 # 后端项目配置
-BACKEND_SSH_USER="ltadmin"
-BACKEND_SSH_HOST="10.10.100.50"
-BACKEND_SSH_PORT="52013"
-BACKEND_REMOTE_CMD="sudo /bin/sh /data/www/siyi_backend/pull.sh"
+BACKEND_SSH_HOST="10.10.100.48"
+BACKEND_SSH_CONN="ssh -p 52013 ltadmin@${BACKEND_SSH_HOST}"
+BACKEND_SSH_CMD="sudo /bin/bash /data/www/siyi_backend/pull.sh"
+
+# 后端项目配置2
+BACKEND2_SSH_HOST="10.10.100.50"
+BACKEND2_SSH_CONN="ssh -p 52013 ltadmin@${BACKEND2_SSH_HOST}"
+BACKEND2_SSH_CMD="sudo /bin/bash /data/www/siyi_backend/pull.sh"
 
 # 前端项目配置
-FRONTEND_SSH_USER="ltadmin"
-FRONTEND_SSH_HOST="10.10.100.100"
-FRONTEND_SSH_PORT="52013"
-FRONTEND_REMOTE_CMD="sudo /bin/sh /data/www/website/backend/pull.sh"
+FRONTEND_SSH_HOST="10.10.100.48"
+FRONTEND_SSH_CONN="ssh -p 52013 ltadmin@${FRONTEND_SSH_HOST}"
+FRONTEND_SSH_CMD="sudo /bin/bash /data/www/siyi_frontend/git/pull.sh"
+
+# 前端项目配置
+FRONTEND2_SSH_HOST="10.10.100.100"
+FRONTEND2_SSH_CONN="ssh -p 52013 ltadmin@${FRONTEND2_SSH_HOST}"
+FRONTEND2_SSH_CMD="sudo /bin/bash /data/www/website/frontend-git/pull.sh"
 
 # 当前项目实际使用的部署配置
-SSH_USER=""
-SSH_HOST=""
-SSH_PORT=""
-REMOTE_CMD=""
+SSH_CONN=""
+SSH_CMD=""
+
+
+# 解析命令行参数：支持 -y 自动确认
+AUTO_CONFIRM=false
+if [ $# -gt 0 ] && [ "$1" = "-y" ]; then
+    AUTO_CONFIRM=true
+fi
+
 
 # =========================
 # 日志 / 错误
@@ -77,23 +91,6 @@ git rev-parse -q --verify REBASE_HEAD >/dev/null 2>&1 && fail "检测到正在 r
 [ -d ".git/rebase-apply" ] && fail "检测到正在 rebase，请先处理完成"
 
 # =========================
-# 根据项目名加载部署配置
-# =========================
-if [ "$PROJECT_NAME" = "$BACKEND_PROJECT_NAME" ]; then
-  SSH_USER="$BACKEND_SSH_USER"
-  SSH_HOST="$BACKEND_SSH_HOST"
-  SSH_PORT="$BACKEND_SSH_PORT"
-  REMOTE_CMD="$BACKEND_REMOTE_CMD"
-elif [ "$PROJECT_NAME" = "$FRONTEND_PROJECT_NAME" ]; then
-  SSH_USER="$FRONTEND_SSH_USER"
-  SSH_HOST="$FRONTEND_SSH_HOST"
-  SSH_PORT="$FRONTEND_SSH_PORT"
-  REMOTE_CMD="$FRONTEND_REMOTE_CMD"
-else
-  fail "未配置当前项目 [$PROJECT_NAME] 的部署信息"
-fi
-
-# =========================
 # 当前分支判断
 # =========================
 USER_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
@@ -109,7 +106,7 @@ fi
 log "当前项目: $PROJECT_NAME"
 log "当前分支: $USER_BRANCH"
 log "分支类型: $BRANCH_TYPE"
-log "部署目标: $SSH_USER@$SSH_HOST:$SSH_PORT"
+log "部署目标: $SSH_CONN"
 
 USER_STASH_MSG=""
 DEV_STASH_MSG=""
@@ -167,7 +164,7 @@ restore_stash_by_message() {
 }
 
 is_frontend_project() {
-  [ "$PROJECT_NAME" = "$FRONTEND_PROJECT_NAME" ]
+    [[ "$PROJECT_NAME" == *"$FRONTEND_PROJECT_NAME"* ]]
 }
 
 has_npm_build_script() {
@@ -227,8 +224,13 @@ if [ "$BRANCH_TYPE" = "feature" ]; then
     USER_STASH_MSG="$(create_stash "user-before-release-$USER_BRANCH")"
   fi
 
-  read -r -p "是否先将当前分支 [$USER_BRANCH] 已推送到远程的内容合并到 $DEV_BRANCH？(y/n): " confirm
-  confirm=${confirm:-y}
+  if [ "$AUTO_CONFIRM" = true ]; then
+    log "自动模式，合并分支 [$USER_BRANCH] 到 $DEV_BRANCH"
+    confirm='y'
+  else
+    read -r -p "是否先将当前分支 [$USER_BRANCH] 已推送到远程的内容合并到 $DEV_BRANCH？(y/n): " confirm
+    confirm=${confirm:-y}
+  fi
   if [[ "$confirm" =~ ^[yY]$ ]]; then
     log "开始合并 $USER_BRANCH 到 $DEV_BRANCH"
     ensure_remote_branch "$USER_BRANCH"
@@ -317,7 +319,7 @@ if is_frontend_project && has_npm_build_script; then
   log "当前项目 [$PROJECT_NAME] 为前端项目，自动执行 npm run build"
   npm run build
 else
-  log "当前项目 [$PROJECT_NAME] 是前端项目，但未检测到 build 脚本，跳过打包"
+  log "当前项目 [$PROJECT_NAME] 是后端项目，跳过打包"
 fi
 
 # =========================
@@ -341,11 +343,79 @@ fi
 # =========================
 # 6. 远程部署
 # =========================
-read -r -p "是否执行远程部署？(y/n): " confirm
-confirm=${confirm:-y}
+
+if [ "$AUTO_CONFIRM" = true ]; then
+  log "自动模式，自动确认"
+  confirm='y'
+else
+  read -r -p "是否执行远程部署？(y/n): " confirm
+  confirm=${confirm:-y}
+fi
 if [[ "$confirm" =~ ^[yY]$ ]]; then
+
+  # =========================
+  # 根据项目名加载部署配置
+  # =========================
+  if [ "$PROJECT_NAME" = "$BACKEND_PROJECT_NAME" ]; then
+
+    if [ "$AUTO_CONFIRM" = true ]; then
+      # 自动模式：默认选择服务器1
+      echo "自动模式：默认选择后端服务器 1: ($BACKEND_SSH_HOST)"
+      choice=1
+    else
+      echo "请选择后端服务器:"
+      echo "1) $BACKEND_SSH_HOST"
+      echo "2) $BACKEND2_SSH_HOST"
+      # 读取输入，默认为 1
+      read -r -p "请输入选项 [1-2, 默认1]: " choice
+      choice=${choice:-1}
+    fi
+
+    # 根据选择赋值变量
+    case "$choice" in
+        2)
+            SSH_CONN="$BACKEND2_SSH_CONN"
+            SSH_CMD="$BACKEND2_SSH_CMD"
+            ;;
+        *)
+            SSH_CONN="$BACKEND_SSH_CONN"
+            SSH_CMD="$BACKEND_SSH_CMD"
+            ;;
+    esac
+  elif [ "$PROJECT_NAME" = "$FRONTEND_PROJECT_NAME" ]; then
+
+    if [ "$AUTO_CONFIRM" = true ]; then
+        # 自动模式：默认选择服务器1
+        echo "自动模式：默认选择前端服务器 1: ($FRONTEND_SSH_HOST)"
+        choice=1
+      else
+        echo "请选择前端服务器:"
+        echo "1) $FRONTEND_SSH_HOST"
+        echo "2) $FRONTEND2_SSH_HOST"
+        # 读取输入，默认为 1
+        read -r -p "请输入选项 [1-2, 默认1]: " choice
+        choice=${choice:-1}
+      fi
+    # 根据选择赋值变量
+      case "$choice" in
+          2)
+              SSH_CONN="$FRONTEND2_SSH_CONN"
+              SSH_CMD="$FRONTEND2_SSH_CMD"
+              ;;
+          *)
+              SSH_CONN="$FRONTEND_SSH_CONN"
+              SSH_CMD="$FRONTEND_SSH_CMD"
+              ;;
+      esac
+  else
+      # 修复：直接输出错误并退出，避免调用未定义函数
+      echo "[错误] 未配置当前项目 [$PROJECT_NAME] 的部署信息"
+      exit 1
+  fi
+
   log "远程执行部署"
-  ssh -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" "$REMOTE_CMD"
+  # 执行远程命令
+  $SSH_CONN "$SSH_CMD"
   DEPLOYED=1
 else
   log "跳过远程部署"

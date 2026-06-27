@@ -122,6 +122,7 @@ const obj = {
       checkField: 'check',
       disablePage: true ,      
       options: {
+        editCellTrigger:'doubleclick', // 单元格双击触发编辑
         maxCharactersNumber: 10000, // 设置单元格显示的最大字符数
         enableLineBreak: true, // 自动解析换行符
         defaultRowHeight: 'auto', // 行高

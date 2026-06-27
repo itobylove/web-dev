@@ -77,7 +77,12 @@ const getBaseConfig = () => {
         content: [
           {
             key: (data) => data.country_text,
-            value: (data) => `${data.value}(${data.unit})`
+            value: (data) => {
+              if (data.value == null) {
+                return '';
+              }
+              return `${data.value}(${data.unit})`;
+            }
           }
         ]
       }
@@ -85,8 +90,8 @@ const getBaseConfig = () => {
     axes: [
       {
         orient: 'left',
-        min: props.min,
-        max: props.max,
+        // min: props.min,
+        // max: props.max,
         zero: false,
         tick: { tickCount: 10 }
       }
